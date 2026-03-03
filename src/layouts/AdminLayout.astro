@@ -1,0 +1,98 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+
+interface Props {
+	title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={`${title} — Admin`} description="Admin panel" />
+		<meta name="robots" content="noindex, nofollow" />
+	</head>
+	<body>
+		<header class="admin-header">
+			<nav class="admin-nav">
+				<div class="admin-nav-left">
+					<a href="/admin" class="admin-title">Admin</a>
+					<span class="admin-badge">Dashboard</span>
+				</div>
+				<div class="admin-nav-right">
+					<a href="/" class="admin-link" target="_blank">View Site ↗</a>
+					<button id="admin-logout" class="btn btn-sm">Logout</button>
+				</div>
+			</nav>
+		</header>
+		<main class="admin-main">
+			<slot />
+		</main>
+
+		<script>
+			document.getElementById('admin-logout')?.addEventListener('click', async () => {
+				await fetch('/api/auth/logout', { method: 'POST' });
+				window.location.href = '/admin/login';
+			});
+		</script>
+	</body>
+</html>
+
+<style>
+	.admin-header {
+		border-bottom: 1px solid var(--color-border);
+		background: var(--color-bg);
+	}
+
+	.admin-nav {
+		max-width: var(--max-width);
+		margin: 0 auto;
+		padding: var(--space-3) var(--space-6);
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+	}
+
+	.admin-nav-left {
+		display: flex;
+		align-items: center;
+		gap: var(--space-3);
+	}
+
+	.admin-title {
+		font-weight: 600;
+		font-size: var(--text-base);
+		color: var(--color-text);
+		text-decoration: none;
+	}
+
+	.admin-badge {
+		font-size: var(--text-xs);
+		font-weight: 500;
+		padding: 2px var(--space-2);
+		background: var(--color-bg-secondary);
+		border: 1px solid var(--color-border);
+		border-radius: 9999px;
+		color: var(--color-text-muted);
+	}
+
+	.admin-nav-right {
+		display: flex;
+		align-items: center;
+		gap: var(--space-4);
+	}
+
+	.admin-link {
+		font-size: var(--text-sm);
+		color: var(--color-text-secondary);
+	}
+
+	.admin-main {
+		max-width: var(--max-width);
+		margin: 0 auto;
+		padding: var(--space-8) var(--space-6);
+		min-height: 60vh;
+	}
+</style>

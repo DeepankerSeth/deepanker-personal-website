@@ -1,0 +1,126 @@
+---
+import BaseHead from '../../components/BaseHead.astro';
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title="Login — Admin" description="Admin login" />
+		<meta name="robots" content="noindex, nofollow" />
+	</head>
+	<body>
+		<div class="login-wrapper">
+			<div class="login-card">
+				<h1>Admin</h1>
+				<p class="login-subtitle">Enter your password to continue.</p>
+
+				<form id="login-form">
+					<div class="form-group">
+						<label for="password">Password</label>
+						<input
+							type="password"
+							id="password"
+							name="password"
+							required
+							autofocus
+							autocomplete="current-password"
+							placeholder="Enter admin password"
+						/>
+					</div>
+					<div id="error-msg" class="error-msg" style="display: none;"></div>
+					<button type="submit" class="btn btn-primary login-btn">
+						Sign in
+					</button>
+				</form>
+			</div>
+		</div>
+
+		<script>
+			const form = document.getElementById('login-form') as HTMLFormElement;
+			const errorMsg = document.getElementById('error-msg')!;
+
+			form.addEventListener('submit', async (e) => {
+				e.preventDefault();
+				errorMsg.style.display = 'none';
+
+				const password = (document.getElementById('password') as HTMLInputElement).value;
+				const btn = form.querySelector('button')!;
+				btn.textContent = 'Signing in...';
+				btn.disabled = true;
+
+				try {
+					const res = await fetch('/api/auth/login', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ password }),
+					});
+
+					if (res.ok) {
+						window.location.href = '/admin';
+					} else {
+						const data = await res.json();
+						errorMsg.textContent = data.error || 'Invalid password';
+						errorMsg.style.display = 'block';
+					}
+				} catch {
+					errorMsg.textContent = 'Connection error. Try again.';
+					errorMsg.style.display = 'block';
+				}
+
+				btn.textContent = 'Sign in';
+				btn.disabled = false;
+			});
+		</script>
+	</body>
+</html>
+
+<style>
+	.login-wrapper {
+		min-height: 100vh;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: var(--space-4);
+	}
+
+	.login-card {
+		width: 100%;
+		max-width: 360px;
+	}
+
+	.login-card h1 {
+		font-size: var(--text-2xl);
+		margin-bottom: var(--space-1);
+	}
+
+	.login-subtitle {
+		color: var(--color-text-muted);
+		font-size: var(--text-sm);
+		margin-bottom: var(--space-8);
+	}
+
+	.form-group {
+		margin-bottom: var(--space-4);
+	}
+
+	.error-msg {
+		font-size: var(--text-sm);
+		color: #dc2626;
+		margin-bottom: var(--space-4);
+		padding: var(--space-2) var(--space-3);
+		background: #fef2f2;
+		border-radius: var(--radius);
+		border: 1px solid #fecaca;
+	}
+
+	:global([data-theme="dark"]) .error-msg {
+		background: #450a0a;
+		border-color: #7f1d1d;
+	}
+
+	.login-btn {
+		width: 100%;
+		justify-content: center;
+		padding: var(--space-3) var(--space-4);
+	}
+</style>

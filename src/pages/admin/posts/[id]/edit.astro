@@ -1,0 +1,308 @@
+---
+import AdminLayout from '../../../../layouts/AdminLayout.astro';
+import { getPostById, parseTags } from '../../../../lib/db';
+
+const { id } = Astro.params;
+if (!id) return Astro.redirect('/admin');
+
+const db = Astro.locals.runtime.env.DB;
+const post = await getPostById(db, id);
+
+if (!post) {
+	return new Response('Post not found', { status: 404 });
+}
+
+const tagList = parseTags(post.tags);
+---
+
+<AdminLayout title={`Edit: ${post.title}`}>
+	<div class="editor-header">
+		<h1>Edit Post</h1>
+		<div class="editor-actions">
+			<a href={`/admin/posts/${post.id}/preview`} class="btn">Preview</a>
+			{post.status === 'draft' ? (
+				<>
+					<button id="save-draft" class="btn">Save Draft</button>
+					<button id="publish" class="btn btn-primary">Publish</button>
+				</>
+			) : (
+				<>
+					<button id="unpublish" class="btn">Unpublish</button>
+					<button id="save-published" class="btn btn-primary">Save</button>
+				</>
+			)}
+		</div>
+	</div>
+
+	<div class="editor-grid">
+		<div class="editor-main">
+			<div class="form-group">
+				<label for="title">Title</label>
+				<input type="text" id="title" value={post.title} required />
+			</div>
+
+			<div class="form-row">
+				<div class="form-group form-group-half">
+					<label for="slug">Slug</label>
+					<input type="text" id="slug" value={post.slug} />
+				</div>
+				<div class="form-group form-group-half">
+					<label for="tags">Tags</label>
+					<input type="text" id="tags" value={tagList.join(', ')} />
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="description">Description</label>
+				<input type="text" id="description" value={post.description} />
+			</div>
+
+			<div class="form-group">
+				<div class="editor-tabs">
+					<button class="tab active" data-tab="write">Write</button>
+					<button class="tab" data-tab="preview">Preview</button>
+				</div>
+				<textarea id="content" rows="24">{post.content}</textarea>
+				<div id="preview-pane" class="preview-pane prose" style="display: none;"></div>
+			</div>
+
+			<div class="form-group">
+				<label class="checkbox-label">
+					<input type="checkbox" id="featured" checked={post.featured === 1} />
+					<span>Featured post</span>
+				</label>
+			</div>
+
+			<div class="danger-zone">
+				<button id="delete-btn" class="btn btn-danger">Delete this post</button>
+			</div>
+		</div>
+	</div>
+
+	<div id="status-msg" class="status-msg" style="display: none;"></div>
+</AdminLayout>
+
+<script define:vars={{ postId: post.id, postTitle: post.title }}>
+	// Tab switching
+	const tabs = document.querySelectorAll('.tab');
+	const contentArea = document.getElementById('content');
+	const previewPane = document.getElementById('preview-pane');
+
+	tabs.forEach((tab) => {
+		tab.addEventListener('click', () => {
+			tabs.forEach((t) => t.classList.remove('active'));
+			tab.classList.add('active');
+			const mode = tab.dataset.tab;
+			if (mode === 'preview') {
+				contentArea.style.display = 'none';
+				previewPane.style.display = 'block';
+				let html = contentArea.value;
+				html = html.replace(/^### (.*$)/gm, '<h3>$1</h3>');
+				html = html.replace(/^## (.*$)/gm, '<h2>$1</h2>');
+				html = html.replace(/^# (.*$)/gm, '<h1>$1</h1>');
+				html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+				html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+				html = html.replace(/^> (.*$)/gm, '<blockquote><p>$1</p></blockquote>');
+				html = html.replace(/^- (.*$)/gm, '<li>$1</li>');
+				html = html.replace(/\n\n/g, '</p><p>');
+				html = '<p>' + html + '</p>';
+				previewPane.innerHTML = html;
+			} else {
+				contentArea.style.display = '';
+				previewPane.style.display = 'none';
+			}
+		});
+	});
+
+	// Save
+	async function savePost(status) {
+		const body = {
+			title: document.getElementById('title').value.trim(),
+			slug: document.getElementById('slug').value.trim(),
+			description: document.getElementById('description').value.trim(),
+			tags: document.getElementById('tags').value,
+			content: document.getElementById('content').value,
+			status,
+			featured: document.getElementById('featured').checked,
+		};
+
+		if (!body.title || !body.content) {
+			showStatus('Title and content are required.', 'error');
+			return;
+		}
+
+		try {
+			const res = await fetch(`/api/posts/${postId}`, {
+				method: 'PUT',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(body),
+			});
+
+			if (res.ok) {
+				showStatus('Saved successfully.', 'success');
+				setTimeout(() => window.location.reload(), 600);
+			} else {
+				const err = await res.json();
+				showStatus(err.error || 'Failed to save.', 'error');
+			}
+		} catch {
+			showStatus('Connection error.', 'error');
+		}
+	}
+
+	function showStatus(msg, type) {
+		const el = document.getElementById('status-msg');
+		el.textContent = msg;
+		el.className = `status-msg status-${type}`;
+		el.style.display = 'block';
+		setTimeout(() => { el.style.display = 'none'; }, 4000);
+	}
+
+	// Button handlers
+	document.getElementById('save-draft')?.addEventListener('click', () => savePost('draft'));
+	document.getElementById('publish')?.addEventListener('click', () => savePost('published'));
+	document.getElementById('save-published')?.addEventListener('click', () => savePost('published'));
+	document.getElementById('unpublish')?.addEventListener('click', () => savePost('draft'));
+
+	// Delete
+	document.getElementById('delete-btn').addEventListener('click', async () => {
+		if (!confirm(`Delete "${postTitle}"? This cannot be undone.`)) return;
+		const res = await fetch(`/api/posts/${postId}`, { method: 'DELETE' });
+		if (res.ok) {
+			window.location.href = '/admin';
+		} else {
+			showStatus('Failed to delete.', 'error');
+		}
+	});
+</script>
+
+<style>
+	.editor-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: var(--space-8);
+	}
+
+	.editor-header h1 {
+		font-size: var(--text-2xl);
+	}
+
+	.editor-actions {
+		display: flex;
+		gap: var(--space-2);
+	}
+
+	.editor-grid {
+		max-width: 800px;
+	}
+
+	.form-group {
+		margin-bottom: var(--space-6);
+	}
+
+	.form-row {
+		display: flex;
+		gap: var(--space-4);
+	}
+
+	.form-group-half {
+		flex: 1;
+	}
+
+	.editor-tabs {
+		display: flex;
+		gap: 0;
+		margin-bottom: -1px;
+		position: relative;
+		z-index: 1;
+	}
+
+	.tab {
+		padding: var(--space-2) var(--space-4);
+		font-family: var(--font-sans);
+		font-size: var(--text-sm);
+		font-weight: 500;
+		color: var(--color-text-muted);
+		background: none;
+		border: 1px solid transparent;
+		border-bottom: 1px solid var(--color-border);
+		cursor: pointer;
+		transition: all var(--transition);
+	}
+
+	.tab.active {
+		color: var(--color-text);
+		background: var(--color-surface);
+		border-color: var(--color-border);
+		border-bottom-color: var(--color-surface);
+		border-radius: var(--radius) var(--radius) 0 0;
+	}
+
+	#content {
+		min-height: 500px;
+	}
+
+	.preview-pane {
+		min-height: 500px;
+		padding: var(--space-6);
+		border: 1px solid var(--color-border);
+		border-radius: 0 0 var(--radius) var(--radius);
+		background: var(--color-surface);
+	}
+
+	.checkbox-label {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
+		font-size: var(--text-sm);
+		cursor: pointer;
+	}
+
+	.checkbox-label input[type="checkbox"] {
+		width: auto;
+	}
+
+	.danger-zone {
+		margin-top: var(--space-12);
+		padding-top: var(--space-6);
+		border-top: 1px solid var(--color-border);
+	}
+
+	.status-msg {
+		position: fixed;
+		bottom: var(--space-4);
+		right: var(--space-4);
+		padding: var(--space-3) var(--space-6);
+		border-radius: var(--radius);
+		font-size: var(--text-sm);
+		font-weight: 500;
+		z-index: 100;
+		animation: fadeIn 0.3s ease;
+	}
+
+	.status-success {
+		background: #dcfce7;
+		color: #15803d;
+		border: 1px solid #86efac;
+	}
+
+	.status-error {
+		background: #fef2f2;
+		color: #dc2626;
+		border: 1px solid #fecaca;
+	}
+
+	@media (max-width: 768px) {
+		.form-row {
+			flex-direction: column;
+			gap: 0;
+		}
+
+		.editor-header {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: var(--space-4);
+		}
+	}
+</style>

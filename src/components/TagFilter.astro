@@ -1,0 +1,58 @@
+---
+interface Props {
+	tags: string[];
+}
+
+const { tags } = Astro.props;
+---
+
+{tags.length > 0 && (
+	<div class="tag-filter" role="group" aria-label="Filter by tag">
+		<button class="tag tag-all" aria-pressed="true" data-tag="all">All</button>
+		{tags.map((tag) => (
+			<button class="tag" aria-pressed="false" data-tag={tag}>{tag}</button>
+		))}
+	</div>
+)}
+
+<style>
+	.tag-filter {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-2);
+	}
+</style>
+
+<script>
+	const buttons = document.querySelectorAll('.tag-filter .tag');
+
+	buttons.forEach((btn) => {
+		btn.addEventListener('click', () => {
+			const tag = (btn as HTMLElement).dataset.tag;
+
+			// Update active states
+			buttons.forEach((b) => b.setAttribute('aria-pressed', 'false'));
+			btn.setAttribute('aria-pressed', 'true');
+
+			// Filter cards
+			const cards = document.querySelectorAll('.post-card');
+			cards.forEach((card) => {
+				if (tag === 'all') {
+					(card as HTMLElement).style.display = '';
+					return;
+				}
+				const cardTags = (card as HTMLElement).dataset.tags || '[]';
+				const parsed: string[] = JSON.parse(cardTags);
+				const matches = parsed.includes(tag!);
+				(card as HTMLElement).style.display = matches ? '' : 'none';
+			});
+
+			// Update "no results" message
+			const noResults = document.getElementById('no-results');
+			if (noResults) {
+				const anyVisible = Array.from(cards).some((c) => (c as HTMLElement).style.display !== 'none');
+				noResults.style.display = anyVisible ? 'none' : 'block';
+			}
+		});
+	});
+</script>

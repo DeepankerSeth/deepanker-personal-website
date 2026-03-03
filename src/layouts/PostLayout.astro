@@ -1,0 +1,144 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+import { parseTags } from '../lib/db';
+import { estimateReadingTime } from '../lib/markdown';
+
+interface Props {
+	title: string;
+	description: string;
+	pubDate: string;
+	updatedDate?: string | null;
+	tags: string;
+	content: string;
+}
+
+const { title, description, pubDate, updatedDate, tags, content } = Astro.props;
+const tagList = parseTags(tags);
+const readingTime = estimateReadingTime(content);
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={`${title} — Deepanker Seth`} description={description} />
+	</head>
+	<body>
+		<Header />
+		<main id="main-content">
+			<article class="post-article">
+				<header class="post-header">
+					<div class="post-meta">
+						<FormattedDate date={new Date(pubDate)} />
+						<span class="separator">·</span>
+						<span>{readingTime} min read</span>
+					</div>
+					<h1>{title}</h1>
+					{description && <p class="post-subtitle">{description}</p>}
+					{tagList.length > 0 && (
+						<div class="post-tags">
+							{tagList.map((tag) => (
+								<span class="tag">{tag}</span>
+							))}
+						</div>
+					)}
+				</header>
+
+				<div class="prose">
+					<slot />
+				</div>
+
+				{updatedDate && (
+					<footer class="post-footer">
+						<p class="last-updated">
+							Last updated on <FormattedDate date={new Date(updatedDate)} />
+						</p>
+					</footer>
+				)}
+			</article>
+		</main>
+		<Footer />
+	</body>
+</html>
+
+<style>
+	main {
+		max-width: var(--max-width);
+		margin: 0 auto;
+		padding: var(--space-12) var(--space-6);
+	}
+
+	.post-article {
+		max-width: var(--content-width);
+		margin: 0 auto;
+	}
+
+	.post-header {
+		margin-bottom: var(--space-12);
+		text-align: left;
+	}
+
+	.post-header h1 {
+		font-size: var(--text-4xl);
+		line-height: 1.15;
+		letter-spacing: -0.03em;
+		margin: var(--space-4) 0;
+	}
+
+	.post-meta {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
+		font-size: var(--text-sm);
+		color: var(--color-text-muted);
+		font-family: var(--font-sans);
+	}
+
+	.separator {
+		color: var(--color-border);
+	}
+
+	.post-subtitle {
+		font-size: var(--text-xl);
+		color: var(--color-text-secondary);
+		line-height: 1.5;
+		font-family: var(--font-serif);
+		margin: 0;
+	}
+
+	.post-tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-2);
+		margin-top: var(--space-4);
+	}
+
+	.post-footer {
+		max-width: var(--content-width);
+		margin: var(--space-12) auto 0;
+		padding-top: var(--space-6);
+		border-top: 1px solid var(--color-border);
+	}
+
+	.last-updated {
+		font-size: var(--text-sm);
+		color: var(--color-text-muted);
+		font-style: italic;
+	}
+
+	@media (max-width: 768px) {
+		main {
+			padding: var(--space-8) var(--space-4);
+		}
+
+		.post-header h1 {
+			font-size: var(--text-3xl);
+		}
+
+		.post-header {
+			margin-bottom: var(--space-8);
+		}
+	}
+</style>

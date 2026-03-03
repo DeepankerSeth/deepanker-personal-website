@@ -1,0 +1,25 @@
+---
+import PostLayout from '../../layouts/PostLayout.astro';
+import { getPostBySlug } from '../../lib/db';
+
+const { slug } = Astro.params;
+if (!slug) return Astro.redirect('/writing');
+
+const db = Astro.locals.runtime.env.DB;
+const post = await getPostBySlug(db, slug);
+
+if (!post) {
+	return new Response('Not Found', { status: 404 });
+}
+---
+
+<PostLayout
+	title={post.title}
+	description={post.description}
+	pubDate={post.published_at || post.created_at}
+	updatedDate={post.updated_at !== post.created_at ? post.updated_at : null}
+	tags={post.tags}
+	content={post.content}
+>
+	<Fragment set:html={post.rendered_html} />
+</PostLayout>

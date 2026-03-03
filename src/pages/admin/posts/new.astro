@@ -1,0 +1,295 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+---
+
+<AdminLayout title="New Post">
+	<div class="editor-header">
+		<h1>New Post</h1>
+		<div class="editor-actions">
+			<button id="save-draft" class="btn">Save as Draft</button>
+			<button id="publish" class="btn btn-primary">Publish</button>
+		</div>
+	</div>
+
+	<div class="editor-grid">
+		<div class="editor-main">
+			<div class="form-group">
+				<label for="title">Title</label>
+				<input type="text" id="title" placeholder="Post title" required />
+			</div>
+
+			<div class="form-row">
+				<div class="form-group form-group-half">
+					<label for="slug">Slug</label>
+					<input type="text" id="slug" placeholder="auto-generated-from-title" />
+				</div>
+				<div class="form-group form-group-half">
+					<label for="tags">Tags</label>
+					<input type="text" id="tags" placeholder="comma, separated, tags" />
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="description">Description</label>
+				<input type="text" id="description" placeholder="Brief description for previews and SEO" />
+			</div>
+
+			<div class="form-group">
+				<div class="editor-tabs">
+					<button class="tab active" data-tab="write">Write</button>
+					<button class="tab" data-tab="preview">Preview</button>
+				</div>
+				<textarea id="content" placeholder="Write your essay in Markdown..." rows="24"></textarea>
+				<div id="preview-pane" class="preview-pane prose" style="display: none;"></div>
+			</div>
+
+			<div class="form-group">
+				<label class="checkbox-label">
+					<input type="checkbox" id="featured" />
+					<span>Featured post</span>
+				</label>
+			</div>
+		</div>
+	</div>
+
+	<div id="status-msg" class="status-msg" style="display: none;"></div>
+</AdminLayout>
+
+<script>
+	// Auto-generate slug from title
+	const titleInput = document.getElementById('title') as HTMLInputElement;
+	const slugInput = document.getElementById('slug') as HTMLInputElement;
+	let slugManuallyEdited = false;
+
+	slugInput.addEventListener('input', () => { slugManuallyEdited = true; });
+	titleInput.addEventListener('input', () => {
+		if (!slugManuallyEdited) {
+			slugInput.value = titleInput.value
+				.toLowerCase()
+				.replace(/[^a-z0-9\s-]/g, '')
+				.replace(/\s+/g, '-')
+				.replace(/-+/g, '-')
+				.replace(/^-|-$/g, '')
+				.substring(0, 80);
+		}
+	});
+
+	// Tab switching (write/preview)
+	const tabs = document.querySelectorAll('.tab');
+	const contentArea = document.getElementById('content') as HTMLTextAreaElement;
+	const previewPane = document.getElementById('preview-pane')!;
+
+	tabs.forEach((tab) => {
+		tab.addEventListener('click', () => {
+			tabs.forEach((t) => t.classList.remove('active'));
+			tab.classList.add('active');
+			const mode = (tab as HTMLElement).dataset.tab;
+			if (mode === 'preview') {
+				contentArea.style.display = 'none';
+				previewPane.style.display = 'block';
+				// Simple client-side markdown preview using the API
+				previewPane.innerHTML = '<p style="color: var(--color-text-muted);">Loading preview...</p>';
+				fetch('/api/posts', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({
+						title: 'preview',
+						content: contentArea.value,
+						status: 'draft',
+					}),
+				}).then(() => {
+					// Simple fallback: render basic markdown patterns
+					let html = contentArea.value;
+					html = html.replace(/^### (.*$)/gm, '<h3>$1</h3>');
+					html = html.replace(/^## (.*$)/gm, '<h2>$1</h2>');
+					html = html.replace(/^# (.*$)/gm, '<h1>$1</h1>');
+					html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+					html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+					html = html.replace(/^> (.*$)/gm, '<blockquote><p>$1</p></blockquote>');
+					html = html.replace(/^- (.*$)/gm, '<li>$1</li>');
+					html = html.replace(/\n\n/g, '</p><p>');
+					html = '<p>' + html + '</p>';
+					previewPane.innerHTML = html;
+				});
+			} else {
+				contentArea.style.display = '';
+				previewPane.style.display = 'none';
+			}
+		});
+	});
+
+	// Save post
+	async function savePost(status: string) {
+		const title = titleInput.value.trim();
+		const content = contentArea.value.trim();
+
+		if (!title || !content) {
+			showStatus('Title and content are required.', 'error');
+			return;
+		}
+
+		const body = {
+			title,
+			slug: slugInput.value.trim() || undefined,
+			description: (document.getElementById('description') as HTMLInputElement).value.trim(),
+			tags: (document.getElementById('tags') as HTMLInputElement).value,
+			content,
+			status,
+			featured: (document.getElementById('featured') as HTMLInputElement).checked,
+		};
+
+		try {
+			const res = await fetch('/api/posts', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(body),
+			});
+
+			if (res.ok) {
+				const post = await res.json();
+				window.location.href = `/admin/posts/${post.id}/edit`;
+			} else {
+				const err = await res.json();
+				showStatus(err.error || 'Failed to save.', 'error');
+			}
+		} catch {
+			showStatus('Connection error.', 'error');
+		}
+	}
+
+	function showStatus(msg: string, type: 'success' | 'error') {
+		const el = document.getElementById('status-msg')!;
+		el.textContent = msg;
+		el.className = `status-msg status-${type}`;
+		el.style.display = 'block';
+		setTimeout(() => { el.style.display = 'none'; }, 4000);
+	}
+
+	document.getElementById('save-draft')!.addEventListener('click', () => savePost('draft'));
+	document.getElementById('publish')!.addEventListener('click', () => savePost('published'));
+</script>
+
+<style>
+	.editor-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: var(--space-8);
+	}
+
+	.editor-header h1 {
+		font-size: var(--text-2xl);
+	}
+
+	.editor-actions {
+		display: flex;
+		gap: var(--space-2);
+	}
+
+	.editor-grid {
+		max-width: 800px;
+	}
+
+	.form-group {
+		margin-bottom: var(--space-6);
+	}
+
+	.form-row {
+		display: flex;
+		gap: var(--space-4);
+	}
+
+	.form-group-half {
+		flex: 1;
+	}
+
+	.editor-tabs {
+		display: flex;
+		gap: 0;
+		margin-bottom: -1px;
+		position: relative;
+		z-index: 1;
+	}
+
+	.tab {
+		padding: var(--space-2) var(--space-4);
+		font-family: var(--font-sans);
+		font-size: var(--text-sm);
+		font-weight: 500;
+		color: var(--color-text-muted);
+		background: none;
+		border: 1px solid transparent;
+		border-bottom: 1px solid var(--color-border);
+		cursor: pointer;
+		transition: all var(--transition);
+	}
+
+	.tab.active {
+		color: var(--color-text);
+		background: var(--color-surface);
+		border-color: var(--color-border);
+		border-bottom-color: var(--color-surface);
+		border-radius: var(--radius) var(--radius) 0 0;
+	}
+
+	#content {
+		min-height: 500px;
+	}
+
+	.preview-pane {
+		min-height: 500px;
+		padding: var(--space-6);
+		border: 1px solid var(--color-border);
+		border-radius: 0 0 var(--radius) var(--radius);
+		background: var(--color-surface);
+	}
+
+	.checkbox-label {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
+		font-size: var(--text-sm);
+		cursor: pointer;
+	}
+
+	.checkbox-label input[type="checkbox"] {
+		width: auto;
+	}
+
+	.status-msg {
+		position: fixed;
+		bottom: var(--space-4);
+		right: var(--space-4);
+		padding: var(--space-3) var(--space-6);
+		border-radius: var(--radius);
+		font-size: var(--text-sm);
+		font-weight: 500;
+		z-index: 100;
+		animation: fadeIn 0.3s ease;
+	}
+
+	.status-success {
+		background: #dcfce7;
+		color: #15803d;
+		border: 1px solid #86efac;
+	}
+
+	.status-error {
+		background: #fef2f2;
+		color: #dc2626;
+		border: 1px solid #fecaca;
+	}
+
+	@media (max-width: 768px) {
+		.form-row {
+			flex-direction: column;
+			gap: 0;
+		}
+
+		.editor-header {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: var(--space-4);
+		}
+	}
+</style>
