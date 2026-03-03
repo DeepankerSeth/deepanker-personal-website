@@ -1,24 +1,23 @@
 {
-  "name": "deepanker-personal-website",
-  "compatibility_date": "2025-10-08",
-  "compatibility_flags": [
-    "nodejs_compat"
-  ],
-  "main": "./dist/_worker.js/index.js",
-  "assets": {
-    "directory": "./dist",
-    "binding": "ASSETS"
-  },
-  "d1_databases": [
-    {
-      "binding": "personal_site_db",
-      "database_name": "personal-site-db",
-      "database_id": "c3e46cae-f0b8-45f6-9c45-6a1db9861144",
-      "remote": true
-    }
-  ],
-  "observability": {
-    "enabled": true
-  },
-  "upload_source_maps": true
+	"name": "deepanker-personal-website",
+	"compatibility_date": "2025-10-08",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"main": "./dist/_worker.js/index.js",
+	"assets": {
+		"directory": "./dist",
+		"binding": "ASSETS"
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "personal-site-db",
+			"database_id": "c3e46cae-f0b8-45f6-9c45-6a1db9861144"
+		}
+	],
+	"observability": {
+		"enabled": true
+	},
+	"upload_source_maps": true
 }
