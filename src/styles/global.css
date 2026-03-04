@@ -114,7 +114,12 @@ a:hover {
 }
 
 /* ── Headings ────────────────────────────────────────────────── */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
 	font-family: var(--font-sans);
 	font-weight: 700;
 	line-height: 1.25;
@@ -122,10 +127,21 @@ h1, h2, h3, h4, h5, h6 {
 	letter-spacing: -0.02em;
 }
 
-h1 { font-size: var(--text-4xl); }
-h2 { font-size: var(--text-3xl); }
-h3 { font-size: var(--text-2xl); }
-h4 { font-size: var(--text-xl); }
+h1 {
+	font-size: var(--text-4xl);
+}
+
+h2 {
+	font-size: var(--text-3xl);
+}
+
+h3 {
+	font-size: var(--text-2xl);
+}
+
+h4 {
+	font-size: var(--text-xl);
+}
 
 /* ── Images ──────────────────────────────────────────────────── */
 img {
@@ -175,19 +191,30 @@ img {
 	margin: 0 auto;
 }
 
-.prose > * + * {
+.prose>*+* {
 	margin-top: 1.5em;
 }
 
-.prose h1, .prose h2, .prose h3, .prose h4 {
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4 {
 	font-family: var(--font-sans);
 	margin-top: 2.5em;
 	margin-bottom: 0.5em;
 }
 
-.prose h1 { font-size: var(--text-3xl); }
-.prose h2 { font-size: var(--text-2xl); }
-.prose h3 { font-size: var(--text-xl); }
+.prose h1 {
+	font-size: var(--text-3xl);
+}
+
+.prose h2 {
+	font-size: var(--text-2xl);
+}
+
+.prose h3 {
+	font-size: var(--text-xl);
+}
 
 .prose p {
 	margin-bottom: 1.5em;
@@ -225,7 +252,8 @@ img {
 	margin-bottom: 0;
 }
 
-.prose ul, .prose ol {
+.prose ul,
+.prose ol {
 	padding-left: 1.5em;
 	margin: 1.5em 0;
 }
@@ -284,7 +312,8 @@ img {
 	font-size: var(--text-sm);
 }
 
-.prose th, .prose td {
+.prose th,
+.prose td {
 	text-align: left;
 	padding: var(--space-3) var(--space-4);
 	border-bottom: 1px solid var(--color-border);
@@ -311,7 +340,8 @@ img {
 	letter-spacing: 0.02em;
 }
 
-.tag:hover, .tag[aria-pressed="true"] {
+.tag:hover,
+.tag[aria-pressed="true"] {
 	background: var(--color-accent-subtle);
 	color: var(--color-accent);
 	border-color: var(--color-accent);
@@ -391,7 +421,9 @@ select {
 	outline: none;
 }
 
-input:focus, textarea:focus, select:focus {
+input:focus,
+textarea:focus,
+select:focus {
 	border-color: var(--color-accent);
 	box-shadow: 0 0 0 3px var(--color-accent-subtle);
 }
@@ -459,13 +491,48 @@ label {
 
 	.prose {
 		font-size: var(--text-base);
+		line-height: 1.8;
+	}
+
+	.prose p {
+		margin-bottom: 1.75rem;
+	}
+
+	.prose>*+* {
+		margin-top: 1.75rem;
+	}
+
+	.prose h1,
+	.prose h2,
+	.prose h3,
+	.prose h4 {
+		margin-top: 2.5rem;
+		margin-bottom: 1rem;
+	}
+
+	.prose ul,
+	.prose ol {
+		padding-left: 1.75rem;
+		margin: 1.75rem 0;
+	}
+
+	.prose blockquote {
+		padding-left: var(--space-4);
+		margin: 1.75rem 0;
 	}
 }
 
 /* ── Animations ──────────────────────────────────────────────── */
 @keyframes fadeIn {
-	from { opacity: 0; transform: translateY(8px); }
-	to { opacity: 1; transform: translateY(0); }
+	from {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }
 
 .fade-in {

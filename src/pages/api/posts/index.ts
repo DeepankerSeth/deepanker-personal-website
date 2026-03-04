@@ -14,7 +14,7 @@ export const GET: APIRoute = async ({ locals }) => {
 export const POST: APIRoute = async ({ request, locals }) => {
 	try {
 		const db = locals.runtime.env.DB;
-		const body = await request.json();
+		const body = await request.json() as any;
 
 		const { title, description, content, tags, status, featured } = body;
 

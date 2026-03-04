@@ -22,7 +22,7 @@ export const GET: APIRoute = async ({ params, locals }) => {
 export const PUT: APIRoute = async ({ params, request, locals }) => {
 	try {
 		const db = locals.runtime.env.DB;
-		const body = await request.json();
+		const body = await request.json() as any;
 
 		const updateData: any = {};
 		if (body.title !== undefined) updateData.title = body.title;

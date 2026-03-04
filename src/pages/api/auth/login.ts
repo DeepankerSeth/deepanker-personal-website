@@ -3,7 +3,7 @@ import { verifyPassword, createToken, createAuthCookie } from "../../../lib/auth
 
 export const POST: APIRoute = async ({ request, locals }) => {
 	try {
-		const body = await request.json();
+		const body = await request.json() as any;
 		const { password } = body;
 
 		if (!password) {
