@@ -1,6 +1,10 @@
 import type { APIRoute } from "astro";
 import { getAllPosts, createPost } from "../../../lib/db";
 import { renderMarkdown, generateSlug } from "../../../lib/markdown";
+import {
+	normalizeCoverAccent,
+	normalizeCoverVariant,
+} from "../../../shared/public/covers";
 
 export const GET: APIRoute = async ({ locals }) => {
 	const db = locals.runtime.env.DB;
@@ -16,7 +20,16 @@ export const POST: APIRoute = async ({ request, locals }) => {
 		const db = locals.runtime.env.DB;
 		const body = await request.json() as any;
 
-		const { title, description, content, tags, status, featured } = body;
+		const {
+			title,
+			description,
+			content,
+			tags,
+			status,
+			featured,
+			cover_variant,
+			cover_accent,
+		} = body;
 
 		if (!title || !content) {
 			return new Response(
@@ -42,6 +55,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
 			tags: tagList,
 			status: status || "draft",
 			featured: featured || false,
+			cover_variant: normalizeCoverVariant(cover_variant),
+			cover_accent: normalizeCoverAccent(cover_accent),
 		});
 
 		return new Response(JSON.stringify(post), {

@@ -1,0 +1,61 @@
+---
+// SearchBar — client-side search input that filters .post-card elements
+---
+
+<div class="search-wrapper">
+	<svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+		<circle cx="11" cy="11" r="8"></circle>
+		<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+	</svg>
+	<input
+		type="search"
+		id="search-input"
+		class="search-input"
+		placeholder="Search writings..."
+		aria-label="Search writings"
+		autocomplete="off"
+	/>
+</div>
+
+<style>
+	.search-wrapper {
+		position: relative;
+		max-width: 320px;
+	}
+
+	.search-icon {
+		position: absolute;
+		left: var(--space-3);
+		top: 50%;
+		transform: translateY(-50%);
+		color: var(--color-text-muted);
+		pointer-events: none;
+	}
+
+	.search-input {
+		padding-left: calc(var(--space-3) + 16px + var(--space-2)) !important;
+	}
+</style>
+
+<script>
+	const searchInput = document.getElementById('search-input') as HTMLInputElement;
+	searchInput?.addEventListener('input', () => {
+		const query = searchInput.value.toLowerCase().trim();
+		const cards = document.querySelectorAll('.post-card');
+
+		cards.forEach((card) => {
+			const title = card.querySelector('.post-card-title')?.textContent?.toLowerCase() || '';
+			const desc = card.querySelector('.post-card-desc')?.textContent?.toLowerCase() || '';
+			const matches = !query || title.includes(query) || desc.includes(query);
+			(card as HTMLElement).style.display = matches ? '' : 'none';
+		});
+
+		// Update "no results" message
+		const visibleCards = document.querySelectorAll('.post-card[style=""],.post-card:not([style])');
+		const noResults = document.getElementById('no-results');
+		if (noResults) {
+			const anyVisible = Array.from(cards).some((c) => (c as HTMLElement).style.display !== 'none');
+			noResults.style.display = anyVisible ? 'none' : 'block';
+		}
+	});
+</script>

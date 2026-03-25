@@ -1,4 +1,5 @@
 // Database helper functions for Cloudflare D1
+import type { CoverAccent, CoverVariant } from "../shared/public/covers";
 
 export interface Post {
 	id: string;
@@ -10,6 +11,8 @@ export interface Post {
 	tags: string; // JSON array string
 	status: "draft" | "published";
 	featured: number;
+	cover_variant: CoverVariant | null;
+	cover_accent: CoverAccent | null;
 	created_at: string;
 	updated_at: string;
 	published_at: string | null;
@@ -24,6 +27,8 @@ export interface CreatePostInput {
 	tags: string[];
 	status: "draft" | "published";
 	featured: boolean;
+	cover_variant?: CoverVariant | null;
+	cover_accent?: CoverAccent | null;
 }
 
 export interface UpdatePostInput {
@@ -35,6 +40,8 @@ export interface UpdatePostInput {
 	tags?: string[];
 	status?: "draft" | "published";
 	featured?: boolean;
+	cover_variant?: CoverVariant | null;
+	cover_accent?: CoverAccent | null;
 }
 
 function generateId(): string {
@@ -124,8 +131,8 @@ export async function createPost(
 
 	await db
 		.prepare(
-			`INSERT INTO posts (id, slug, title, description, content, rendered_html, tags, status, featured, created_at, updated_at, published_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+			`INSERT INTO posts (id, slug, title, description, content, rendered_html, tags, status, featured, cover_variant, cover_accent, created_at, updated_at, published_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 		)
 		.bind(
 			id,
@@ -137,6 +144,8 @@ export async function createPost(
 			JSON.stringify(input.tags),
 			input.status,
 			input.featured ? 1 : 0,
+			input.cover_variant ?? null,
+			input.cover_accent ?? null,
 			now,
 			now,
 			publishedAt
@@ -171,6 +180,14 @@ export async function updatePost(
 				? 1
 				: 0
 			: existing.featured;
+	const cover_variant =
+		input.cover_variant !== undefined
+			? input.cover_variant
+			: existing.cover_variant;
+	const cover_accent =
+		input.cover_accent !== undefined
+			? input.cover_accent
+			: existing.cover_accent;
 
 	// Set published_at when first published
 	let publishedAt = existing.published_at;
@@ -182,7 +199,8 @@ export async function updatePost(
 		.prepare(
 			`UPDATE posts
        SET title = ?, slug = ?, description = ?, content = ?, rendered_html = ?,
-           tags = ?, status = ?, featured = ?, updated_at = ?, published_at = ?
+           tags = ?, status = ?, featured = ?, cover_variant = ?, cover_accent = ?,
+           updated_at = ?, published_at = ?
        WHERE id = ?`
 		)
 		.bind(
@@ -194,6 +212,8 @@ export async function updatePost(
 			tags,
 			status,
 			featured,
+			cover_variant ?? null,
+			cover_accent ?? null,
 			now,
 			publishedAt,
 			id

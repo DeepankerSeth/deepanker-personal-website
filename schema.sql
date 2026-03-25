@@ -10,6 +10,8 @@ CREATE TABLE IF NOT EXISTS posts (
   tags TEXT DEFAULT '[]',
   status TEXT DEFAULT 'draft' CHECK(status IN ('draft', 'published')),
   featured INTEGER DEFAULT 0,
+  cover_variant TEXT,
+  cover_accent TEXT,
   created_at TEXT DEFAULT (datetime('now')),
   updated_at TEXT DEFAULT (datetime('now')),
   published_at TEXT

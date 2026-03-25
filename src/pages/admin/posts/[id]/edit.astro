@@ -1,6 +1,10 @@
 ---
 import AdminLayout from '../../../../layouts/AdminLayout.astro';
 import { getPostById, parseTags } from '../../../../lib/db';
+import {
+	COVER_ACCENTS,
+	COVER_VARIANTS,
+} from '../../../../shared/public/covers';
 
 const { id } = Astro.params;
 if (!id) return Astro.redirect('/admin');
@@ -55,6 +59,37 @@ const tagList = parseTags(post.tags);
 			<div class="form-group">
 				<label for="description">Description</label>
 				<input type="text" id="description" value={post.description} />
+			</div>
+
+			<div class="form-row">
+				<div class="form-group form-group-half">
+					<label for="cover-variant">Cover Variant</label>
+					<select id="cover-variant">
+						<option value="">Auto</option>
+						{COVER_VARIANTS.map((variant) => (
+							<option
+								value={variant}
+								selected={post.cover_variant === variant}
+							>
+								{variant}
+							</option>
+						))}
+					</select>
+				</div>
+				<div class="form-group form-group-half">
+					<label for="cover-accent">Cover Accent</label>
+					<select id="cover-accent">
+						<option value="">Auto</option>
+						{COVER_ACCENTS.map((accent) => (
+							<option
+								value={accent}
+								selected={post.cover_accent === accent}
+							>
+								{accent}
+							</option>
+						))}
+					</select>
+				</div>
 			</div>
 
 			<div class="form-group">
@@ -124,6 +159,8 @@ const tagList = parseTags(post.tags);
 			content: document.getElementById('content').value,
 			status,
 			featured: document.getElementById('featured').checked,
+			cover_variant: document.getElementById('cover-variant').value,
+			cover_accent: document.getElementById('cover-accent').value,
 		};
 
 		if (!body.title || !body.content) {

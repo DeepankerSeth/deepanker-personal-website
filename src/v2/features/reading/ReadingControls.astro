@@ -1,0 +1,187 @@
+---
+interface Props {
+	readingTime: number;
+	classicHref: string;
+	compact?: boolean;
+}
+
+const { readingTime, classicHref, compact = false } = Astro.props;
+---
+
+<section class:list={["reading-controls surface-panel", compact && "is-compact"]} data-reading-controls>
+	<div class="progress-shell">
+		<div
+			class="progress-track"
+			data-reading-progress-track
+			role="progressbar"
+			aria-label="Reading progress"
+			aria-valuemin="0"
+			aria-valuemax="100"
+			aria-valuenow="0"
+			aria-valuetext="0% read"
+		>
+			<span class="progress-bar" data-reading-progress-bar></span>
+		</div>
+		<div class="progress-copy">
+			<span data-reading-progress-label aria-live="polite">0% read</span>
+			<span>{readingTime} min read</span>
+		</div>
+	</div>
+
+	<fieldset class="control-group">
+		<legend>Tone</legend>
+		<div class="control-options">
+			<button type="button" class="tag-pill" data-reading-setting="tone" data-reading-value="paper">
+				Paper
+			</button>
+			<button type="button" class="tag-pill" data-reading-setting="tone" data-reading-value="dusk">
+				Dusk
+			</button>
+			<button type="button" class="tag-pill" data-reading-setting="tone" data-reading-value="night">
+				Night
+			</button>
+		</div>
+	</fieldset>
+
+	<fieldset class="control-group">
+		<legend>Measure</legend>
+		<div class="control-options">
+			<button type="button" class="tag-pill" data-reading-setting="measure" data-reading-value="standard">
+				Standard
+			</button>
+			<button type="button" class="tag-pill" data-reading-setting="measure" data-reading-value="focused">
+				Focused
+			</button>
+		</div>
+	</fieldset>
+
+	<fieldset class="control-group">
+		<legend>Type</legend>
+		<div class="control-options">
+			<button
+				type="button"
+				class="tag-pill"
+				data-reading-command="scale-down"
+				aria-label="Decrease type size"
+			>
+				A-
+			</button>
+			<button type="button" class="tag-pill" data-reading-command="scale-reset">
+				Reset
+			</button>
+			<button
+				type="button"
+				class="tag-pill"
+				data-reading-command="scale-up"
+				aria-label="Increase type size"
+			>
+				A+
+			</button>
+		</div>
+	</fieldset>
+
+	<a class="ghost-link classic-link" href={classicHref}>Read the classic version</a>
+</section>
+
+<style>
+	.reading-controls {
+		display: grid;
+		gap: 1.1rem;
+		padding: 1rem;
+		border-radius: 1.5rem;
+	}
+
+	.progress-shell {
+		display: grid;
+		gap: 0.6rem;
+	}
+
+	.progress-track {
+		position: relative;
+		width: 100%;
+		height: 0.38rem;
+		border-radius: 999px;
+		background: rgba(97, 110, 122, 0.16);
+		overflow: hidden;
+	}
+
+	.progress-bar {
+		display: block;
+		height: 100%;
+		width: 0%;
+		border-radius: inherit;
+		background: linear-gradient(90deg, var(--color-accent), var(--color-accent-soft));
+		transition: width 160ms ease;
+	}
+
+	.progress-copy {
+		display: flex;
+		justify-content: space-between;
+		gap: 0.8rem;
+		font-size: 0.84rem;
+		color: var(--color-text-muted);
+	}
+
+	.control-group {
+		display: grid;
+		gap: 0.55rem;
+		margin: 0;
+		padding: 0;
+		border: 0;
+	}
+
+	.control-group legend {
+		padding: 0;
+		margin: 0;
+		font-size: 0.72rem;
+		font-weight: 600;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+		color: var(--color-text-muted);
+	}
+
+	.control-options {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.55rem;
+	}
+
+	.classic-link {
+		font-size: 0.88rem;
+	}
+
+	.reading-controls.is-compact {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		align-items: start;
+		padding: 0.85rem 1rem;
+		border-radius: 1.4rem 1.4rem 0 0;
+	}
+
+	.reading-controls.is-compact .progress-shell {
+		grid-column: 1 / -1;
+	}
+
+	.reading-controls.is-compact .control-options {
+		gap: 0.45rem;
+	}
+
+	.reading-controls.is-compact .tag-pill {
+		padding-inline: 0.65rem;
+	}
+
+	.reading-controls.is-compact .classic-link {
+		align-self: center;
+		justify-self: end;
+		grid-column: span 1;
+	}
+
+	@media (max-width: 780px) {
+		.reading-controls.is-compact {
+			grid-template-columns: 1fr;
+		}
+
+		.reading-controls.is-compact .classic-link {
+			justify-self: start;
+		}
+	}
+</style>

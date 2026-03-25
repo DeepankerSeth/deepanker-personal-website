@@ -1,0 +1,374 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PostArtifactCard from "../components/PostArtifactCard.astro";
+import V2Cover from "../features/covers/V2Cover.astro";
+import ReadingControls from "../features/reading/ReadingControls.astro";
+import { parseTags } from "../../lib/db";
+import { estimateReadingTime } from "../../lib/markdown";
+import { publicUrl } from "../../shared/public/routes";
+import type { Post } from "../../lib/db";
+
+interface Props {
+	post: Post;
+	otherPosts: Post[];
+}
+
+const { post, otherPosts } = Astro.props;
+const tagList = parseTags(post.tags);
+const readingTime = estimateReadingTime(post.content);
+const publishedAt = post.published_at || post.created_at;
+const publishedLabel = new Intl.DateTimeFormat("en-US", {
+	month: "long",
+	day: "numeric",
+	year: "numeric",
+}).format(new Date(publishedAt));
+const updatedLabel =
+	post.updated_at !== post.created_at
+		? new Intl.DateTimeFormat("en-US", {
+				month: "long",
+				day: "numeric",
+				year: "numeric",
+			}).format(new Date(post.updated_at))
+		: null;
+const tagSet = new Set(tagList);
+const related = otherPosts
+	.map((candidate) => {
+		const candidateTags = parseTags(candidate.tags);
+		const overlap = candidateTags.filter((tag) => tagSet.has(tag)).length;
+		return {
+			post: candidate,
+			score: overlap * 10 + candidate.featured,
+		};
+	})
+	.sort((left, right) => {
+		if (right.score !== left.score) return right.score - left.score;
+		return (
+			Date.parse(right.post.published_at || right.post.created_at) -
+			Date.parse(left.post.published_at || left.post.created_at)
+		);
+	})
+	.slice(0, 3)
+	.map((entry) => entry.post);
+---
+
+<BaseLayout
+	title={`${post.title} — Deepanker Seth — Quiet Observatory`}
+	description={post.description}
+	canonical={publicUrl("v1", "post", post.slug)}
+	bodyClass="essay-page"
+>
+	<article class="essay-layout fade-rise">
+		<aside class="reading-sidebar">
+			<ReadingControls
+				readingTime={readingTime}
+				classicHref={publicUrl("v1", "post", post.slug)}
+			/>
+		</aside>
+
+		<div class="essay-column">
+			<header class="essay-masthead surface-panel">
+				<div class="masthead-cover">
+					<V2Cover post={post} mode="masthead" label="Essay Artifact" />
+				</div>
+
+				<div class="masthead-copy">
+					<p class="eyebrow">Artifact reading</p>
+					<h1>{post.title}</h1>
+					{post.description && <p class="masthead-description">{post.description}</p>}
+					<div class="meta-row">
+						<span>{publishedLabel}</span>
+						<span class="meta-separator"></span>
+						<span>{readingTime} min read</span>
+						{updatedLabel && (
+							<>
+								<span class="meta-separator"></span>
+								<span>Updated {updatedLabel}</span>
+							</>
+						)}
+					</div>
+					{tagList.length > 0 && (
+						<div class="tag-list masthead-tags">
+							{tagList.map((tag) => (
+								<span class="tag-pill">{tag}</span>
+							))}
+						</div>
+					)}
+				</div>
+			</header>
+
+			<div class="essay-surface surface-panel">
+				<div id="essay-prose" class="v2-prose">
+					<Fragment set:html={post.rendered_html} />
+				</div>
+			</div>
+
+			<section class="essay-coda surface-panel" data-reveal style="--reveal-delay: 120ms;">
+				<div class="section-heading">
+					<p class="eyebrow">Continue the thread</p>
+					<h2>Where to go next.</h2>
+					<p>
+						These pieces share some of the same gravitational pull, whether
+						through theme, cadence, or adjacent questions.
+					</p>
+				</div>
+
+				<div class="card-stack">
+					{related.map((candidate) => (
+						<PostArtifactCard post={candidate} compact={true} />
+					))}
+				</div>
+			</section>
+		</div>
+	</article>
+
+	<div class="reading-dock">
+		<ReadingControls
+			readingTime={readingTime}
+			classicHref={publicUrl("v1", "post", post.slug)}
+			compact={true}
+		/>
+	</div>
+</BaseLayout>
+
+<style>
+	.essay-layout {
+		display: grid;
+		grid-template-columns: 16rem minmax(0, 1fr);
+		gap: 1.5rem;
+		align-items: start;
+		padding-top: 2rem;
+	}
+
+	.reading-sidebar {
+		position: sticky;
+		top: 6.8rem;
+	}
+
+	.essay-column {
+		display: grid;
+		gap: 1.4rem;
+	}
+
+	.essay-masthead {
+		padding: 1rem;
+	}
+
+	.masthead-cover {
+		margin-bottom: 1.25rem;
+	}
+
+	.masthead-copy {
+		display: grid;
+		gap: 0.9rem;
+		max-width: 48rem;
+		padding: 0.2rem 0.3rem 0.4rem;
+	}
+
+	.masthead-copy h1 {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: clamp(2.9rem, 7vw, 5.2rem);
+		font-weight: 400;
+		line-height: 0.94;
+		letter-spacing: -0.05em;
+	}
+
+	.masthead-description {
+		margin: 0;
+		font-size: clamp(1.1rem, 1rem + 0.35vw, 1.32rem);
+		line-height: 1.75;
+		color: var(--color-text-secondary);
+	}
+
+	.masthead-tags {
+		margin-top: 0.2rem;
+	}
+
+	.essay-surface {
+		padding: 2rem clamp(1rem, 2.6vw, 2.6rem);
+		border-radius: 2rem;
+	}
+
+	.essay-coda {
+		padding: 1.4rem;
+	}
+
+	.card-stack {
+		display: grid;
+		gap: 1rem;
+	}
+
+	.reading-dock {
+		display: none;
+		position: fixed;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		z-index: 45;
+		padding: 0 0.9rem env(safe-area-inset-bottom, 0);
+	}
+
+	:global(body.essay-page) {
+		padding-bottom: 0;
+	}
+
+	@media (max-width: 1024px) {
+		.essay-layout {
+			grid-template-columns: 1fr;
+		}
+
+		.reading-sidebar {
+			display: none;
+		}
+
+		.reading-dock {
+			display: block;
+		}
+
+		:global(body.essay-page) {
+			padding-bottom: 16rem;
+		}
+	}
+
+	@media (max-width: 780px) {
+		.essay-layout {
+			padding-top: 1.4rem;
+		}
+
+		.essay-masthead,
+		.essay-coda {
+			padding: 1rem;
+		}
+
+		.essay-surface {
+			padding: 1.3rem 1rem;
+			border-radius: 1.5rem;
+		}
+
+		.masthead-copy h1 {
+			font-size: clamp(2.4rem, 13vw, 3.7rem);
+		}
+	}
+</style>
+
+<script>
+	const initReadingMode = () => {
+		const prose = document.getElementById("essay-prose") as HTMLDivElement | null;
+		const body = document.body;
+		if (!prose || !body || body.dataset.readingBound === "true") return;
+
+		body.dataset.readingBound = "true";
+
+		type ReadingState = {
+			tone: "paper" | "dusk" | "night";
+			measure: "standard" | "focused";
+			scale: "small" | "medium" | "large";
+		};
+
+		const defaults: ReadingState = {
+			tone: localStorage.getItem("v2-reading-tone") || "paper",
+			measure: localStorage.getItem("v2-reading-measure") || "standard",
+			scale: localStorage.getItem("v2-reading-scale") || "medium",
+		} as ReadingState;
+		const scaleOrder: ReadingState["scale"][] = ["small", "medium", "large"];
+
+		const applyState = (state: ReadingState) => {
+			body.setAttribute("data-reading-tone", state.tone);
+			body.setAttribute("data-reading-measure", state.measure);
+			body.setAttribute("data-reading-scale", state.scale);
+			localStorage.setItem("v2-reading-tone", state.tone);
+			localStorage.setItem("v2-reading-measure", state.measure);
+			localStorage.setItem("v2-reading-scale", state.scale);
+
+			document
+				.querySelectorAll<HTMLButtonElement>("[data-reading-setting]")
+				.forEach((button) => {
+				const setting = button.dataset.readingSetting;
+				const value = button.dataset.readingValue;
+				if (!setting || !value) return;
+				const active =
+					(setting === "tone" && state.tone === value) ||
+					(setting === "measure" && state.measure === value);
+				button.setAttribute("aria-pressed", active ? "true" : "false");
+			});
+		};
+
+		const state = { ...defaults };
+		const progressTracks = Array.from(
+			document.querySelectorAll<HTMLElement>("[data-reading-progress-track]")
+		);
+		const progressLabels = Array.from(
+			document.querySelectorAll<HTMLElement>("[data-reading-progress-label]")
+		);
+		const progressBars = Array.from(
+			document.querySelectorAll<HTMLElement>("[data-reading-progress-bar]")
+		);
+
+		document.querySelectorAll<HTMLElement>("[data-reading-controls]").forEach((panel) => {
+			panel.addEventListener("click", (event) => {
+				const eventTarget = event.target;
+				if (!(eventTarget instanceof Element)) return;
+				const target = eventTarget.closest("button") as HTMLButtonElement | null;
+				if (!target) return;
+
+				const setting = target.dataset.readingSetting;
+				const value = target.dataset.readingValue;
+				const command = target.dataset.readingCommand;
+
+				if (
+					(setting === "tone" || setting === "measure") &&
+					value
+				) {
+					if (setting === "tone") {
+						state.tone = value as ReadingState["tone"];
+					} else {
+						state.measure = value as ReadingState["measure"];
+					}
+					applyState(state);
+					return;
+				}
+
+				if (command) {
+					const currentIndex = scaleOrder.indexOf(state.scale);
+					if (command === "scale-up") {
+						state.scale = scaleOrder[Math.min(scaleOrder.length - 1, currentIndex + 1)];
+					} else if (command === "scale-down") {
+						state.scale = scaleOrder[Math.max(0, currentIndex - 1)];
+					} else {
+						state.scale = "medium";
+					}
+					applyState(state);
+				}
+			});
+		});
+
+		const updateProgress = () => {
+			const rect = prose.getBoundingClientRect();
+			const viewport = window.innerHeight;
+			const articleHeight = Math.max(prose.scrollHeight, rect.height);
+			const start = window.scrollY + rect.top - viewport * 0.18;
+			const end = start + articleHeight - viewport * 0.55;
+			const raw = end <= start ? 1 : (window.scrollY - start) / (end - start);
+			const progress = Math.min(1, Math.max(0, raw));
+			const percent = Math.round(progress * 100);
+			progressBars.forEach((bar) => {
+				bar.style.width = `${percent}%`;
+			});
+			progressTracks.forEach((track) => {
+				track.setAttribute("aria-valuenow", String(percent));
+				track.setAttribute("aria-valuetext", `${percent}% read`);
+			});
+			progressLabels.forEach((label) => {
+				label.textContent = `${percent}% read`;
+			});
+		};
+
+		applyState(state);
+		updateProgress();
+		window.addEventListener("scroll", updateProgress, { passive: true });
+		window.addEventListener("resize", updateProgress);
+	};
+
+	initReadingMode();
+	document.addEventListener("astro:page-load", initReadingMode);
+</script>

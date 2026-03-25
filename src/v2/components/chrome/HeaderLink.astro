@@ -1,0 +1,55 @@
+---
+interface Props {
+	href: string;
+	subtle?: boolean;
+}
+
+const { href, subtle = false } = Astro.props;
+const pathname = Astro.url.pathname;
+const active =
+	pathname === href ||
+	(href !== "/v2" && href !== "/" && pathname.startsWith(`${href}/`));
+---
+
+<a class:list={["v2-header-link", active && "is-active", subtle && "is-subtle"]} href={href}>
+	<slot />
+</a>
+
+<style>
+	.v2-header-link {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		padding: 0.5rem 0.9rem;
+		border-radius: 999px;
+		color: var(--color-text-secondary);
+		font-size: 0.9rem;
+		font-weight: 500;
+		letter-spacing: 0.01em;
+		text-decoration: none;
+		transition:
+			color 180ms ease,
+			background-color 180ms ease,
+			border-color 180ms ease,
+			transform 180ms ease;
+	}
+
+	.v2-header-link:hover {
+		color: var(--color-text);
+		background: var(--color-surface-elevated);
+	}
+
+	.v2-header-link.is-active {
+		color: var(--color-text);
+		background: var(--color-surface-elevated);
+		box-shadow: inset 0 0 0 1px var(--color-border-strong);
+	}
+
+	.v2-header-link.is-subtle {
+		color: var(--color-text-muted);
+	}
+
+	.v2-header-link.is-subtle:hover {
+		color: var(--color-text-secondary);
+	}
+</style>

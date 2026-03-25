@@ -1,0 +1,137 @@
+---
+import { SITE_TITLE } from "../../../consts";
+import { publicUrl } from "../../../shared/public/routes";
+import HeaderLink from "./HeaderLink.astro";
+import ThemeToggle from "./ThemeToggle.astro";
+---
+
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="v2-site-header">
+	<nav class="v2-site-nav" aria-label="Primary">
+		<div class="nav-brand-wrap">
+			<a href={publicUrl("v2", "home")} class="site-title">
+				<span class="site-mark" aria-hidden="true"></span>
+				<span class="site-copy">
+					<span class="site-name">{SITE_TITLE}</span>
+					<span class="site-context">Quiet Observatory Preview</span>
+				</span>
+			</a>
+		</div>
+
+		<div class="nav-links">
+			<HeaderLink href={publicUrl("v2", "home")}>Observatory</HeaderLink>
+			<HeaderLink href={publicUrl("v2", "writing")}>Library</HeaderLink>
+			<HeaderLink href={publicUrl("v1", "home")} subtle={true}>
+				Classic
+			</HeaderLink>
+			<ThemeToggle />
+		</div>
+	</nav>
+</header>
+
+<style>
+	.v2-site-header {
+		position: sticky;
+		top: 0;
+		z-index: 40;
+		padding: 1rem 1.4rem 0;
+		pointer-events: none;
+	}
+
+	.v2-site-nav {
+		pointer-events: auto;
+		max-width: var(--max-shell-width);
+		margin: 0 auto;
+		padding: 0.9rem 1.1rem;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		background:
+			linear-gradient(180deg, var(--color-surface-veil), transparent),
+			var(--color-surface-glass);
+		backdrop-filter: blur(18px);
+		border: 1px solid var(--color-border);
+		border-radius: 999px;
+		box-shadow:
+			0 1.1rem 2.3rem rgba(22, 20, 19, 0.08),
+			inset 0 1px 0 rgba(255, 255, 255, 0.32);
+	}
+
+	.site-title {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.85rem;
+		color: var(--color-text);
+		text-decoration: none;
+	}
+
+	.site-mark {
+		width: 0.8rem;
+		height: 0.8rem;
+		border-radius: 999px;
+		background: linear-gradient(135deg, var(--color-accent), var(--color-accent-soft));
+		box-shadow:
+			0 0 0 5px rgba(201, 214, 227, 0.12),
+			0 0 24px rgba(169, 133, 82, 0.18);
+	}
+
+	.site-copy {
+		display: inline-flex;
+		flex-direction: column;
+		gap: 0.1rem;
+	}
+
+	.site-name {
+		font-family: var(--font-ui);
+		font-weight: 600;
+		font-size: 0.98rem;
+		letter-spacing: -0.02em;
+	}
+
+	.site-context {
+		font-size: 0.68rem;
+		text-transform: uppercase;
+		letter-spacing: 0.12em;
+		color: var(--color-text-muted);
+	}
+
+	.nav-links {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.45rem;
+	}
+
+	@media (max-width: 920px) {
+		.v2-site-header {
+			padding: 0.9rem 0.9rem 0;
+		}
+
+		.v2-site-nav {
+			padding: 0.85rem 0.95rem;
+			border-radius: 1.6rem;
+		}
+
+		.site-context {
+			display: none;
+		}
+	}
+
+	@media (max-width: 720px) {
+		.v2-site-nav {
+			flex-wrap: wrap;
+			justify-content: center;
+		}
+
+		.nav-brand-wrap {
+			width: 100%;
+			display: flex;
+			justify-content: center;
+		}
+
+		.nav-links {
+			flex-wrap: wrap;
+			justify-content: center;
+		}
+	}
+</style>

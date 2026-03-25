@@ -1,0 +1,160 @@
+---
+interface Props {
+	tags: string[];
+}
+
+const { tags } = Astro.props;
+---
+
+<form id="library-controls" class="library-controls surface-panel" role="search">
+	<div class="search-group">
+		<label class="sr-label" for="library-search">Search writings</label>
+		<div class="search-shell">
+			<span class="search-icon" aria-hidden="true">⌕</span>
+			<input
+				id="library-search"
+				class="v2-input"
+				type="search"
+				name="q"
+				placeholder="Search by title, description, or tag"
+				aria-controls="library-list"
+				autocomplete="off"
+			/>
+		</div>
+	</div>
+
+	<div class="select-row">
+		<label class="control-label">
+			<span>Sort</span>
+			<select id="library-sort" class="v2-select" name="sort" aria-controls="library-list">
+				<option value="newest">Newest first</option>
+				<option value="oldest">Oldest first</option>
+				<option value="shortest">Shortest reads</option>
+				<option value="longest">Longest reads</option>
+			</select>
+		</label>
+
+		<label class="control-label">
+			<span>Read length</span>
+			<select id="library-length" class="v2-select" name="length" aria-controls="library-list">
+				<option value="all">All lengths</option>
+				<option value="brief">Brief reads</option>
+				<option value="essay">Essay length</option>
+				<option value="longform">Longform</option>
+			</select>
+		</label>
+	</div>
+
+	<fieldset class="tag-filter-group">
+		<legend>Filter writings by tag</legend>
+		<div class="tag-filter" role="group" aria-label="Filter writings by tag">
+			<button
+				type="button"
+				class="tag-pill"
+				data-library-tag="all"
+				aria-pressed="true"
+				aria-controls="library-list"
+			>
+				All
+			</button>
+			{tags.map((tag) => (
+				<button
+					type="button"
+					class="tag-pill"
+					data-library-tag={tag}
+					aria-pressed="false"
+					aria-controls="library-list"
+				>
+					{tag}
+				</button>
+			))}
+		</div>
+	</fieldset>
+</form>
+
+<style>
+	.library-controls {
+		display: grid;
+		gap: 1.2rem;
+		padding: 1.2rem;
+	}
+
+	.search-shell {
+		position: relative;
+	}
+
+	.search-icon {
+		position: absolute;
+		left: 1rem;
+		top: 50%;
+		transform: translateY(-50%);
+		color: var(--color-text-muted);
+		pointer-events: none;
+	}
+
+	#library-search {
+		padding-left: 2.8rem;
+	}
+
+	.select-row {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 1rem;
+	}
+
+	.control-label {
+		display: grid;
+		gap: 0.5rem;
+		font-size: 0.82rem;
+		font-weight: 600;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: var(--color-text-muted);
+	}
+
+	.tag-filter {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.65rem;
+	}
+
+	.tag-filter-group {
+		display: grid;
+		gap: 0.6rem;
+		margin: 0;
+		padding: 0;
+		border: 0;
+	}
+
+	.tag-filter-group legend {
+		padding: 0;
+		font-size: 0.82rem;
+		font-weight: 600;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: var(--color-text-muted);
+	}
+
+	.sr-label {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border: 0;
+	}
+
+	@media (max-width: 780px) {
+		.library-controls {
+			padding: 1rem;
+			border-radius: 1.4rem;
+		}
+
+		.select-row {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

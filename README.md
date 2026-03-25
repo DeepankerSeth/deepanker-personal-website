@@ -10,6 +10,7 @@ It comes with a fully baked, secure administrative CMS to write, edit, preview, 
 
 - **Blazing Fast**: Server-side rendered by Astro at the Cloudflare Edge.
 - **Minimal, Reader-Focused Design**: High-contrast typography featuring *Inter* for the UI and *Source Serif 4* for elegant long-form body text.
+- **Dual Public Presentations**: The canonical classic site and the V2 `/v2` preview share one content model while keeping separate presentation layers.
 - **Built-in Administrative CMS**: A `/admin` dashboard protected by JWT authentication to manage all writing entirely within the browser. 
 - **Markdown Editor**: Write posts in native Markdown with a live web preview pane before publishing.
 - **Drafts & Publishing**: Manage posts as published works or save them as private drafts.
@@ -69,6 +70,17 @@ npm run dev
 The site will be available at `http://localhost:4321`.
 The admin portal is available at `http://localhost:4321/admin/login`.
 
+### 5. Run Verification
+```bash
+npm run verify
+```
+
+This runs:
+
+- `npm run check` for the build, types, version-boundary guard, and Cloudflare dry-run deploy
+- `npm run smoke` for route smoke coverage across V1 and V2
+- `npm run audit` for the final V2 accessibility-structure and client-asset budget checks
+
 ---
 
 ## ☁️ Deployment (Cloudflare)
@@ -86,6 +98,8 @@ npx wrangler d1 create personal-site-db
 ```bash
 npx wrangler d1 execute personal-site-db --file=./schema.sql --remote
 ```
+
+If your deployed D1 database predates the V2 cover metadata fields, also apply [`migrations/0002_add_cover_metadata_columns.sql`](./migrations/0002_add_cover_metadata_columns.sql) before shipping the updated admin/API flow.
 
 ### 3. Add Production Secrets
 Secure your production environment by adding your password hash and JWT secret:
@@ -112,9 +126,14 @@ npx wrangler deploy
 │   ├── pages/            # Public-facing views (Home, Writing Index, individual posts)
 │   │   ├── admin/        # Admin UI (Dashboard, New Post, Edit Post, Preview)
 │   │   ├── api/          # SSR API endpoints for CRUD actions and Session Auth
+│   ├── shared/           # Shared public contracts (routes, cover metadata)
+│   ├── v1/               # Classic public presentation layer
+│   ├── v2/               # Quiet Observatory preview presentation layer
 │   ├── styles/           # Global CSS and Design System tokens
 │   ├── middleware.ts     # Route protection (JWT Validation logic for /admin and /api)
 ├── schema.sql            # SQLite database schema migration
+├── migrations/           # Additive follow-up migrations for existing D1 environments
+├── docs/v2/              # V2 extraction, contract, QA, and release artifacts
 ├── seed.sql              # Mock data for local testing
 ├── wrangler.json         # Cloudflare Workers configuration
 └── package.json

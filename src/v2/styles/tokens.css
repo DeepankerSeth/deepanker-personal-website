@@ -1,0 +1,88 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap");
+
+:root {
+	--color-bg: #f6f2ea;
+	--color-bg-alt: #efe8da;
+	--color-surface: rgba(255, 251, 245, 0.76);
+	--color-surface-soft: rgba(255, 248, 239, 0.72);
+	--color-surface-elevated: rgba(255, 251, 245, 0.92);
+	--color-surface-glass: rgba(252, 246, 237, 0.82);
+	--color-surface-veil: rgba(255, 255, 255, 0.35);
+	--color-text: #161413;
+	--color-text-secondary: #4d4a45;
+	--color-text-muted: #8d877d;
+	--color-border: rgba(113, 102, 92, 0.18);
+	--color-border-strong: rgba(94, 85, 77, 0.28);
+	--color-accent: #a98552;
+	--color-accent-soft: #60798d;
+	--color-accent-moss: #6b7a67;
+	--color-focus: rgba(169, 133, 82, 0.28);
+	--shadow-soft: 0 1.2rem 2.8rem rgba(42, 33, 25, 0.08);
+	--shadow-card: 0 1rem 2rem rgba(33, 28, 25, 0.07);
+
+	--font-display: "Instrument Serif", Georgia, serif;
+	--font-body: "Newsreader", Georgia, serif;
+	--font-ui: "Instrument Sans", "Inter", sans-serif;
+	--font-mono: "IBM Plex Mono", "SFMono-Regular", monospace;
+
+	--text-xs: 0.72rem;
+	--text-sm: 0.88rem;
+	--text-base: 1rem;
+	--text-lg: 1.1rem;
+	--text-xl: 1.28rem;
+	--text-2xl: 1.7rem;
+	--text-3xl: 2.2rem;
+	--text-4xl: 3.4rem;
+	--text-5xl: 5rem;
+
+	--space-2: 0.5rem;
+	--space-3: 0.75rem;
+	--space-4: 1rem;
+	--space-6: 1.5rem;
+	--space-8: 2rem;
+	--space-12: 3rem;
+	--space-16: 4rem;
+	--space-18: 4.5rem;
+	--space-24: 6rem;
+	--space-32: 8rem;
+
+	--radius-sm: 0.85rem;
+	--radius-md: 1.35rem;
+	--radius-lg: 1.85rem;
+	--radius-xl: 2.4rem;
+
+	--max-shell-width: 1200px;
+	--max-reading-width: 72ch;
+	--max-library-width: 1040px;
+
+	--transition-base: 180ms ease;
+	--transition-slow: 420ms ease;
+}
+
+html[data-theme="dark"] {
+	--color-bg: #111316;
+	--color-bg-alt: #171c23;
+	--color-surface: rgba(24, 28, 35, 0.76);
+	--color-surface-soft: rgba(23, 28, 35, 0.78);
+	--color-surface-elevated: rgba(27, 32, 40, 0.92);
+	--color-surface-glass: rgba(20, 24, 30, 0.84);
+	--color-surface-veil: rgba(211, 224, 237, 0.06);
+	--color-text: #f5f1ea;
+	--color-text-secondary: #cbc4b7;
+	--color-text-muted: #81796e;
+	--color-border: rgba(210, 196, 179, 0.12);
+	--color-border-strong: rgba(217, 207, 194, 0.18);
+	--color-accent: #d2b07d;
+	--color-accent-soft: #9fb4c6;
+	--color-accent-moss: #96a48b;
+	--color-focus: rgba(210, 176, 125, 0.18);
+	--shadow-soft: 0 1.5rem 3rem rgba(0, 0, 0, 0.3);
+	--shadow-card: 0 1rem 2rem rgba(0, 0, 0, 0.28);
+}
+
+@media (max-width: 780px) {
+	:root {
+		--text-4xl: 2.7rem;
+		--text-5xl: 3.7rem;
+	}
+}

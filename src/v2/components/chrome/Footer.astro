@@ -1,0 +1,89 @@
+---
+import { SITE_AUTHOR } from "../../../consts";
+import { publicUrl } from "../../../shared/public/routes";
+
+const year = new Date().getFullYear();
+---
+
+<footer class="v2-site-footer">
+	<div class="footer-inner">
+		<div class="footer-copy">
+			<p class="footer-kicker">Quiet Observatory</p>
+			<p>
+				A more immersive preview of {SITE_AUTHOR}&apos;s essays. The writing is
+				shared with the classic site. The presentation is new.
+			</p>
+		</div>
+
+		<div class="footer-links">
+			<a href={publicUrl("v1", "home")}>Back to classic</a>
+			<a href={publicUrl("v2", "writing")}>Explore the library</a>
+			<a href="/rss.xml">RSS</a>
+		</div>
+	</div>
+</footer>
+
+<style>
+	.v2-site-footer {
+		margin-top: 6rem;
+		padding: 0 1.5rem 2rem;
+	}
+
+	.footer-inner {
+		max-width: var(--max-shell-width);
+		margin: 0 auto;
+		padding: 2rem 2rem 2.4rem;
+		display: grid;
+		grid-template-columns: minmax(0, 1.4fr) minmax(14rem, 0.8fr);
+		gap: 2rem;
+		background: var(--color-surface-soft);
+		border: 1px solid var(--color-border);
+		border-radius: 2rem;
+		box-shadow:
+			0 1.4rem 3rem rgba(22, 20, 19, 0.08),
+			inset 0 1px 0 rgba(255, 255, 255, 0.38);
+	}
+
+	.footer-kicker {
+		margin-bottom: 0.7rem;
+		font-size: 0.72rem;
+		font-weight: 600;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+		color: var(--color-text-muted);
+	}
+
+	.footer-copy p:last-child {
+		max-width: 44ch;
+		color: var(--color-text-secondary);
+		line-height: 1.7;
+	}
+
+	.footer-links {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 0.9rem;
+	}
+
+	.footer-links a {
+		color: var(--color-text-secondary);
+	}
+
+	.footer-links a:hover {
+		color: var(--color-text);
+	}
+
+	@media (max-width: 780px) {
+		.v2-site-footer {
+			padding: 0 1rem 1.4rem;
+			margin-top: 4rem;
+		}
+
+		.footer-inner {
+			grid-template-columns: 1fr;
+			padding: 1.7rem 1.3rem;
+			border-radius: 1.4rem;
+		}
+	}
+</style>

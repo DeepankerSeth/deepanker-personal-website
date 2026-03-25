@@ -1,0 +1,126 @@
+<button
+	id="v2-theme-toggle"
+	class="v2-theme-toggle"
+	type="button"
+	aria-label="Toggle site theme"
+>
+	<span class="toggle-track" aria-hidden="true">
+		<span class="toggle-thumb"></span>
+	</span>
+	<span class="toggle-copy">
+		<span class="label-light">Day</span>
+		<span class="label-dark">Night</span>
+	</span>
+</button>
+
+<style>
+	.v2-theme-toggle {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.75rem;
+		padding: 0.4rem 0.55rem;
+		border: 1px solid var(--color-border);
+		border-radius: 999px;
+		background: var(--color-surface-soft);
+		color: var(--color-text-secondary);
+		cursor: pointer;
+		transition:
+			background-color 180ms ease,
+			border-color 180ms ease,
+			transform 180ms ease,
+			color 180ms ease;
+	}
+
+	.v2-theme-toggle:hover {
+		color: var(--color-text);
+		border-color: var(--color-border-strong);
+		background: var(--color-surface-elevated);
+	}
+
+	.toggle-track {
+		position: relative;
+		display: inline-flex;
+		width: 2.4rem;
+		height: 1.35rem;
+		padding: 0.15rem;
+		border-radius: 999px;
+		background: linear-gradient(
+			135deg,
+			rgba(201, 214, 227, 0.9),
+			rgba(244, 236, 219, 0.95)
+		);
+		box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45);
+	}
+
+	.toggle-thumb {
+		display: block;
+		width: 1.05rem;
+		height: 1.05rem;
+		border-radius: 50%;
+		background: rgba(255, 255, 255, 0.92);
+		box-shadow:
+			0 0 0 1px rgba(22, 20, 19, 0.08),
+			0 0.4rem 0.9rem rgba(22, 20, 19, 0.18);
+		transform: translateX(0);
+		transition: transform 180ms ease;
+	}
+
+	:global(html[data-theme="dark"]) .toggle-track {
+		background: linear-gradient(
+			135deg,
+			rgba(76, 92, 122, 0.9),
+			rgba(23, 28, 35, 0.95)
+		);
+	}
+
+	:global(html[data-theme="dark"]) .toggle-thumb {
+		transform: translateX(1.05rem);
+		background: rgba(228, 233, 240, 0.92);
+	}
+
+	.toggle-copy {
+		display: inline-flex;
+		gap: 0.25rem;
+		font-size: 0.78rem;
+		font-weight: 600;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+	}
+
+	.label-dark {
+		opacity: 0.5;
+	}
+
+	:global(html[data-theme="dark"]) .label-light {
+		opacity: 0.45;
+	}
+
+	:global(html[data-theme="dark"]) .label-dark {
+		opacity: 1;
+	}
+
+	@media (max-width: 720px) {
+		.toggle-copy {
+			display: none;
+		}
+	}
+</style>
+
+<script>
+	const initV2ThemeToggle = () => {
+		const toggle = document.getElementById("v2-theme-toggle");
+		if (!toggle || toggle.dataset.bound === "true") return;
+
+		toggle.dataset.bound = "true";
+		toggle.addEventListener("click", () => {
+			const html = document.documentElement;
+			const current = html.getAttribute("data-theme") === "dark" ? "dark" : "light";
+			const next = current === "dark" ? "light" : "dark";
+			html.setAttribute("data-theme", next);
+			localStorage.setItem("theme", next);
+		});
+	};
+
+	initV2ThemeToggle();
+	document.addEventListener("astro:page-load", initV2ThemeToggle);
+</script>

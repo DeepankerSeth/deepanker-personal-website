@@ -1,6 +1,10 @@
 import type { APIRoute } from "astro";
 import { getPostById, updatePost, deletePost } from "../../../lib/db";
 import { renderMarkdown } from "../../../lib/markdown";
+import {
+	normalizeCoverAccent,
+	normalizeCoverVariant,
+} from "../../../shared/public/covers";
 
 export const GET: APIRoute = async ({ params, locals }) => {
 	const db = locals.runtime.env.DB;
@@ -30,6 +34,12 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
 		if (body.description !== undefined) updateData.description = body.description;
 		if (body.status !== undefined) updateData.status = body.status;
 		if (body.featured !== undefined) updateData.featured = body.featured;
+		if (body.cover_variant !== undefined) {
+			updateData.cover_variant = normalizeCoverVariant(body.cover_variant);
+		}
+		if (body.cover_accent !== undefined) {
+			updateData.cover_accent = normalizeCoverAccent(body.cover_accent);
+		}
 		if (body.tags !== undefined) {
 			updateData.tags = Array.isArray(body.tags)
 				? body.tags

@@ -1,0 +1,21 @@
+---
+import PostLayout from '../layouts/PostLayout.astro';
+import type { Post } from '../../lib/db';
+
+interface Props {
+	post: Post;
+}
+
+const { post } = Astro.props;
+---
+
+<PostLayout
+	title={post.title}
+	description={post.description}
+	pubDate={post.published_at || post.created_at}
+	updatedDate={post.updated_at !== post.created_at ? post.updated_at : null}
+	tags={post.tags}
+	content={post.content}
+>
+	<Fragment set:html={post.rendered_html} />
+</PostLayout>

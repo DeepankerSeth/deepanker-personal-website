@@ -1,0 +1,167 @@
+---
+import BaseHead from "../components/chrome/BaseHead.astro";
+import Footer from "../components/chrome/Footer.astro";
+import Header from "../components/chrome/Header.astro";
+
+interface Props {
+	title: string;
+	description: string;
+	canonical?: string;
+	image?: string;
+	noindex?: boolean;
+	bodyClass?: string;
+}
+
+const {
+	title,
+	description,
+	canonical,
+	image,
+	noindex = true,
+	bodyClass = "",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead
+			title={title}
+			description={description}
+			canonical={canonical}
+			image={image}
+			noindex={noindex}
+		/>
+	</head>
+	<body class:list={["v2-body", bodyClass]}>
+		<div class="v2-background" aria-hidden="true">
+			<div class="orb orb-one ambient-drift"></div>
+			<div class="orb orb-two ambient-drift"></div>
+			<div class="grid-haze"></div>
+		</div>
+		<Header />
+		<main id="main-content" class="v2-main">
+			<slot />
+		</main>
+		<Footer />
+
+		<script is:inline>
+			const initScrollReveals = () => {
+				const nodes = Array.from(document.querySelectorAll("[data-reveal]"));
+				if (nodes.length === 0) return;
+
+				const prefersReducedMotion = window.matchMedia(
+					"(prefers-reduced-motion: reduce)"
+				).matches;
+
+				if (prefersReducedMotion || !("IntersectionObserver" in window)) {
+					nodes.forEach((node) => {
+						node.setAttribute("data-reveal-ready", "true");
+						node.setAttribute("data-revealed", "true");
+					});
+					return;
+				}
+
+				const observer = new IntersectionObserver(
+					(entries) => {
+						entries.forEach((entry) => {
+							if (!entry.isIntersecting) return;
+							entry.target.setAttribute("data-revealed", "true");
+							observer.unobserve(entry.target);
+						});
+					},
+					{
+						rootMargin: "0px 0px -12% 0px",
+						threshold: 0.12,
+					}
+				);
+
+				nodes.forEach((node) => {
+					node.setAttribute("data-reveal-ready", "true");
+					observer.observe(node);
+				});
+			};
+
+			initScrollReveals();
+
+			if (!window.__quietObservatoryRevealBound) {
+				document.addEventListener("astro:page-load", initScrollReveals);
+				window.__quietObservatoryRevealBound = true;
+			}
+		</script>
+	</body>
+</html>
+
+<style>
+	.v2-main {
+		max-width: var(--max-shell-width);
+		margin: 0 auto;
+		padding: 2.2rem 1.5rem 0;
+		position: relative;
+		z-index: 1;
+	}
+
+	.v2-background {
+		position: fixed;
+		inset: 0;
+		pointer-events: none;
+		z-index: 0;
+		overflow: hidden;
+	}
+
+	.orb {
+		position: absolute;
+		border-radius: 999px;
+		filter: blur(10px);
+		opacity: 0.55;
+	}
+
+	.orb-one {
+		top: -6rem;
+		left: -4rem;
+		width: 28rem;
+		height: 28rem;
+		background: radial-gradient(circle, rgba(200, 214, 227, 0.38), transparent 68%);
+	}
+
+	.orb-two {
+		right: -6rem;
+		bottom: 14vh;
+		width: 34rem;
+		height: 34rem;
+		background: radial-gradient(circle, rgba(169, 133, 82, 0.12), transparent 72%);
+		animation-delay: -7s;
+	}
+
+	.grid-haze {
+		position: absolute;
+		inset: 0;
+		background:
+			linear-gradient(
+				180deg,
+				rgba(255, 255, 255, 0.22),
+				rgba(255, 255, 255, 0)
+			),
+			radial-gradient(circle at top, rgba(255, 255, 255, 0.12), transparent 52%);
+		mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.9), transparent 75%);
+	}
+
+	@media (max-width: 780px) {
+		.v2-main {
+			padding: 1.6rem 1rem 0;
+		}
+
+		.orb-one {
+			width: 20rem;
+			height: 20rem;
+			left: -8rem;
+		}
+
+		.orb-two {
+			width: 22rem;
+			height: 22rem;
+			right: -8rem;
+			bottom: 10vh;
+		}
+	}
+</style>

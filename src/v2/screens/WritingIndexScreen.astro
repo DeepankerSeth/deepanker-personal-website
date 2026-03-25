@@ -1,0 +1,272 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PostArtifactCard from "../components/PostArtifactCard.astro";
+import ArchiveControls from "../features/discovery/ArchiveControls.astro";
+import { publicUrl } from "../../shared/public/routes";
+import { SITE_TITLE } from "../../consts";
+import type { Post } from "../../lib/db";
+
+interface Props {
+	posts: Post[];
+	tags: string[];
+}
+
+const { posts, tags } = Astro.props;
+---
+
+<BaseLayout
+	title={`Writing — ${SITE_TITLE} — Quiet Observatory`}
+	description="A field-guide archive of essays."
+	canonical={publicUrl("v1", "writing")}
+>
+	<section class="library-intro fade-rise">
+		<div class="section-heading">
+			<p class="eyebrow">Observatory Library</p>
+			<h1>A field guide to the writing archive.</h1>
+			<p>
+				This archive keeps the same shared source of truth as the classic site, but
+				makes it easier to browse by thread, length, and mood without losing the
+				editorial feel.
+			</p>
+		</div>
+		<ArchiveControls tags={tags} />
+	</section>
+
+	<section class="library-results" data-reveal style="--reveal-delay: 120ms;">
+		<div class="library-status">
+			<p id="library-count" aria-live="polite">Showing {posts.length} pieces</p>
+			<p>Search, tags, length, and sort all compose together here.</p>
+		</div>
+
+		<div id="library-list" class="library-list">
+			{posts.map((post) => (
+				<PostArtifactCard post={post} compact={true} />
+			))}
+		</div>
+
+		<p id="library-empty" class="library-empty" aria-live="polite" hidden>
+			No essays matched the current combination. Try widening the search or
+			resetting the filters.
+		</p>
+	</section>
+</BaseLayout>
+
+<style>
+	.library-intro {
+		display: grid;
+		gap: 1.8rem;
+		padding-top: 2.8rem;
+		max-width: var(--max-library-width);
+	}
+
+	.library-intro h1 {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: clamp(3rem, 7vw, 5rem);
+		font-weight: 400;
+		line-height: 0.96;
+		letter-spacing: -0.04em;
+	}
+
+	.library-results {
+		display: grid;
+		gap: 1.2rem;
+		margin-top: 2rem;
+		max-width: var(--max-library-width);
+	}
+
+	.library-status {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.8rem;
+	}
+
+	.library-status p {
+		margin: 0;
+		color: var(--color-text-muted);
+	}
+
+	#library-count {
+		color: var(--color-text-secondary);
+		font-weight: 600;
+	}
+
+	.library-list {
+		display: grid;
+		gap: 1rem;
+	}
+
+	.library-empty {
+		margin: 0;
+		padding: 1.1rem 1.2rem;
+		border-radius: 1.4rem;
+		background: var(--color-surface-soft);
+		border: 1px solid var(--color-border);
+		color: var(--color-text-secondary);
+	}
+</style>
+
+<script>
+	const initLibraryDiscovery = () => {
+		const controls = document.getElementById("library-controls") as HTMLFormElement | null;
+		const list = document.getElementById("library-list") as HTMLDivElement | null;
+		if (!controls || !list || controls.dataset.bound === "true") return;
+
+		controls.dataset.bound = "true";
+		const libraryWindow = window as Window & {
+			__quietObservatoryLibraryHistoryHandler?: () => void;
+		};
+
+		const searchInput = document.getElementById("library-search") as HTMLInputElement | null;
+		const sortSelect = document.getElementById("library-sort") as HTMLSelectElement | null;
+		const lengthSelect = document.getElementById("library-length") as HTMLSelectElement | null;
+		const tagButtons = Array.from(
+			document.querySelectorAll<HTMLButtonElement>("[data-library-tag]")
+		);
+		const cards = Array.from(list.querySelectorAll<HTMLElement>("[data-post-card]"));
+		const count = document.getElementById("library-count") as HTMLParagraphElement | null;
+		const empty = document.getElementById("library-empty") as HTMLParagraphElement | null;
+
+		type LibraryState = {
+			q: string;
+			tag: string;
+			sort: string;
+			length: string;
+		};
+
+		const readState = (): LibraryState => {
+			const params = new URLSearchParams(window.location.search);
+			return {
+				q: params.get("q") || "",
+				tag: params.get("tag") || "all",
+				sort: params.get("sort") || "newest",
+				length: params.get("length") || "all",
+			};
+		};
+
+		const syncControls = (state: LibraryState) => {
+			if (searchInput) searchInput.value = state.q;
+			if (sortSelect) sortSelect.value = state.sort;
+			if (lengthSelect) lengthSelect.value = state.length;
+			tagButtons.forEach((button) => {
+				button.setAttribute(
+					"aria-pressed",
+					button.dataset.libraryTag === state.tag ? "true" : "false"
+				);
+			});
+		};
+
+		const persistState = (state: LibraryState) => {
+			const params = new URLSearchParams();
+			if (state.q) params.set("q", state.q);
+			if (state.tag !== "all") params.set("tag", state.tag);
+			if (state.sort !== "newest") params.set("sort", state.sort);
+			if (state.length !== "all") params.set("length", state.length);
+			const query = params.toString();
+			const nextUrl = query ? `${window.location.pathname}?${query}` : window.location.pathname;
+			window.history.replaceState({}, "", nextUrl);
+		};
+
+		const matchesLength = (value: string, length: string) => {
+			const minutes = Number.parseInt(value, 10) || 0;
+			if (length === "brief") return minutes <= 5;
+			if (length === "essay") return minutes >= 6 && minutes <= 10;
+			if (length === "longform") return minutes >= 11;
+			return true;
+		};
+
+		const sortCards = (currentCards: HTMLElement[], sort: string) => {
+			const ranked = currentCards.slice();
+			ranked.sort((left, right) => {
+				if (sort === "shortest" || sort === "longest") {
+					const leftTime = Number.parseInt(left.dataset.readingTime || "0", 10);
+					const rightTime = Number.parseInt(right.dataset.readingTime || "0", 10);
+					return sort === "shortest" ? leftTime - rightTime : rightTime - leftTime;
+				}
+
+				const leftDate = Date.parse(left.dataset.published || "");
+				const rightDate = Date.parse(right.dataset.published || "");
+				return sort === "oldest" ? leftDate - rightDate : rightDate - leftDate;
+			});
+			return ranked;
+		};
+
+		const applyState = (state: LibraryState) => {
+			syncControls(state);
+			persistState(state);
+
+			const q = state.q.trim().toLowerCase();
+			const sorted = sortCards(cards, state.sort);
+
+			sorted.forEach((card) => list.appendChild(card));
+
+			let visibleCount = 0;
+			sorted.forEach((card) => {
+				const title = card.dataset.title || "";
+				const description = card.dataset.description || "";
+				const tags = card.dataset.tags || "";
+				const matchesQuery =
+					!q ||
+					title.includes(q) ||
+					description.includes(q) ||
+					tags.includes(q);
+				const matchesTag =
+					state.tag === "all" ||
+					tags.split("|").includes(state.tag.toLowerCase());
+				const matchesReadLength = matchesLength(card.dataset.readingTime || "0", state.length);
+				const visible = matchesQuery && matchesTag && matchesReadLength;
+				card.hidden = !visible;
+				if (visible) visibleCount += 1;
+			});
+
+			if (count) {
+				count.textContent =
+					visibleCount === cards.length
+						? `Showing all ${visibleCount} pieces`
+						: `Showing ${visibleCount} of ${cards.length} pieces`;
+			}
+
+			if (empty) {
+				empty.hidden = visibleCount > 0;
+			}
+		};
+
+		const readFromDom = (): LibraryState => ({
+			q: searchInput?.value || "",
+			tag:
+				tagButtons.find((button) => button.getAttribute("aria-pressed") === "true")?.dataset
+					.libraryTag || "all",
+			sort: sortSelect?.value || "newest",
+			length: lengthSelect?.value || "all",
+		});
+
+		const bindChange = () => applyState(readFromDom());
+		searchInput?.addEventListener("input", bindChange);
+		sortSelect?.addEventListener("change", bindChange);
+		lengthSelect?.addEventListener("change", bindChange);
+		tagButtons.forEach((button) => {
+			button.addEventListener("click", () => {
+				tagButtons.forEach((candidate) => candidate.setAttribute("aria-pressed", "false"));
+				button.setAttribute("aria-pressed", "true");
+				applyState(readFromDom());
+			});
+		});
+
+		const syncFromHistory = () => applyState(readState());
+		if (libraryWindow.__quietObservatoryLibraryHistoryHandler) {
+			window.removeEventListener(
+				"popstate",
+				libraryWindow.__quietObservatoryLibraryHistoryHandler
+			);
+		}
+		libraryWindow.__quietObservatoryLibraryHistoryHandler = syncFromHistory;
+		window.addEventListener("popstate", syncFromHistory);
+
+		applyState(readState());
+	};
+
+	initLibraryDiscovery();
+	document.addEventListener("astro:page-load", initLibraryDiscovery);
+</script>

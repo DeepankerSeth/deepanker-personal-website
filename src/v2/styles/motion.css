@@ -1,0 +1,118 @@
+@keyframes ambientDrift {
+	0%,
+	100% {
+		transform: translate3d(0, 0, 0) scale(1);
+	}
+
+	50% {
+		transform: translate3d(0, 1.2rem, 0) scale(1.02);
+	}
+}
+
+@keyframes fadeRise {
+	from {
+		opacity: 0;
+		transform: translate3d(0, 1rem, 0);
+	}
+
+	to {
+		opacity: 1;
+		transform: translate3d(0, 0, 0);
+	}
+}
+
+@keyframes shimmerLine {
+	0% {
+		transform: translateX(-12%);
+		opacity: 0.35;
+	}
+
+	50% {
+		opacity: 0.7;
+	}
+
+	100% {
+		transform: translateX(12%);
+		opacity: 0.35;
+	}
+}
+
+@keyframes panelFloat {
+	0%,
+	100% {
+		transform: translate3d(0, 0, 0);
+	}
+
+	50% {
+		transform: translate3d(0, -0.2rem, 0);
+	}
+}
+
+.ambient-drift {
+	animation: ambientDrift 16s ease-in-out infinite;
+}
+
+.fade-rise {
+	animation: fadeRise 480ms ease both;
+}
+
+.shimmer-line {
+	animation: shimmerLine 10s ease-in-out infinite;
+}
+
+[data-reveal][data-reveal-ready="true"]:not([data-revealed="true"]) {
+	opacity: 0;
+	transform: translate3d(0, 1.4rem, 0) scale(0.985);
+}
+
+[data-reveal][data-reveal-ready="true"][data-revealed="true"] {
+	opacity: 1;
+	transform: translate3d(0, 0, 0) scale(1);
+	transition:
+		opacity 560ms ease,
+		transform 720ms cubic-bezier(0.2, 0.8, 0.2, 1);
+	transition-delay: var(--reveal-delay, 0ms);
+}
+
+.interactive-lift {
+	transition:
+		transform var(--transition-base),
+		box-shadow var(--transition-slow),
+		border-color var(--transition-base),
+		background-color var(--transition-base);
+	transform-origin: center;
+}
+
+.interactive-lift:hover,
+.interactive-lift:focus-within {
+	transform: translate3d(0, -0.3rem, 0);
+	box-shadow:
+		0 1.35rem 2.4rem rgba(22, 20, 19, 0.12),
+		inset 0 1px 0 rgba(255, 255, 255, 0.34);
+	border-color: var(--color-border-strong);
+}
+
+.floating-panel {
+	animation: panelFloat 9s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+
+	[data-reveal] {
+		opacity: 1 !important;
+		transform: none !important;
+	}
+
+	.interactive-lift:hover,
+	.interactive-lift:focus-within {
+		transform: none;
+	}
+}

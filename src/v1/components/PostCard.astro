@@ -1,0 +1,96 @@
+---
+import { parseTags } from '../../lib/db';
+import FormattedDate from './FormattedDate.astro';
+import { estimateReadingTime } from '../../lib/markdown';
+
+interface Props {
+	title: string;
+	slug: string;
+	description: string;
+	pubDate: string;
+	tags: string;
+	content: string;
+}
+
+const { title, slug, description, pubDate, tags, content } = Astro.props;
+const tagList = parseTags(tags);
+const readingTime = estimateReadingTime(content);
+---
+
+<article class="post-card" data-tags={tags}>
+	<a href={`/writing/${slug}/`} class="post-card-link">
+		<div class="post-card-meta">
+			<FormattedDate date={new Date(pubDate)} />
+			<span class="separator">·</span>
+			<span>{readingTime} min read</span>
+		</div>
+		<h3 class="post-card-title">{title}</h3>
+		{description && <p class="post-card-desc">{description}</p>}
+	</a>
+	{tagList.length > 0 && (
+		<div class="post-card-tags">
+			{tagList.map((tag) => (
+				<span class="tag" data-tag={tag}>{tag}</span>
+			))}
+		</div>
+	)}
+</article>
+
+<style>
+	.post-card {
+		padding: var(--space-6) 0;
+		border-bottom: 1px solid var(--color-border-light);
+		animation: fadeIn 0.4s ease forwards;
+	}
+
+	.post-card:last-child {
+		border-bottom: none;
+	}
+
+	.post-card-link {
+		display: block;
+		text-decoration: none;
+		color: inherit;
+	}
+
+	.post-card-link:hover .post-card-title {
+		color: var(--color-accent);
+	}
+
+	.post-card-meta {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
+		font-size: var(--text-sm);
+		color: var(--color-text-muted);
+		margin-bottom: var(--space-2);
+		font-family: var(--font-sans);
+	}
+
+	.separator {
+		color: var(--color-border);
+	}
+
+	.post-card-title {
+		font-size: var(--text-xl);
+		font-weight: 600;
+		line-height: 1.3;
+		margin: 0;
+		color: var(--color-text);
+		transition: color var(--transition);
+	}
+
+	.post-card-desc {
+		margin-top: var(--space-2);
+		font-size: var(--text-base);
+		color: var(--color-text-secondary);
+		line-height: 1.5;
+	}
+
+	.post-card-tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-2);
+		margin-top: var(--space-3);
+	}
+</style>

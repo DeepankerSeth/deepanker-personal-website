@@ -1,6 +1,6 @@
 ---
-import PostLayout from '../../layouts/PostLayout.astro';
 import { getPostBySlug } from '../../lib/db';
+import WritingPostScreen from '../../v1/screens/WritingPostScreen.astro';
 
 const { slug } = Astro.params;
 if (!slug) return Astro.redirect('/writing');
@@ -13,13 +13,4 @@ if (!post) {
 }
 ---
 
-<PostLayout
-	title={post.title}
-	description={post.description}
-	pubDate={post.published_at || post.created_at}
-	updatedDate={post.updated_at !== post.created_at ? post.updated_at : null}
-	tags={post.tags}
-	content={post.content}
->
-	<Fragment set:html={post.rendered_html} />
-</PostLayout>
+<WritingPostScreen post={post} />

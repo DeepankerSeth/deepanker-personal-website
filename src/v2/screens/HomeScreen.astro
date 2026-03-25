@@ -1,0 +1,284 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PostArtifactCard from "../components/PostArtifactCard.astro";
+import V2Cover from "../features/covers/V2Cover.astro";
+import { estimateReadingTime } from "../../lib/markdown";
+import { publicUrl } from "../../shared/public/routes";
+import { SITE_DESCRIPTION, SITE_TITLE } from "../../consts";
+import type { Post } from "../../lib/db";
+
+interface Props {
+	featured: Post[];
+	latest: Post[];
+}
+
+const { featured, latest } = Astro.props;
+const leadPost = featured[0] ?? latest[0] ?? null;
+const featuredIds = new Set(featured.map((post) => post.id));
+const featuredShelf = featured
+	.filter((post) => post.id !== leadPost?.id)
+	.slice(0, 3);
+const recentShelf = latest
+	.filter((post) => post.id !== leadPost?.id && !featuredIds.has(post.id))
+	.slice(0, 4);
+const inquiryLines = [
+	"Attention, technology, and the human interior.",
+	"Craft, slowness, and the shape of serious work.",
+	"AI, systems, and how we stay grounded in reality.",
+];
+const formatDate = (value: string) =>
+	new Intl.DateTimeFormat("en-US", {
+		month: "long",
+		day: "numeric",
+		year: "numeric",
+	}).format(new Date(value));
+---
+
+<BaseLayout
+	title={`${SITE_TITLE} — Quiet Observatory`}
+	description={SITE_DESCRIPTION}
+	canonical={publicUrl("v1", "home")}
+>
+	<section class="home-hero fade-rise">
+		<div class="hero-copy">
+			<p class="eyebrow">Quiet Observatory</p>
+			<h1>
+				A calmer, more tactile home for essays about attention, systems, craft,
+				and the shape of modern life.
+			</h1>
+			<p class="hero-summary">
+				This preview keeps the same writing underneath, but gives it a richer
+				editorial atmosphere: quieter, more sculpted, and more emotionally
+				present.
+			</p>
+			<div class="hero-actions">
+				<a class="hero-cta" href={publicUrl("v2", "writing")}>Enter the library</a>
+				<a class="ghost-link" href={publicUrl("v1", "home")}>
+					Return to the classic site
+				</a>
+			</div>
+		</div>
+
+		{leadPost && (
+			<a
+				href={publicUrl("v2", "post", leadPost.slug)}
+				class="lead-artifact surface-panel interactive-lift"
+			>
+				<div class="lead-cover">
+					<V2Cover post={leadPost} mode="feature" label="Lead Essay" />
+				</div>
+				<div class="lead-copy">
+					<p class="eyebrow">Lead essay</p>
+					<h2>{leadPost.title}</h2>
+					<p class="lead-description">{leadPost.description}</p>
+					<div class="meta-row">
+						<span>{formatDate(leadPost.published_at || leadPost.created_at)}</span>
+						<span class="meta-separator"></span>
+						<span>{estimateReadingTime(leadPost.content)} min read</span>
+					</div>
+				</div>
+			</a>
+		)}
+	</section>
+
+	<section class="inquiry-strip surface-panel" data-reveal style="--reveal-delay: 120ms;">
+		<div class="section-heading">
+			<p class="eyebrow">Current lines of inquiry</p>
+			<h2>Thinking in wider arcs.</h2>
+			<p>
+				The site should feel like a body of thought, not a feed. These are the
+				threads this edition is optimized to surface more clearly.
+			</p>
+		</div>
+		<div class="inquiry-list">
+			{inquiryLines.map((line) => (
+				<p class="inquiry-item">{line}</p>
+			))}
+		</div>
+	</section>
+
+	{featuredShelf.length > 0 && (
+		<section class="home-section" data-reveal style="--reveal-delay: 160ms;">
+			<div class="section-heading">
+				<p class="eyebrow">Featured essays</p>
+				<h2>Pieces with a larger horizon.</h2>
+				<p>
+					Featured work becomes a curated shelf here instead of repeating the same
+					list twice.
+				</p>
+			</div>
+			<div class="card-stack">
+				{featuredShelf.map((post) => (
+					<PostArtifactCard post={post} compact={true} />
+				))}
+			</div>
+		</section>
+	)}
+
+	{recentShelf.length > 0 && (
+		<section class="home-section" data-reveal style="--reveal-delay: 220ms;">
+			<div class="section-heading section-heading-inline">
+				<div>
+					<p class="eyebrow">Recent arrivals</p>
+					<h2>Fresh additions to the observatory.</h2>
+				</div>
+				<a class="ghost-link" href={publicUrl("v2", "writing")}>
+					View the full library
+				</a>
+			</div>
+			<div class="card-stack">
+				{recentShelf.map((post) => (
+					<PostArtifactCard post={post} compact={true} />
+				))}
+			</div>
+		</section>
+	)}
+</BaseLayout>
+
+<style>
+	.home-hero {
+		display: grid;
+		grid-template-columns: minmax(0, 1.05fr) minmax(18rem, 0.95fr);
+		align-items: start;
+		gap: 2rem;
+		padding-top: 3.5rem;
+	}
+
+	.hero-copy {
+		max-width: 40rem;
+	}
+
+	.hero-copy h1 {
+		margin: 1rem 0 1.4rem;
+		font-family: var(--font-display);
+		font-size: clamp(3.6rem, 8vw, 6.3rem);
+		font-weight: 400;
+		line-height: 0.94;
+		letter-spacing: -0.05em;
+	}
+
+	.hero-summary {
+		max-width: 34rem;
+		margin: 0;
+		font-size: clamp(1.1rem, 1rem + 0.35vw, 1.34rem);
+		line-height: 1.8;
+		color: var(--color-text-secondary);
+	}
+
+	.hero-actions {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 1rem;
+		margin-top: 2rem;
+	}
+
+	.hero-cta {
+		display: inline-flex;
+		align-items: center;
+		padding: 0.92rem 1.3rem;
+		border-radius: 999px;
+		background: linear-gradient(135deg, var(--color-accent), var(--color-accent-soft));
+		color: white;
+		font-weight: 600;
+		box-shadow: var(--shadow-card);
+	}
+
+	.hero-cta:hover {
+		color: white;
+		filter: brightness(1.03);
+	}
+
+	.lead-artifact {
+		display: grid;
+		gap: 1.2rem;
+		padding: 1rem;
+		color: inherit;
+		text-decoration: none;
+	}
+
+	.lead-copy {
+		display: grid;
+		gap: 0.8rem;
+	}
+
+	.lead-copy h2 {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: clamp(2rem, 3vw, 2.8rem);
+		font-weight: 400;
+		line-height: 0.98;
+		letter-spacing: -0.04em;
+	}
+
+	.lead-description {
+		margin: 0;
+		color: var(--color-text-secondary);
+		line-height: 1.75;
+	}
+
+	.inquiry-strip {
+		display: grid;
+		grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr);
+		gap: 2rem;
+		margin-top: 3rem;
+		padding: 1.6rem;
+	}
+
+	.inquiry-list {
+		display: grid;
+		gap: 1rem;
+		align-content: start;
+	}
+
+	.inquiry-item {
+		margin: 0;
+		padding: 1rem 1.1rem;
+		border-radius: 1.3rem;
+		background: var(--color-surface-elevated);
+		border: 1px solid var(--color-border);
+		color: var(--color-text-secondary);
+		line-height: 1.7;
+	}
+
+	.home-section {
+		margin-top: 4rem;
+	}
+
+	.card-stack {
+		display: grid;
+		gap: 1rem;
+	}
+
+	.section-heading-inline {
+		grid-template-columns: minmax(0, 1fr) auto;
+		align-items: end;
+	}
+
+	@media (max-width: 960px) {
+		.home-hero,
+		.inquiry-strip {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	@media (max-width: 780px) {
+		.home-hero {
+			padding-top: 2.2rem;
+		}
+
+		.hero-copy h1 {
+			font-size: clamp(2.9rem, 14vw, 4.5rem);
+		}
+
+		.inquiry-strip,
+		.lead-artifact {
+			padding: 1rem;
+		}
+
+		.section-heading-inline {
+			grid-template-columns: 1fr;
+			align-items: start;
+		}
+	}
+</style>

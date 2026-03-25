@@ -29,13 +29,17 @@
 	},
 	"private": true,
 	"scripts": {
+		"audit": "node scripts/final-qa-audit.mjs",
 		"astro": "astro",
 		"build": "astro build",
 		"cf-typegen": "wrangler types",
-		"check": "astro build && tsc && wrangler deploy --dry-run",
+		"check": "npm run check:boundaries && astro build && tsc && wrangler deploy --dry-run",
+		"check:boundaries": "node scripts/check-version-boundaries.mjs",
 		"deploy": "wrangler deploy",
 		"dev": "astro dev",
-		"preview": "astro build && wrangler dev"
+		"preview": "astro build && wrangler dev",
+		"smoke": "node scripts/route-smoke.mjs",
+		"verify": "npm run check && npm run smoke && npm run audit"
 	},
 	"type": "module"
 }
