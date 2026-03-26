@@ -89,6 +89,13 @@ const { readingTime, classicHref, compact = false } = Astro.props;
 		gap: 1.1rem;
 		padding: 1rem;
 		border-radius: 1.5rem;
+		width: 100%;
+		max-width: 100%;
+		min-width: 0;
+	}
+
+	.reading-controls > * {
+		min-width: 0;
 	}
 
 	.progress-shell {
@@ -117,6 +124,7 @@ const { readingTime, classicHref, compact = false } = Astro.props;
 	.progress-copy {
 		display: flex;
 		justify-content: space-between;
+		flex-wrap: wrap;
 		gap: 0.8rem;
 		font-size: 0.84rem;
 		color: var(--color-text-muted);
@@ -144,17 +152,20 @@ const { readingTime, classicHref, compact = false } = Astro.props;
 		display: flex;
 		flex-wrap: wrap;
 		gap: 0.55rem;
+		min-width: 0;
 	}
 
 	.classic-link {
 		font-size: 0.88rem;
+		overflow-wrap: anywhere;
 	}
 
 	.reading-controls.is-compact {
-		grid-template-columns: repeat(4, minmax(0, 1fr));
+		grid-template-columns: repeat(2, minmax(0, 1fr));
 		align-items: start;
-		padding: 0.85rem 1rem;
-		border-radius: 1.4rem 1.4rem 0 0;
+		gap: 0.9rem;
+		padding: 0.95rem 1rem;
+		border-radius: 1.4rem;
 	}
 
 	.reading-controls.is-compact .progress-shell {
@@ -170,14 +181,24 @@ const { readingTime, classicHref, compact = false } = Astro.props;
 	}
 
 	.reading-controls.is-compact .classic-link {
-		align-self: center;
-		justify-self: end;
-		grid-column: span 1;
+		align-self: start;
+		justify-self: start;
+		grid-column: 1 / -1;
 	}
 
 	@media (max-width: 780px) {
 		.reading-controls.is-compact {
 			grid-template-columns: 1fr;
+			gap: 0.8rem;
+			padding: 0.9rem;
+		}
+
+		.reading-controls.is-compact .control-group {
+			gap: 0.45rem;
+		}
+
+		.reading-controls.is-compact .control-options {
+			gap: 0.4rem;
 		}
 
 		.reading-controls.is-compact .classic-link {

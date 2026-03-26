@@ -96,6 +96,14 @@ const related = otherPosts
 				</div>
 			</header>
 
+			<div class="reading-panel">
+				<ReadingControls
+					readingTime={readingTime}
+					classicHref={publicUrl("v1", "post", post.slug)}
+					compact={true}
+				/>
+			</div>
+
 			<div class="essay-surface surface-panel">
 				<div id="essay-prose" class="v2-prose">
 					<Fragment set:html={post.rendered_html} />
@@ -120,14 +128,6 @@ const related = otherPosts
 			</section>
 		</div>
 	</article>
-
-	<div class="reading-dock">
-		<ReadingControls
-			readingTime={readingTime}
-			classicHref={publicUrl("v1", "post", post.slug)}
-			compact={true}
-		/>
-	</div>
 </BaseLayout>
 
 <style>
@@ -137,30 +137,43 @@ const related = otherPosts
 		gap: 1.5rem;
 		align-items: start;
 		padding-top: 2rem;
+		min-width: 0;
+	}
+
+	.essay-layout > * {
+		min-width: 0;
 	}
 
 	.reading-sidebar {
 		position: sticky;
 		top: 6.8rem;
+		min-width: 0;
 	}
 
 	.essay-column {
 		display: grid;
 		gap: 1.4rem;
+		min-width: 0;
 	}
 
 	.essay-masthead {
 		padding: 1rem;
+		width: 100%;
+		max-width: 100%;
+		min-width: 0;
 	}
 
 	.masthead-cover {
 		margin-bottom: 1.25rem;
+		min-width: 0;
+		max-width: 100%;
 	}
 
 	.masthead-copy {
 		display: grid;
 		gap: 0.9rem;
 		max-width: 48rem;
+		min-width: 0;
 		padding: 0.2rem 0.3rem 0.4rem;
 	}
 
@@ -171,6 +184,14 @@ const related = otherPosts
 		font-weight: 400;
 		line-height: 0.94;
 		letter-spacing: -0.05em;
+	}
+
+	.masthead-copy > * {
+		min-width: 0;
+	}
+
+	.masthead-copy :where(h1, p, span) {
+		overflow-wrap: anywhere;
 	}
 
 	.masthead-description {
@@ -187,10 +208,23 @@ const related = otherPosts
 	.essay-surface {
 		padding: 2rem clamp(1rem, 2.6vw, 2.6rem);
 		border-radius: 2rem;
+		width: 100%;
+		max-width: 100%;
+		min-width: 0;
+		overflow-x: clip;
 	}
 
 	.essay-coda {
 		padding: 1.4rem;
+		width: 100%;
+		max-width: 100%;
+		min-width: 0;
+	}
+
+	#essay-prose {
+		width: min(100%, var(--max-reading-width));
+		max-width: 100%;
+		min-width: 0;
 	}
 
 	.card-stack {
@@ -198,46 +232,47 @@ const related = otherPosts
 		gap: 1rem;
 	}
 
-	.reading-dock {
+	.reading-panel {
 		display: none;
-		position: fixed;
-		left: 0;
-		right: 0;
-		bottom: 0;
-		z-index: 45;
-		padding: 0 0.9rem env(safe-area-inset-bottom, 0);
-	}
-
-	:global(body.essay-page) {
-		padding-bottom: 0;
+		width: 100%;
+		max-width: 100%;
+		min-width: 0;
 	}
 
 	@media (max-width: 1024px) {
 		.essay-layout {
 			grid-template-columns: 1fr;
+			gap: 1.25rem;
 		}
 
 		.reading-sidebar {
 			display: none;
 		}
 
-		.reading-dock {
+		.reading-panel {
 			display: block;
-		}
-
-		:global(body.essay-page) {
-			padding-bottom: 16rem;
 		}
 	}
 
 	@media (max-width: 780px) {
 		.essay-layout {
 			padding-top: 1.4rem;
+			gap: 1rem;
 		}
 
 		.essay-masthead,
 		.essay-coda {
 			padding: 1rem;
+		}
+
+		.masthead-cover {
+			margin-bottom: 0.95rem;
+		}
+
+		.masthead-copy {
+			gap: 0.75rem;
+			max-width: 100%;
+			padding: 0;
 		}
 
 		.essay-surface {
@@ -246,7 +281,18 @@ const related = otherPosts
 		}
 
 		.masthead-copy h1 {
-			font-size: clamp(2.4rem, 13vw, 3.7rem);
+			font-size: clamp(2.05rem, 11vw, 3.15rem);
+			line-height: 0.98;
+		}
+
+		.masthead-description {
+			font-size: 1rem;
+			line-height: 1.65;
+		}
+
+		#essay-prose {
+			font-size: 1.05rem;
+			line-height: 1.82;
 		}
 	}
 </style>

@@ -100,6 +100,27 @@
 	}
 
 	@media (max-width: 720px) {
+		.v2-theme-toggle {
+			gap: 0;
+			padding: 0.3rem;
+			border-radius: 0.98rem;
+		}
+
+		.toggle-track {
+			width: 2rem;
+			height: 1.14rem;
+			padding: 0.11rem;
+		}
+
+		.toggle-thumb {
+			width: 0.92rem;
+			height: 0.92rem;
+		}
+
+		:global(html[data-theme="dark"]) .toggle-thumb {
+			transform: translateX(0.86rem);
+		}
+
 		.toggle-copy {
 			display: none;
 		}

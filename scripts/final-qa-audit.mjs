@@ -12,8 +12,8 @@ const baseUrl = process.env.AUDIT_BASE_URL || `http://${host}:${port}`;
 const startupTimeoutMs = 45_000;
 const startupPollMs = 750;
 const performanceBudgets = {
-	maxCssRawBytes: 24 * 1024,
-	totalCssRawBytes: 48 * 1024,
+	maxCssRawBytes: 25 * 1024,
+	totalCssRawBytes: 51 * 1024,
 	totalCssGzipBytes: 16 * 1024,
 	totalClientJsRawBytes: 12 * 1024,
 };

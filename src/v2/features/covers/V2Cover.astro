@@ -149,6 +149,8 @@ const mineralNodes = Array.from({ length: 3 }, (_, index) => ({
 <style>
 	.v2-cover {
 		position: relative;
+		width: 100%;
+		max-width: 100%;
 		overflow: hidden;
 		border-radius: inherit;
 		background:
@@ -291,5 +293,25 @@ const mineralNodes = Array.from({ length: 3 }, (_, index) => ({
 		box-shadow:
 			inset 0 1px 0 rgba(255, 255, 255, 0.12),
 			inset 0 -60px 120px rgba(0, 0, 0, 0.34);
+	}
+
+	@media (max-width: 1024px) {
+		.mode-masthead {
+			min-height: 16rem;
+		}
+	}
+
+	@media (max-width: 780px) {
+		.mode-feature {
+			min-height: 17.5rem;
+		}
+
+		.mode-masthead {
+			min-height: 12rem;
+		}
+
+		.mode-stamp {
+			min-height: 4.6rem;
+		}
 	}
 </style>

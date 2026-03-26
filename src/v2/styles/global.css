@@ -394,8 +394,35 @@ body[data-reading-tone="night"] .essay-surface {
 		font-size: clamp(1.8rem, 7vw, 2.7rem);
 	}
 
+	.tag-pill {
+		padding: 0.42rem 0.72rem;
+		font-size: 0.78rem;
+	}
+
+	.v2-input,
+	.v2-select {
+		padding: 0.78rem 0.9rem;
+		border-radius: 1rem;
+	}
+
 	.v2-prose {
+		width: 100%;
+		max-width: 100%;
+		min-width: 0;
 		font-size: 1.1rem;
 		line-height: 1.86;
+	}
+
+	.v2-prose :where(pre, table) {
+		max-width: 100%;
+	}
+
+	.v2-prose :where(h1, h2, h3, h4, p, li, blockquote) {
+		overflow-wrap: anywhere;
+	}
+
+	.v2-prose table {
+		display: block;
+		overflow-x: auto;
 	}
 }
