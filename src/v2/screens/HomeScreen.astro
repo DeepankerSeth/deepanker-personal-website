@@ -14,18 +14,10 @@ interface Props {
 
 const { featured, latest } = Astro.props;
 const leadPost = featured[0] ?? latest[0] ?? null;
-const featuredIds = new Set(featured.map((post) => post.id));
-const featuredShelf = featured
+const recentFive = latest
 	.filter((post) => post.id !== leadPost?.id)
-	.slice(0, 3);
-const recentShelf = latest
-	.filter((post) => post.id !== leadPost?.id && !featuredIds.has(post.id))
-	.slice(0, 4);
-const inquiryLines = [
-	"Attention, technology, and the human interior.",
-	"Craft, slowness, and the shape of serious work.",
-	"AI, systems, and how we stay grounded in reality.",
-];
+	.slice(0, 5);
+
 const formatDate = (value: string) =>
 	new Intl.DateTimeFormat("en-US", {
 		month: "long",
@@ -35,27 +27,23 @@ const formatDate = (value: string) =>
 ---
 
 <BaseLayout
-	title={`${SITE_TITLE} — Quiet Observatory`}
+	title={`${SITE_TITLE} — Observatory`}
 	description={SITE_DESCRIPTION}
 	canonical={publicUrl("v1", "home")}
 >
 	<section class="home-hero fade-rise">
 		<div class="hero-copy">
-			<p class="eyebrow">Quiet Observatory</p>
+			<p class="eyebrow">
+				Observatory
+			</p>
 			<h1>
-				A calmer, more tactile home for essays about attention, systems, craft,
-				and the shape of modern life.
+				<span id="greeting-text">Hello</span>
 			</h1>
 			<p class="hero-summary">
-				This preview keeps the same writing underneath, but gives it a richer
-				editorial atmosphere: quieter, more sculpted, and more emotionally
-				present.
+				Here I share some writings on topics that capture my attention.
 			</p>
 			<div class="hero-actions">
 				<a class="hero-cta" href={publicUrl("v2", "writing")}>Enter the library</a>
-				<a class="ghost-link" href={publicUrl("v1", "home")}>
-					Return to the classic site
-				</a>
 			</div>
 		</div>
 
@@ -84,53 +72,19 @@ const formatDate = (value: string) =>
 		)}
 	</section>
 
-	<section class="inquiry-strip surface-panel" data-reveal style="--reveal-delay: 120ms;">
-		<div class="section-heading">
-			<p class="eyebrow">Current lines of inquiry</p>
-			<h2>Thinking in wider arcs.</h2>
-			<p>
-				The site should feel like a body of thought, not a feed. These are the
-				threads this edition is optimized to surface more clearly.
-			</p>
-		</div>
-		<div class="inquiry-list">
-			{inquiryLines.map((line) => (
-				<p class="inquiry-item">{line}</p>
-			))}
-		</div>
-	</section>
-
-	{featuredShelf.length > 0 && (
+	{recentFive.length > 0 && (
 		<section class="home-section" data-reveal style="--reveal-delay: 160ms;">
-			<div class="section-heading">
-				<p class="eyebrow">Featured essays</p>
-				<h2>Pieces with a larger horizon.</h2>
-				<p>
-					Featured work becomes a curated shelf here instead of repeating the same
-					list twice.
-				</p>
-			</div>
-			<div class="card-stack">
-				{featuredShelf.map((post) => (
-					<PostArtifactCard post={post} compact={true} />
-				))}
-			</div>
-		</section>
-	)}
-
-	{recentShelf.length > 0 && (
-		<section class="home-section" data-reveal style="--reveal-delay: 220ms;">
 			<div class="section-heading section-heading-inline">
 				<div>
-					<p class="eyebrow">Recent arrivals</p>
-					<h2>Fresh additions to the observatory.</h2>
+					<p class="eyebrow">Featured</p>
+					<h2>Latest essays.</h2>
 				</div>
 				<a class="ghost-link" href={publicUrl("v2", "writing")}>
 					View the full library
 				</a>
 			</div>
 			<div class="card-stack">
-				{recentShelf.map((post) => (
+				{recentFive.map((post) => (
 					<PostArtifactCard post={post} compact={true} />
 				))}
 			</div>
@@ -141,9 +95,9 @@ const formatDate = (value: string) =>
 <style>
 	.home-hero {
 		display: grid;
-		grid-template-columns: minmax(0, 1.05fr) minmax(18rem, 0.95fr);
+		grid-template-columns: minmax(0, 1.25fr) minmax(15rem, 0.75fr);
 		align-items: start;
-		gap: 2rem;
+		gap: 3.5rem;
 		padding-top: 3.5rem;
 		overflow-x: clip;
 	}
@@ -161,6 +115,15 @@ const formatDate = (value: string) =>
 		font-weight: 400;
 		line-height: 0.94;
 		letter-spacing: -0.05em;
+	}
+
+	#greeting-text {
+		transition: opacity 1.5s ease-in-out;
+		will-change: opacity;
+	}
+
+	.fade-out {
+		opacity: 0;
 	}
 
 	.hero-summary {
@@ -220,7 +183,7 @@ const formatDate = (value: string) =>
 	.lead-copy h2 {
 		margin: 0;
 		font-family: var(--font-display);
-		font-size: clamp(2rem, 3vw, 2.8rem);
+		font-size: clamp(1.6rem, 2.5vw, 2.2rem);
 		font-weight: 400;
 		line-height: 0.98;
 		letter-spacing: -0.04em;
@@ -230,30 +193,6 @@ const formatDate = (value: string) =>
 		margin: 0;
 		color: var(--color-text-secondary);
 		line-height: 1.75;
-	}
-
-	.inquiry-strip {
-		display: grid;
-		grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr);
-		gap: 2rem;
-		margin-top: 3rem;
-		padding: 1.6rem;
-	}
-
-	.inquiry-list {
-		display: grid;
-		gap: 1rem;
-		align-content: start;
-	}
-
-	.inquiry-item {
-		margin: 0;
-		padding: 1rem 1.1rem;
-		border-radius: 1.3rem;
-		background: var(--color-surface-elevated);
-		border: 1px solid var(--color-border);
-		color: var(--color-text-secondary);
-		line-height: 1.7;
 	}
 
 	.home-section {
@@ -271,16 +210,15 @@ const formatDate = (value: string) =>
 	}
 
 	@media (max-width: 960px) {
-		.home-hero,
-		.inquiry-strip {
+		.home-hero {
 			grid-template-columns: 1fr;
 		}
 	}
 
 	@media (max-width: 1120px) and (min-width: 961px) {
 		.home-hero {
-			grid-template-columns: minmax(0, 1fr) minmax(16rem, 0.82fr);
-			gap: 1.6rem;
+			grid-template-columns: minmax(0, 1.1fr) minmax(14rem, 0.75fr);
+			gap: 2rem;
 		}
 	}
 
@@ -317,7 +255,6 @@ const formatDate = (value: string) =>
 			padding: 0.78rem 1.02rem;
 		}
 
-		.inquiry-strip,
 		.lead-artifact {
 			padding: 0.95rem;
 		}
@@ -346,15 +283,6 @@ const formatDate = (value: string) =>
 			line-height: 1.65;
 		}
 
-		.inquiry-strip {
-			gap: 1.25rem;
-			margin-top: 2.2rem;
-		}
-
-		.inquiry-item {
-			padding: 0.85rem 0.95rem;
-		}
-
 		.home-section {
 			margin-top: 3rem;
 		}
@@ -365,3 +293,39 @@ const formatDate = (value: string) =>
 		}
 	}
 </style>
+
+<script>
+	const greetings = [
+		"Hello",
+		"Namaste",
+		"Hola",
+		"Bonjour",
+		"Konnichiwa",
+		"Ciao",
+		"Nǐ hǎo",
+		"Olá",
+		"Marhaba",
+	];
+	let currentIndex = 0;
+	let greetingInterval;
+
+	function initGreetingAnimation() {
+		const greetingElement = document.getElementById("greeting-text");
+		if (!greetingElement) return;
+
+		if (greetingInterval) clearInterval(greetingInterval);
+
+		greetingInterval = setInterval(() => {
+			greetingElement.classList.add("fade-out");
+
+			setTimeout(() => {
+				currentIndex = (currentIndex + 1) % greetings.length;
+				greetingElement.textContent = greetings[currentIndex];
+				greetingElement.classList.remove("fade-out");
+			}, 1500); // Wait 1.5s for fade-out
+		}, 4500); // 1.5s fade out + 1.5s fade in + 1.5s solid sequence
+	}
+
+	initGreetingAnimation();
+	document.addEventListener("astro:page-load", initGreetingAnimation);
+</script>

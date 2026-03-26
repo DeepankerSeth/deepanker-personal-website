@@ -10,10 +10,8 @@ import ThemeToggle from "./ThemeToggle.astro";
 	<nav class="v2-site-nav" aria-label="Primary">
 		<div class="nav-brand-wrap">
 			<a href={publicUrl("v2", "home")} class="site-title">
-				<span class="site-mark" aria-hidden="true"></span>
 				<span class="site-copy">
 					<span class="site-name">{SITE_TITLE}</span>
-					<span class="site-context">Quiet Observatory Preview</span>
 				</span>
 			</a>
 		</div>
@@ -75,16 +73,6 @@ import ThemeToggle from "./ThemeToggle.astro";
 		text-decoration: none;
 	}
 
-	.site-mark {
-		width: 0.8rem;
-		height: 0.8rem;
-		border-radius: 999px;
-		background: linear-gradient(135deg, var(--color-accent), var(--color-accent-soft));
-		box-shadow:
-			0 0 0 5px rgba(201, 214, 227, 0.12),
-			0 0 24px rgba(169, 133, 82, 0.18);
-	}
-
 	.site-copy {
 		display: inline-flex;
 		flex-direction: column;
@@ -98,13 +86,6 @@ import ThemeToggle from "./ThemeToggle.astro";
 		font-size: 0.98rem;
 		letter-spacing: -0.02em;
 		white-space: nowrap;
-	}
-
-	.site-context {
-		font-size: 0.68rem;
-		text-transform: uppercase;
-		letter-spacing: 0.12em;
-		color: var(--color-text-muted);
 	}
 
 	.nav-links {
@@ -131,10 +112,6 @@ import ThemeToggle from "./ThemeToggle.astro";
 			padding: 0.82rem 0.92rem;
 			gap: 0.8rem;
 			border-radius: 1.6rem;
-		}
-
-		.site-context {
-			display: none;
 		}
 	}
 
@@ -163,14 +140,6 @@ import ThemeToggle from "./ThemeToggle.astro";
 		.site-title {
 			gap: 0.58rem;
 			min-width: 0;
-		}
-
-		.site-mark {
-			width: 0.64rem;
-			height: 0.64rem;
-			box-shadow:
-				0 0 0 3px rgba(201, 214, 227, 0.12),
-				0 0 16px rgba(169, 133, 82, 0.16);
 		}
 
 		.site-name {

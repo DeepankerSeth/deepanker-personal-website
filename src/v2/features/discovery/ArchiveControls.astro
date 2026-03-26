@@ -1,9 +1,4 @@
 ---
-interface Props {
-	tags: string[];
-}
-
-const { tags } = Astro.props;
 ---
 
 <form id="library-controls" class="library-controls surface-panel" role="search">
@@ -23,53 +18,6 @@ const { tags } = Astro.props;
 		</div>
 	</div>
 
-	<div class="select-row">
-		<label class="control-label">
-			<span>Sort</span>
-			<select id="library-sort" class="v2-select" name="sort" aria-controls="library-list">
-				<option value="newest">Newest first</option>
-				<option value="oldest">Oldest first</option>
-				<option value="shortest">Shortest reads</option>
-				<option value="longest">Longest reads</option>
-			</select>
-		</label>
-
-		<label class="control-label">
-			<span>Read length</span>
-			<select id="library-length" class="v2-select" name="length" aria-controls="library-list">
-				<option value="all">All lengths</option>
-				<option value="brief">Brief reads</option>
-				<option value="essay">Essay length</option>
-				<option value="longform">Longform</option>
-			</select>
-		</label>
-	</div>
-
-	<fieldset class="tag-filter-group">
-		<legend>Filter writings by tag</legend>
-		<div class="tag-filter" role="group" aria-label="Filter writings by tag">
-			<button
-				type="button"
-				class="tag-pill"
-				data-library-tag="all"
-				aria-pressed="true"
-				aria-controls="library-list"
-			>
-				All
-			</button>
-			{tags.map((tag) => (
-				<button
-					type="button"
-					class="tag-pill"
-					data-library-tag={tag}
-					aria-pressed="false"
-					aria-controls="library-list"
-				>
-					{tag}
-				</button>
-			))}
-		</div>
-	</fieldset>
 </form>
 
 <style>
@@ -101,45 +49,6 @@ const { tags } = Astro.props;
 		padding-left: 2.8rem;
 	}
 
-	.select-row {
-		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: 1rem;
-	}
-
-	.control-label {
-		display: grid;
-		gap: 0.5rem;
-		font-size: 0.82rem;
-		font-weight: 600;
-		letter-spacing: 0.08em;
-		text-transform: uppercase;
-		color: var(--color-text-muted);
-	}
-
-	.tag-filter {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.65rem;
-	}
-
-	.tag-filter-group {
-		display: grid;
-		gap: 0.6rem;
-		margin: 0;
-		padding: 0;
-		border: 0;
-	}
-
-	.tag-filter-group legend {
-		padding: 0;
-		font-size: 0.82rem;
-		font-weight: 600;
-		letter-spacing: 0.08em;
-		text-transform: uppercase;
-		color: var(--color-text-muted);
-	}
-
 	.sr-label {
 		position: absolute;
 		width: 1px;
@@ -169,29 +78,6 @@ const { tags } = Astro.props;
 
 		#library-search {
 			padding-left: 2.35rem;
-		}
-
-		.select-row {
-			grid-template-columns: 1fr;
-			gap: 0.7rem;
-		}
-
-		.control-label {
-			gap: 0.4rem;
-		}
-
-		.control-label,
-		.tag-filter-group legend {
-			font-size: 0.72rem;
-			letter-spacing: 0.14em;
-		}
-
-		.tag-filter-group {
-			gap: 0.5rem;
-		}
-
-		.tag-filter {
-			gap: 0.4rem;
 		}
 	}
 </style>

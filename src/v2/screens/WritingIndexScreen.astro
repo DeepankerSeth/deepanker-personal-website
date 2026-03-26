@@ -8,10 +8,9 @@ import type { Post } from "../../lib/db";
 
 interface Props {
 	posts: Post[];
-	tags: string[];
 }
 
-const { posts, tags } = Astro.props;
+const { posts } = Astro.props;
 ---
 
 <BaseLayout
@@ -21,21 +20,18 @@ const { posts, tags } = Astro.props;
 >
 	<section class="library-intro fade-rise">
 		<div class="section-heading">
-			<p class="eyebrow">Observatory Library</p>
-			<h1>A field guide to the writing archive.</h1>
+			<p class="eyebrow">Library</p>
+			<h1>Deepanker Seth's Writings</h1>
 			<p>
-				This archive keeps the same shared source of truth as the classic site, but
-				makes it easier to browse by thread, length, and mood without losing the
-				editorial feel.
+				I write when a thought has ripened enough to ask for form.
 			</p>
 		</div>
-		<ArchiveControls tags={tags} />
+		<ArchiveControls />
 	</section>
 
 	<section class="library-results" data-reveal style="--reveal-delay: 120ms;">
 		<div class="library-status">
 			<p id="library-count" aria-live="polite">Showing {posts.length} pieces</p>
-			<p>Search, tags, length, and sort all compose together here.</p>
 		</div>
 
 		<div id="library-list" class="library-list">
@@ -160,105 +156,42 @@ const { posts, tags } = Astro.props;
 		};
 
 		const searchInput = document.getElementById("library-search") as HTMLInputElement | null;
-		const sortSelect = document.getElementById("library-sort") as HTMLSelectElement | null;
-		const lengthSelect = document.getElementById("library-length") as HTMLSelectElement | null;
-		const tagButtons = Array.from(
-			document.querySelectorAll<HTMLButtonElement>("[data-library-tag]")
-		);
 		const cards = Array.from(list.querySelectorAll<HTMLElement>("[data-post-card]"));
 		const count = document.getElementById("library-count") as HTMLParagraphElement | null;
 		const empty = document.getElementById("library-empty") as HTMLParagraphElement | null;
 
-		type LibraryState = {
-			q: string;
-			tag: string;
-			sort: string;
-			length: string;
-		};
-
-		const readState = (): LibraryState => {
+		const readState = () => {
 			const params = new URLSearchParams(window.location.search);
-			return {
-				q: params.get("q") || "",
-				tag: params.get("tag") || "all",
-				sort: params.get("sort") || "newest",
-				length: params.get("length") || "all",
-			};
+			return params.get("q") || "";
 		};
 
-		const syncControls = (state: LibraryState) => {
-			if (searchInput) searchInput.value = state.q;
-			if (sortSelect) sortSelect.value = state.sort;
-			if (lengthSelect) lengthSelect.value = state.length;
-			tagButtons.forEach((button) => {
-				button.setAttribute(
-					"aria-pressed",
-					button.dataset.libraryTag === state.tag ? "true" : "false"
-				);
-			});
-		};
-
-		const persistState = (state: LibraryState) => {
+		const persistState = (q: string) => {
 			const params = new URLSearchParams();
-			if (state.q) params.set("q", state.q);
-			if (state.tag !== "all") params.set("tag", state.tag);
-			if (state.sort !== "newest") params.set("sort", state.sort);
-			if (state.length !== "all") params.set("length", state.length);
+			if (q) params.set("q", q);
 			const query = params.toString();
 			const nextUrl = query ? `${window.location.pathname}?${query}` : window.location.pathname;
 			window.history.replaceState({}, "", nextUrl);
 		};
 
-		const matchesLength = (value: string, length: string) => {
-			const minutes = Number.parseInt(value, 10) || 0;
-			if (length === "brief") return minutes <= 5;
-			if (length === "essay") return minutes >= 6 && minutes <= 10;
-			if (length === "longform") return minutes >= 11;
-			return true;
-		};
+		const applyState = (q: string) => {
+			if (searchInput) searchInput.value = q;
+			persistState(q);
 
-		const sortCards = (currentCards: HTMLElement[], sort: string) => {
-			const ranked = currentCards.slice();
-			ranked.sort((left, right) => {
-				if (sort === "shortest" || sort === "longest") {
-					const leftTime = Number.parseInt(left.dataset.readingTime || "0", 10);
-					const rightTime = Number.parseInt(right.dataset.readingTime || "0", 10);
-					return sort === "shortest" ? leftTime - rightTime : rightTime - leftTime;
-				}
-
-				const leftDate = Date.parse(left.dataset.published || "");
-				const rightDate = Date.parse(right.dataset.published || "");
-				return sort === "oldest" ? leftDate - rightDate : rightDate - leftDate;
-			});
-			return ranked;
-		};
-
-		const applyState = (state: LibraryState) => {
-			syncControls(state);
-			persistState(state);
-
-			const q = state.q.trim().toLowerCase();
-			const sorted = sortCards(cards, state.sort);
-
-			sorted.forEach((card) => list.appendChild(card));
+			const queryTerm = q.trim().toLowerCase();
 
 			let visibleCount = 0;
-			sorted.forEach((card) => {
+			cards.forEach((card) => {
 				const title = card.dataset.title || "";
 				const description = card.dataset.description || "";
 				const tags = card.dataset.tags || "";
 				const matchesQuery =
-					!q ||
-					title.includes(q) ||
-					description.includes(q) ||
-					tags.includes(q);
-				const matchesTag =
-					state.tag === "all" ||
-					tags.split("|").includes(state.tag.toLowerCase());
-				const matchesReadLength = matchesLength(card.dataset.readingTime || "0", state.length);
-				const visible = matchesQuery && matchesTag && matchesReadLength;
-				card.hidden = !visible;
-				if (visible) visibleCount += 1;
+					!queryTerm ||
+					title.toLowerCase().includes(queryTerm) ||
+					description.toLowerCase().includes(queryTerm) ||
+					tags.toLowerCase().includes(queryTerm);
+				
+				card.hidden = !matchesQuery;
+				if (matchesQuery) visibleCount += 1;
 			});
 
 			if (count) {
@@ -273,26 +206,10 @@ const { posts, tags } = Astro.props;
 			}
 		};
 
-		const readFromDom = (): LibraryState => ({
-			q: searchInput?.value || "",
-			tag:
-				tagButtons.find((button) => button.getAttribute("aria-pressed") === "true")?.dataset
-					.libraryTag || "all",
-			sort: sortSelect?.value || "newest",
-			length: lengthSelect?.value || "all",
-		});
+		const readFromDom = () => searchInput?.value || "";
 
 		const bindChange = () => applyState(readFromDom());
 		searchInput?.addEventListener("input", bindChange);
-		sortSelect?.addEventListener("change", bindChange);
-		lengthSelect?.addEventListener("change", bindChange);
-		tagButtons.forEach((button) => {
-			button.addEventListener("click", () => {
-				tagButtons.forEach((candidate) => candidate.setAttribute("aria-pressed", "false"));
-				button.setAttribute("aria-pressed", "true");
-				applyState(readFromDom());
-			});
-		});
 
 		const syncFromHistory = () => applyState(readState());
 		if (libraryWindow.__quietObservatoryLibraryHistoryHandler) {
