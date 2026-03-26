@@ -52,6 +52,7 @@ const formatDate = (value: string) =>
 				href={publicUrl("v2", "post", leadPost.slug)}
 				class="lead-artifact surface-panel interactive-lift"
 			>
+				<p class="eyebrow">Lead essay</p>
 				<div class="lead-cover lead-cover-feature">
 					<V2Cover post={leadPost} mode="feature" label="Lead Essay" />
 				</div>
@@ -59,12 +60,9 @@ const formatDate = (value: string) =>
 					<V2Cover post={leadPost} mode="card" label="Lead Essay" />
 				</div>
 				<div class="lead-copy">
-					<p class="eyebrow">Lead essay</p>
 					<h2>{leadPost.title}</h2>
 					<p class="lead-description">{leadPost.description}</p>
 					<div class="meta-row">
-						<span>{formatDate(leadPost.published_at || leadPost.created_at)}</span>
-						<span class="meta-separator"></span>
 						<span>{estimateReadingTime(leadPost.content)} min read</span>
 					</div>
 				</div>

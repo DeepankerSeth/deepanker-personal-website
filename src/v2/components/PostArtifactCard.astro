@@ -15,11 +15,6 @@ const { post, href = publicUrl("v2", "post", post.slug), compact = false } = Ast
 const tagList = parseTags(post.tags);
 const readingTime = estimateReadingTime(post.content);
 const publishedAt = post.published_at || post.created_at;
-const formattedDate = new Intl.DateTimeFormat("en-US", {
-	month: "short",
-	day: "numeric",
-	year: "numeric",
-}).format(new Date(publishedAt));
 ---
 
 <article
@@ -38,8 +33,6 @@ const formattedDate = new Intl.DateTimeFormat("en-US", {
 
 		<div class="artifact-body">
 			<div class="meta-row">
-				<span>{formattedDate}</span>
-				<span class="meta-separator"></span>
 				<span>{readingTime} min read</span>
 			</div>
 			<h3>{post.title}</h3>

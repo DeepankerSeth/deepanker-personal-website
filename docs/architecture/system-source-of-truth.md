@@ -453,7 +453,7 @@ Confirmed characteristics:
 - V2 is a visually richer editorial presentation
 - V2 layout adds a decorative background layer, sticky glass navigation, and a more designed footer
 - V2 generates visual covers procedurally from post metadata
-- V2 library supports search, tag filtering, sort order, and read-length filtering
+- V2 library natively supports real-time text search without complex filtering
 - V2 essay pages add reading progress and reading-mode controls
 
 Confirmed V2 page composition:
@@ -462,10 +462,10 @@ Confirmed V2 page composition:
   - V2 shell, header/footer, background, reveal script, default noindex behavior, and shared mobile shell spacing
 
 - `HomeScreen.astro`
-  - hero, lead essay, featured shelf, recent shelf, and mobile-specific lead-artifact compression
+  - hero with animated greeting, lead essay, a single unified featured shelf, and mobile-specific lead-artifact compression
 
 - `WritingIndexScreen.astro`
-  - library intro, controls, result count, filtered card list, and compact mobile archive density
+  - library intro, search controls, result count, filtered card list, and compact mobile archive density
 
 - `EssayScreen.astro`
   - masthead cover, article content, related posts, desktop sticky reading sidebar, and mobile in-flow reading controls
@@ -477,7 +477,7 @@ Confirmed V2 page composition:
   - deterministic procedural cover system, with `V2Cover.astro` owning feature/masthead/stamp min-height behavior across breakpoints
 
 - `ArchiveControls.astro`
-  - search/sort/filter UI with compact mobile spacing and stacked control layout
+  - search UI with compact mobile spacing
 
 - `ReadingControls.astro`
   - progress bar, tone/measure/type controls, link back to classic, and compact mobile variant
@@ -530,7 +530,7 @@ Confirmed:
   - the inquiry-strip copy is currently hard-coded inside `src/v2/screens/HomeScreen.astro`
 
 - the V2 archive is SSR-first and then enhanced client-side
-  - filtering, sorting, and query persistence happen in browser code after the server renders the list
+  - search filtering and query persistence happen in browser code after the server renders the list
 
 - the cover system is generated SVG/CSS only
   - there is no uploaded cover-asset flow and no media pipeline
@@ -1141,7 +1141,7 @@ That means the distinction between public and admin is not only auth-based. It i
 Confirmed:
 
 - V1 search/filter scripts depend on `.post-card`, `.post-card-title`, `.post-card-desc`, `#no-results`, and `data-tags`
-- V2 archive script depends on `#library-controls`, `#library-search`, `#library-sort`, `#library-length`, `#library-list`, `#library-count`, `#library-empty`, and card-level `data-*`
+- V2 archive script depends on `#library-controls`, `#library-search`, `#library-list`, `#library-count`, `#library-empty`, and card-level `data-*`
 - V2 reading script depends on `#essay-prose` plus `data-reading-*`
 
 These are effectively frontend interfaces even though they are not TypeScript interfaces.
