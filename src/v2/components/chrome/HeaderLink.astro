@@ -5,10 +5,12 @@ interface Props {
 }
 
 const { href, subtle = false } = Astro.props;
-const pathname = Astro.url.pathname;
+const normalizePath = (value: string) => value.replace(/\/+$/, "") || "/";
+const pathname = normalizePath(Astro.url.pathname);
+const targetPath = normalizePath(href);
 const active =
-	pathname === href ||
-	(href !== "/v2" && href !== "/" && pathname.startsWith(`${href}/`));
+	pathname === targetPath ||
+	(targetPath !== "/" && pathname.startsWith(`${targetPath}/`));
 ---
 
 <a class:list={["v2-header-link", active && "is-active", subtle && "is-subtle"]} href={href}>

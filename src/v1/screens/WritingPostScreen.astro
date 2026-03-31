@@ -1,5 +1,6 @@
 ---
 import PostLayout from '../layouts/PostLayout.astro';
+import { publicUrl } from '../../shared/public/routes';
 import type { Post } from '../../lib/db';
 
 interface Props {
@@ -16,6 +17,7 @@ const { post } = Astro.props;
 	updatedDate={post.updated_at !== post.created_at ? post.updated_at : null}
 	tags={post.tags}
 	content={post.content}
+	canonical={publicUrl('v2', 'post', post.slug)}
 >
 	<Fragment set:html={post.rendered_html} />
 </PostLayout>

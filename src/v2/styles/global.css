@@ -363,10 +363,6 @@ body[data-reading-tone="night"] .v2-prose {
 	color: rgba(242, 238, 230, 0.98);
 }
 
-body[data-reading-measure="focused"] .v2-prose {
-	max-width: 64ch;
-}
-
 body[data-reading-scale="large"] .v2-prose {
 	font-size: clamp(1.26rem, 1rem + 0.72vw, 1.56rem);
 }

@@ -6,7 +6,7 @@ export function publicUrl(
 	kind: PublicRouteKind,
 	slug?: string
 ): string {
-	const prefix = version === "v2" ? "/v2" : "";
+	const prefix = version === "v1" ? "/classic" : "";
 
 	if (kind === "home") {
 		return prefix || "/";

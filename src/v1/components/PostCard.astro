@@ -2,6 +2,7 @@
 import { parseTags } from '../../lib/db';
 import FormattedDate from './FormattedDate.astro';
 import { estimateReadingTime } from '../../lib/markdown';
+import { publicUrl } from '../../shared/public/routes';
 
 interface Props {
 	title: string;
@@ -18,7 +19,7 @@ const readingTime = estimateReadingTime(content);
 ---
 
 <article class="post-card" data-tags={tags}>
-	<a href={`/writing/${slug}/`} class="post-card-link">
+	<a href={publicUrl('v1', 'post', slug)} class="post-card-link">
 		<div class="post-card-meta">
 			<FormattedDate date={new Date(pubDate)} />
 			<span class="separator">·</span>

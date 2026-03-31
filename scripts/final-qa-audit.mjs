@@ -20,9 +20,10 @@ const performanceBudgets = {
 
 const routeChecks = [
 	{
-		path: "/v2",
-		label: "V2 home",
+		path: "/",
+		label: "Observatory home",
 		expectedH1Count: 1,
+		canonicalPath: "/",
 		requiredPatterns: [
 			{
 				pattern: /<html[^>]+lang="en"/i,
@@ -41,19 +42,22 @@ const routeChecks = [
 				message: "missing labelled primary navigation",
 			},
 			{
-				pattern: /<meta[^>]+name="robots"[^>]+content="noindex,follow"[^>]*>/i,
-				message: "missing preview noindex directive",
-			},
-			{
 				pattern: /<link[^>]+rel="canonical"[^>]*>/i,
 				message: "missing canonical link",
 			},
 		],
+		forbiddenPatterns: [
+			{
+				pattern: /<meta[^>]+name="robots"[^>]+content="noindex,follow"[^>]*>/i,
+				message: "unexpected noindex directive on canonical home",
+			},
+		],
 	},
 	{
-		path: "/v2/writing",
-		label: "V2 library",
+		path: "/writing",
+		label: "Observatory library",
 		expectedH1Count: 1,
+		canonicalPath: "/writing",
 		requiredPatterns: [
 			{
 				pattern: /<form[^>]+id="library-controls"[^>]+role="search"[^>]*>/i,
@@ -71,9 +75,63 @@ const routeChecks = [
 				pattern: /aria-controls="library-list"/i,
 				message: "missing list control association",
 			},
+		],
+		forbiddenPatterns: [
 			{
 				pattern: /<meta[^>]+name="robots"[^>]+content="noindex,follow"[^>]*>/i,
-				message: "missing preview noindex directive",
+				message: "unexpected noindex directive on canonical library",
+			},
+		],
+	},
+	{
+		path: "/classic",
+		label: "Classic home",
+		expectedH1Count: 1,
+		canonicalPath: "/",
+		requiredPatterns: [
+			{
+				pattern: /<html[^>]+lang="en"/i,
+				message: "missing document language",
+			},
+			{
+				pattern: /<a[^>]+class="skip-link"[^>]+href="#main-content"[^>]*>Skip to content<\/a>/i,
+				message: "missing skip link",
+			},
+			{
+				pattern: /<main[^>]+id="main-content"[^>]*>/i,
+				message: "missing main landmark",
+			},
+			{
+				pattern: /Read all writings/i,
+				message: "missing classic home CTA",
+			},
+		],
+		forbiddenPatterns: [
+			{
+				pattern: /<meta[^>]+name="robots"[^>]+content="noindex,follow"[^>]*>/i,
+				message: "unexpected noindex directive on classic home",
+			},
+		],
+	},
+	{
+		path: "/classic/writing",
+		label: "Classic writing",
+		expectedH1Count: 1,
+		canonicalPath: "/writing",
+		requiredPatterns: [
+			{
+				pattern: /aria-label="Search writings"/i,
+				message: "missing classic search input label",
+			},
+			{
+				pattern: /<h1[^>]*>Writing<\/h1>/i,
+				message: "missing classic writing heading",
+			},
+		],
+		forbiddenPatterns: [
+			{
+				pattern: /<meta[^>]+name="robots"[^>]+content="noindex,follow"[^>]*>/i,
+				message: "unexpected noindex directive on classic writing",
 			},
 		],
 	},
@@ -91,6 +149,10 @@ function assert(condition, message) {
 	if (!condition) {
 		throw new Error(message);
 	}
+}
+
+function escapeRegExp(value) {
+	return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 async function waitForServer() {
@@ -135,7 +197,7 @@ function countMatches(source, pattern) {
 }
 
 function discoverSlug(html) {
-	const match = html.match(/\/v2\/writing\/([^"'?#/<>]+)/);
+	const match = html.match(/href="\/writing\/([^"'?#/<>]+)/);
 	return match?.[1] ?? null;
 }
 
@@ -222,9 +284,42 @@ async function auditPerformance() {
 	);
 }
 
-function assertRouteStructure(label, html, requiredPatterns, expectedH1Count = null) {
+function assertMetadataUrls(label, html, canonicalPath) {
+	const canonicalUrl = `https://deepankerseth.com${
+		canonicalPath === "/" ? "" : canonicalPath
+	}`;
+	const canonicalPattern = new RegExp(
+		`<link[^>]+rel="canonical"[^>]+href="${escapeRegExp(canonicalUrl)}\\/?"[^>]*>`,
+		"i"
+	);
+	const ogPattern = new RegExp(
+		`<meta[^>]+property="og:url"[^>]+content="${escapeRegExp(canonicalUrl)}\\/?"[^>]*>`,
+		"i"
+	);
+	const twitterPattern = new RegExp(
+		`<meta[^>]+property="twitter:url"[^>]+content="${escapeRegExp(canonicalUrl)}\\/?"[^>]*>`,
+		"i"
+	);
+
+	assert(canonicalPattern.test(html), `${label}: incorrect canonical URL`);
+	assert(ogPattern.test(html), `${label}: incorrect og:url`);
+	assert(twitterPattern.test(html), `${label}: incorrect twitter:url`);
+}
+
+function assertRouteStructure(
+	label,
+	html,
+	requiredPatterns,
+	expectedH1Count = null,
+	forbiddenPatterns = [],
+	canonicalPath = null
+) {
 	for (const requiredPattern of requiredPatterns) {
 		assert(requiredPattern.pattern.test(html), `${label}: ${requiredPattern.message}`);
+	}
+
+	for (const forbiddenPattern of forbiddenPatterns) {
+		assert(!forbiddenPattern.pattern.test(html), `${label}: ${forbiddenPattern.message}`);
 	}
 
 	if (expectedH1Count !== null) {
@@ -232,6 +327,10 @@ function assertRouteStructure(label, html, requiredPatterns, expectedH1Count = n
 			countMatches(html, /<h1\b/gi) === expectedH1Count,
 			`${label}: expected exactly ${expectedH1Count} h1`
 		);
+	}
+
+	if (canonicalPath) {
+		assertMetadataUrls(label, html, canonicalPath);
 	}
 }
 
@@ -244,7 +343,9 @@ async function auditRoutes() {
 			route.label,
 			html,
 			route.requiredPatterns,
-			route.expectedH1Count ?? null
+			route.expectedH1Count ?? null,
+			route.forbiddenPatterns ?? [],
+			route.canonicalPath ?? null
 		);
 		htmlByPath.set(route.path, html);
 		console.log(
@@ -253,41 +354,82 @@ async function auditRoutes() {
 	}
 
 	const slug =
-		discoverSlug(htmlByPath.get("/v2") || "") ||
-		discoverSlug(htmlByPath.get("/v2/writing") || "");
-	assert(slug, "Could not discover a V2 post route to audit");
+		discoverSlug(htmlByPath.get("/") || "") ||
+		discoverSlug(htmlByPath.get("/writing") || "");
+	assert(slug, "Could not discover a canonical post route to audit");
 
-	const postPath = `/v2/writing/${slug}`;
+	const postPath = `/writing/${slug}`;
 	const postHtml = await fetchHtml(postPath);
-	assertRouteStructure("V2 essay", postHtml, [
-		{
-			pattern: /<article[^>]*>/i,
-			message: "missing article landmark",
-		},
-		{
-			pattern: /data-reading-controls/i,
-			message: "missing reading controls",
-		},
-		{
-			pattern: /role="progressbar"/i,
-			message: "missing accessible reading progressbar",
-		},
-		{
-			pattern: /aria-live="polite"/i,
-			message: "missing polite live region for reading progress",
-		},
-		{
-			pattern: /<meta[^>]+name="robots"[^>]+content="noindex,follow"[^>]*>/i,
-			message: "missing preview noindex directive",
-		},
+	assertRouteStructure(
+		"Observatory essay",
+		postHtml,
+		[
+			{
+				pattern: /<article[^>]*>/i,
+				message: "missing article landmark",
+			},
+			{
+				pattern: /data-reading-controls/i,
+				message: "missing reading controls",
+			},
+			{
+				pattern: /role="progressbar"/i,
+				message: "missing accessible reading progressbar",
+			},
+			{
+				pattern: /aria-live="polite"/i,
+				message: "missing polite live region for reading progress",
+			},
 		{
 			pattern: /<h1\b/i,
 			message: "missing page-level heading",
 		},
-	]);
+		],
+		null,
+		[
+			{
+				pattern: /<meta[^>]+name="robots"[^>]+content="noindex,follow"[^>]*>/i,
+				message: "unexpected noindex directive on canonical essay",
+			},
+		],
+		`/writing/${slug}`
+	);
 
 	console.log(
-		`Audit OK: V2 essay structure (${formatBytes(Buffer.byteLength(postHtml))} HTML)`
+		`Audit OK: Observatory essay structure (${formatBytes(Buffer.byteLength(postHtml))} HTML)`
+	);
+
+	const classicPostPath = `/classic/writing/${slug}`;
+	const classicPostHtml = await fetchHtml(classicPostPath);
+	assertRouteStructure(
+		"Classic essay",
+		classicPostHtml,
+		[
+			{
+				pattern: /<article[^>]*>/i,
+				message: "missing classic article landmark",
+			},
+			{
+				pattern: /min read/i,
+				message: "missing classic reading meta",
+			},
+			{
+				pattern: /<h1\b/i,
+				message: "missing classic page-level heading",
+			},
+		],
+		null,
+		[
+			{
+				pattern: /<meta[^>]+name="robots"[^>]+content="noindex,follow"[^>]*>/i,
+				message: "unexpected noindex directive on classic essay",
+			},
+		],
+		`/writing/${slug}`
+	);
+
+	console.log(
+		`Audit OK: Classic essay structure (${formatBytes(Buffer.byteLength(classicPostHtml))} HTML)`
 	);
 }
 

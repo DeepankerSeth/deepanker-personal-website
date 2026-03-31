@@ -13,9 +13,10 @@ interface Props {
 	updatedDate?: string | null;
 	tags: string;
 	content: string;
+	canonical?: string;
 }
 
-const { title, description, pubDate, updatedDate, tags, content } = Astro.props;
+const { title, description, pubDate, updatedDate, tags, content, canonical } = Astro.props;
 const tagList = parseTags(tags);
 const readingTime = estimateReadingTime(content);
 ---
@@ -23,7 +24,11 @@ const readingTime = estimateReadingTime(content);
 <!doctype html>
 <html lang="en">
 	<head>
-		<BaseHead title={`${title} — Deepanker Seth`} description={description} />
+		<BaseHead
+			title={`${title} — Deepanker Seth`}
+			description={description}
+			canonical={canonical}
+		/>
 	</head>
 	<body>
 		<Header />

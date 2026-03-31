@@ -28,7 +28,12 @@ const publishedAt = post.published_at || post.created_at;
 >
 	<a href={href} class="artifact-link">
 		<div class="artifact-cover">
-			<V2Cover post={post} mode={compact ? "stamp" : "card"} label="Essay Artifact" />
+			<V2Cover
+				post={post}
+				mode={compact ? "stamp" : "card"}
+				label="Essay Artifact"
+				showLabels={false}
+			/>
 		</div>
 
 		<div class="artifact-body">

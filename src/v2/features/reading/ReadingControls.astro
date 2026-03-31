@@ -34,23 +34,23 @@ const { readingTime, classicHref, compact = false } = Astro.props;
 			<button type="button" class="tag-pill" data-reading-setting="tone" data-reading-value="paper">
 				Paper
 			</button>
-			<button type="button" class="tag-pill" data-reading-setting="tone" data-reading-value="dusk">
+			<button
+				type="button"
+				class="tag-pill"
+				data-reading-setting="tone"
+				data-reading-value="dusk"
+				data-reading-theme-gate="dark"
+			>
 				Dusk
 			</button>
-			<button type="button" class="tag-pill" data-reading-setting="tone" data-reading-value="night">
+			<button
+				type="button"
+				class="tag-pill"
+				data-reading-setting="tone"
+				data-reading-value="night"
+				data-reading-theme-gate="dark"
+			>
 				Night
-			</button>
-		</div>
-	</fieldset>
-
-	<fieldset class="control-group">
-		<legend>Measure</legend>
-		<div class="control-options">
-			<button type="button" class="tag-pill" data-reading-setting="measure" data-reading-value="standard">
-				Standard
-			</button>
-			<button type="button" class="tag-pill" data-reading-setting="measure" data-reading-value="focused">
-				Focused
 			</button>
 		</div>
 	</fieldset>
@@ -80,7 +80,7 @@ const { readingTime, classicHref, compact = false } = Astro.props;
 		</div>
 	</fieldset>
 
-	<a class="ghost-link classic-link" href={classicHref}>Read the classic version</a>
+	<a class="ghost-link classic-link" href={classicHref}>Read in classic</a>
 </section>
 
 <style>
@@ -153,6 +153,14 @@ const { readingTime, classicHref, compact = false } = Astro.props;
 		flex-wrap: wrap;
 		gap: 0.55rem;
 		min-width: 0;
+	}
+
+	[data-reading-theme-gate="dark"] {
+		display: none;
+	}
+
+	:global(html[data-theme="dark"]) [data-reading-theme-gate="dark"] {
+		display: inline-flex;
 	}
 
 	.classic-link {

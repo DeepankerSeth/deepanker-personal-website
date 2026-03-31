@@ -841,7 +841,7 @@ Confirmed:
 
 - V1 footer links to V2 home via "Preview V2"
 - V2 header links back to classic
-- V2 reading controls include "Read the classic version"
+- V2 reading controls include "Read in classic"
 - V2 footer links back to classic and to the V2 library
 
 ### What is isolated

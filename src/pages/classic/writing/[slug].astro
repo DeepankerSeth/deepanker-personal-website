@@ -1,0 +1,17 @@
+---
+import { getPostBySlug } from "../../../lib/db";
+import { publicUrl } from "../../../shared/public/routes";
+import WritingPostScreen from "../../../v1/screens/WritingPostScreen.astro";
+
+const { slug } = Astro.params;
+if (!slug) return Astro.redirect(publicUrl("v1", "writing"));
+
+const db = Astro.locals.runtime.env.DB;
+const post = await getPostBySlug(db, slug);
+
+if (!post) {
+	return new Response("Not Found", { status: 404 });
+}
+---
+
+<WritingPostScreen post={post} />

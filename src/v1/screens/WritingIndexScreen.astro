@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PostCard from '../components/PostCard.astro';
 import SearchBar from '../components/SearchBar.astro';
 import TagFilter from '../components/TagFilter.astro';
+import { publicUrl } from '../../shared/public/routes';
 import type { Post } from '../../lib/db';
 
 interface Props {
@@ -13,7 +14,11 @@ interface Props {
 const { posts, tags } = Astro.props;
 ---
 
-<BaseLayout title="Writing — Deepanker Seth" description="Essays and long-form writings.">
+<BaseLayout
+	title="Writing — Deepanker Seth"
+	description="Essays and long-form writings."
+	canonical={publicUrl('v2', 'writing')}
+>
 	<section class="writing-header">
 		<h1>Writing</h1>
 		<p class="writing-subtitle">Essays, reflections, and long-form explorations.</p>

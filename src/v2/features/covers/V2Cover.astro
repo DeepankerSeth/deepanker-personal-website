@@ -6,9 +6,15 @@ interface Props {
 	post: Pick<Post, "title" | "slug" | "tags" | "cover_variant" | "cover_accent">;
 	mode?: "feature" | "card" | "masthead" | "stamp";
 	label?: string;
+	showLabels?: boolean;
 }
 
-const { post, mode = "card", label = "Quiet Observatory" } = Astro.props;
+const {
+	post,
+	mode = "card",
+	label = "Quiet Observatory",
+	showLabels = true,
+} = Astro.props;
 const model = deriveCover(post);
 const palette = coverPalette(model.accent);
 const style = `--cover-start:${palette.start}; --cover-mid:${palette.mid}; --cover-end:${palette.end}; --cover-line:${palette.line}; --cover-glow:${palette.glow};`;
@@ -140,10 +146,12 @@ const mineralNodes = Array.from({ length: 3 }, (_, index) => ({
 		)}
 	</svg>
 
-	<div class="cover-labels">
-		<span>{label}</span>
-		<span>{model.variantLabel}</span>
-	</div>
+	{showLabels && (
+		<div class="cover-labels">
+			<span>{label}</span>
+			<span>{model.variantLabel}</span>
+		</div>
+	)}
 </div>
 
 <style>
