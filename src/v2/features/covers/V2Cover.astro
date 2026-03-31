@@ -314,12 +314,39 @@ const mineralNodes = Array.from({ length: 3 }, (_, index) => ({
 			min-height: 17.5rem;
 		}
 
+		.mode-card {
+			min-height: 10.8rem;
+		}
+
 		.mode-masthead {
 			min-height: 12rem;
 		}
 
 		.mode-stamp {
 			min-height: 4.6rem;
+		}
+	}
+
+	@media (max-width: 480px) {
+		.mode-feature {
+			min-height: 14.25rem;
+			border-radius: calc(var(--phone-panel-radius) + 0.125rem);
+		}
+
+		.mode-card {
+			aspect-ratio: 16 / 10;
+			min-height: 9.8rem;
+			border-radius: calc(var(--phone-panel-radius) - 0.05rem);
+		}
+
+		.mode-masthead {
+			min-height: 10rem;
+			border-radius: calc(var(--phone-panel-radius) + 0.125rem);
+		}
+
+		.mode-stamp {
+			min-height: 4.45rem;
+			border-radius: 1.05rem;
 		}
 	}
 </style>

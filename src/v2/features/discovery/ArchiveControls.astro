@@ -61,12 +61,12 @@
 		border: 0;
 	}
 
-	@media (max-width: 780px) {
-		.library-controls {
-			gap: 0.85rem;
-			padding: 0.9rem;
-			border-radius: 1.4rem;
-		}
+		@media (max-width: 780px) {
+			.library-controls {
+				gap: 0.78rem;
+				padding: 0.85rem;
+				border-radius: 1.4rem;
+			}
 
 		.search-group {
 			gap: 0.35rem;
@@ -76,8 +76,24 @@
 			left: 0.9rem;
 		}
 
-		#library-search {
-			padding-left: 2.35rem;
+			#library-search {
+				padding-left: 2.35rem;
+			}
 		}
-	}
-</style>
+
+		@media (max-width: 480px) {
+			.library-controls {
+				gap: 0.72rem;
+				padding: var(--phone-surface-padding);
+				border-radius: var(--phone-panel-radius);
+			}
+
+			.search-icon {
+				left: 0.82rem;
+			}
+
+			#library-search {
+				padding-left: 2.15rem;
+			}
+		}
+	</style>

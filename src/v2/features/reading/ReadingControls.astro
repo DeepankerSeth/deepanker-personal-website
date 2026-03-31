@@ -61,19 +61,30 @@ const { readingTime, classicHref, compact = false } = Astro.props;
 			<button
 				type="button"
 				class="tag-pill"
-				data-reading-command="scale-down"
+				data-reading-setting="scale"
+				data-reading-value="small"
 				aria-label="Decrease type size"
+				aria-pressed="false"
 			>
 				A-
 			</button>
-			<button type="button" class="tag-pill" data-reading-command="scale-reset">
+			<button
+				type="button"
+				class="tag-pill"
+				data-reading-setting="scale"
+				data-reading-value="medium"
+				aria-label="Default type size"
+				aria-pressed="true"
+			>
 				Reset
 			</button>
 			<button
 				type="button"
 				class="tag-pill"
-				data-reading-command="scale-up"
+				data-reading-setting="scale"
+				data-reading-value="large"
 				aria-label="Increase type size"
+				aria-pressed="false"
 			>
 				A+
 			</button>
@@ -194,23 +205,50 @@ const { readingTime, classicHref, compact = false } = Astro.props;
 		grid-column: 1 / -1;
 	}
 
-	@media (max-width: 780px) {
-		.reading-controls.is-compact {
-			grid-template-columns: 1fr;
-			gap: 0.8rem;
-			padding: 0.9rem;
+		@media (max-width: 780px) {
+			.progress-copy {
+				gap: 0.55rem 0.8rem;
+				font-size: 0.8rem;
+			}
+
+			.reading-controls.is-compact {
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+				gap: 0.75rem;
+				padding: 0.88rem 0.9rem;
+			}
+
+			.reading-controls.is-compact .control-group {
+				gap: 0.42rem;
+			}
+
+			.reading-controls.is-compact .control-options {
+				gap: 0.38rem;
+			}
+
+			.reading-controls.is-compact .classic-link {
+				justify-self: start;
+			}
 		}
 
-		.reading-controls.is-compact .control-group {
-			gap: 0.45rem;
+		@media (max-width: 480px) {
+			.reading-controls.is-compact {
+				gap: 0.7rem;
+				padding: 0.8rem;
+				border-radius: var(--phone-panel-radius);
+			}
+
+			.reading-controls.is-compact .control-options {
+				gap: 0.35rem;
+			}
+
+			.reading-controls.is-compact .tag-pill {
+				padding-inline: 0.56rem;
+			}
 		}
 
-		.reading-controls.is-compact .control-options {
-			gap: 0.4rem;
+		@media (max-width: 360px) {
+			.reading-controls.is-compact {
+				grid-template-columns: 1fr;
+			}
 		}
-
-		.reading-controls.is-compact .classic-link {
-			justify-self: start;
-		}
-	}
-</style>
+	</style>

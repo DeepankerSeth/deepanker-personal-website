@@ -51,6 +51,13 @@
 	--radius-lg: 1.85rem;
 	--radius-xl: 2.4rem;
 
+	--phone-page-gutter: 0.875rem;
+	--phone-surface-padding: 0.875rem;
+	--phone-section-gap: 2.25rem;
+	--phone-stack-gap: 0.875rem;
+	--phone-panel-radius: 1.375rem;
+	--phone-page-top-gap: 0.75rem;
+
 	--max-shell-width: 1200px;
 	--max-reading-width: 72ch;
 	--max-library-width: 1040px;

@@ -386,6 +386,11 @@ body[data-reading-tone="night"] .essay-surface {
 		background-size: 58px 58px;
 	}
 
+	.section-heading {
+		gap: 0.7rem;
+		margin-bottom: 1.35rem;
+	}
+
 	.section-heading h2 {
 		font-size: clamp(1.8rem, 7vw, 2.7rem);
 	}
@@ -420,5 +425,31 @@ body[data-reading-tone="night"] .essay-surface {
 	.v2-prose table {
 		display: block;
 		overflow-x: auto;
+	}
+}
+
+@media (max-width: 480px) {
+	.section-heading {
+		gap: 0.58rem;
+		margin-bottom: 1.1rem;
+	}
+
+	.section-heading p {
+		line-height: 1.68;
+	}
+
+	.v2-prose {
+		font-size: 1.14rem;
+		line-height: 1.84;
+	}
+
+	body[data-reading-scale="small"] .v2-prose {
+		font-size: 1.06rem;
+		line-height: 1.82;
+	}
+
+	body[data-reading-scale="large"] .v2-prose {
+		font-size: 1.22rem;
+		line-height: 1.86;
 	}
 }
