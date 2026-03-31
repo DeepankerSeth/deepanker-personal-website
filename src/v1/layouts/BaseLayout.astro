@@ -7,15 +7,16 @@ interface Props {
 	title: string;
 	description: string;
 	image?: string;
+	canonical?: string;
 }
 
-const { title, description, image } = Astro.props;
+const { title, description, image, canonical } = Astro.props;
 ---
 
 <!doctype html>
 <html lang="en">
 	<head>
-		<BaseHead title={title} description={description} image={image} />
+		<BaseHead title={title} description={description} image={image} canonical={canonical} />
 	</head>
 	<body>
 		<Header />

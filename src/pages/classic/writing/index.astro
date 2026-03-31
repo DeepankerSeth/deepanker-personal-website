@@ -1,6 +1,6 @@
 ---
 import { getAllPublishedPosts, getUniqueTags } from "../../../lib/db";
-import WritingIndexScreen from "../../../v2/screens/WritingIndexScreen.astro";
+import WritingIndexScreen from "../../../v1/screens/WritingIndexScreen.astro";
 
 const db = Astro.locals.runtime.env.DB;
 const posts = await getAllPublishedPosts(db);

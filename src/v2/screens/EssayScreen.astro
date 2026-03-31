@@ -1,6 +1,5 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import PostArtifactCard from "../components/PostArtifactCard.astro";
 import V2Cover from "../features/covers/V2Cover.astro";
 import ReadingControls from "../features/reading/ReadingControls.astro";
 import { parseTags } from "../../lib/db";
@@ -10,10 +9,9 @@ import type { Post } from "../../lib/db";
 
 interface Props {
 	post: Post;
-	otherPosts: Post[];
 }
 
-const { post, otherPosts } = Astro.props;
+const { post } = Astro.props;
 const tagList = parseTags(post.tags);
 const readingTime = estimateReadingTime(post.content);
 const publishedAt = post.published_at || post.created_at;
@@ -30,31 +28,12 @@ const updatedLabel =
 				year: "numeric",
 			}).format(new Date(post.updated_at))
 		: null;
-const tagSet = new Set(tagList);
-const related = otherPosts
-	.map((candidate) => {
-		const candidateTags = parseTags(candidate.tags);
-		const overlap = candidateTags.filter((tag) => tagSet.has(tag)).length;
-		return {
-			post: candidate,
-			score: overlap * 10 + candidate.featured,
-		};
-	})
-	.sort((left, right) => {
-		if (right.score !== left.score) return right.score - left.score;
-		return (
-			Date.parse(right.post.published_at || right.post.created_at) -
-			Date.parse(left.post.published_at || left.post.created_at)
-		);
-	})
-	.slice(0, 3)
-	.map((entry) => entry.post);
 ---
 
 <BaseLayout
 	title={`${post.title} — Deepanker Seth — Quiet Observatory`}
 	description={post.description}
-	canonical={publicUrl("v1", "post", post.slug)}
+	canonical={publicUrl("v2", "post", post.slug)}
 	bodyClass="essay-page"
 >
 	<article class="essay-layout fade-rise">
@@ -68,7 +47,7 @@ const related = otherPosts
 		<div class="essay-column">
 			<header class="essay-masthead surface-panel">
 				<div class="masthead-cover">
-					<V2Cover post={post} mode="masthead" label="Essay Artifact" />
+					<V2Cover post={post} mode="masthead" label="Essay Artifact" showLabels={false} />
 				</div>
 
 				<div class="masthead-copy">
@@ -109,23 +88,6 @@ const related = otherPosts
 					<Fragment set:html={post.rendered_html} />
 				</div>
 			</div>
-
-			<section class="essay-coda surface-panel" data-reveal style="--reveal-delay: 120ms;">
-				<div class="section-heading">
-					<p class="eyebrow">Continue the thread</p>
-					<h2>Where to go next.</h2>
-					<p>
-						These pieces share some of the same gravitational pull, whether
-						through theme, cadence, or adjacent questions.
-					</p>
-				</div>
-
-				<div class="card-stack">
-					{related.map((candidate) => (
-						<PostArtifactCard post={candidate} compact={true} />
-					))}
-				</div>
-			</section>
 		</div>
 	</article>
 </BaseLayout>
@@ -214,22 +176,10 @@ const related = otherPosts
 		overflow-x: clip;
 	}
 
-	.essay-coda {
-		padding: 1.4rem;
-		width: 100%;
-		max-width: 100%;
-		min-width: 0;
-	}
-
 	#essay-prose {
 		width: min(100%, var(--max-reading-width));
 		max-width: 100%;
 		min-width: 0;
-	}
-
-	.card-stack {
-		display: grid;
-		gap: 1rem;
 	}
 
 	.reading-panel {
@@ -260,8 +210,7 @@ const related = otherPosts
 			gap: 1rem;
 		}
 
-		.essay-masthead,
-		.essay-coda {
+		.essay-masthead {
 			padding: 1rem;
 		}
 
@@ -301,42 +250,43 @@ const related = otherPosts
 	const initReadingMode = () => {
 		const prose = document.getElementById("essay-prose") as HTMLDivElement | null;
 		const body = document.body;
+		const html = document.documentElement;
 		if (!prose || !body || body.dataset.readingBound === "true") return;
 
 		body.dataset.readingBound = "true";
+		body.removeAttribute("data-reading-measure");
+		localStorage.removeItem("v2-reading-measure");
 
 		type ReadingState = {
 			tone: "paper" | "dusk" | "night";
-			measure: "standard" | "focused";
 			scale: "small" | "medium" | "large";
 		};
 
 		const defaults: ReadingState = {
 			tone: localStorage.getItem("v2-reading-tone") || "paper",
-			measure: localStorage.getItem("v2-reading-measure") || "standard",
 			scale: localStorage.getItem("v2-reading-scale") || "medium",
 		} as ReadingState;
 		const scaleOrder: ReadingState["scale"][] = ["small", "medium", "large"];
+		const getTheme = () => (html.getAttribute("data-theme") === "dark" ? "dark" : "light");
+		const normalizeTone = (tone: ReadingState["tone"]): ReadingState["tone"] =>
+			getTheme() === "dark" || tone === "paper" ? tone : "paper";
 
 		const applyState = (state: ReadingState) => {
+			state.tone = normalizeTone(state.tone);
 			body.setAttribute("data-reading-tone", state.tone);
-			body.setAttribute("data-reading-measure", state.measure);
 			body.setAttribute("data-reading-scale", state.scale);
 			localStorage.setItem("v2-reading-tone", state.tone);
-			localStorage.setItem("v2-reading-measure", state.measure);
 			localStorage.setItem("v2-reading-scale", state.scale);
 
 			document
 				.querySelectorAll<HTMLButtonElement>("[data-reading-setting]")
 				.forEach((button) => {
-				const setting = button.dataset.readingSetting;
-				const value = button.dataset.readingValue;
-				if (!setting || !value) return;
-				const active =
-					(setting === "tone" && state.tone === value) ||
-					(setting === "measure" && state.measure === value);
-				button.setAttribute("aria-pressed", active ? "true" : "false");
-			});
+					const setting = button.dataset.readingSetting;
+					const value = button.dataset.readingValue;
+					if (!setting || !value) return;
+					const active = setting === "tone" && state.tone === value;
+					button.setAttribute("aria-pressed", active ? "true" : "false");
+				});
 		};
 
 		const state = { ...defaults };
@@ -361,15 +311,8 @@ const related = otherPosts
 				const value = target.dataset.readingValue;
 				const command = target.dataset.readingCommand;
 
-				if (
-					(setting === "tone" || setting === "measure") &&
-					value
-				) {
-					if (setting === "tone") {
-						state.tone = value as ReadingState["tone"];
-					} else {
-						state.measure = value as ReadingState["measure"];
-					}
+				if (setting === "tone" && value) {
+					state.tone = normalizeTone(value as ReadingState["tone"]);
 					applyState(state);
 					return;
 				}
@@ -408,6 +351,22 @@ const related = otherPosts
 				label.textContent = `${percent}% read`;
 			});
 		};
+
+		const themeObserver = new MutationObserver((mutations) => {
+			if (
+				mutations.some(
+					(mutation) =>
+						mutation.type === "attributes" && mutation.attributeName === "data-theme"
+				)
+			) {
+				applyState(state);
+			}
+		});
+
+		themeObserver.observe(html, {
+			attributes: true,
+			attributeFilter: ["data-theme"],
+		});
 
 		applyState(state);
 		updateProgress();

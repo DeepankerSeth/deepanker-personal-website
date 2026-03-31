@@ -10,19 +10,19 @@ const startupPollMs = 750;
 const expectedRoutes = [
 	{
 		path: "/",
-		mustInclude: ["Deepanker Seth", "Read all writings"],
+		mustInclude: ["Observatory", "Enter the library"],
 	},
 	{
 		path: "/writing",
-		mustInclude: ["Search writings", "Filter by tag"],
+		mustInclude: ["Deepanker Seth's Writings", "Search writings"],
 	},
 	{
-		path: "/v2",
-		mustInclude: ["Quiet Observatory", "Enter the library"],
+		path: "/classic",
+		mustInclude: ["Read all writings", "Latest"],
 	},
 	{
-		path: "/v2/writing",
-		mustInclude: ["Observatory Library", "A field guide to the writing archive."],
+		path: "/classic/writing",
+		mustInclude: ["Writing", "Search writings"],
 	},
 ];
 
@@ -67,7 +67,7 @@ function assertIncludes(pathname, html, snippets) {
 }
 
 function discoverSlug(html) {
-	const match = html.match(/\/v2\/writing\/([^"'?#/<>]+)/);
+	const match = html.match(/href="\/writing\/([^"'?#/<>]+)/);
 	return match?.[1] ?? null;
 }
 
@@ -103,25 +103,25 @@ async function main() {
 		}
 
 		const slug =
-			discoverSlug(htmlByRoute.get("/v2") || "") ||
-			discoverSlug(htmlByRoute.get("/v2/writing") || "");
+			discoverSlug(htmlByRoute.get("/") || "") ||
+			discoverSlug(htmlByRoute.get("/writing") || "");
 
 		if (!slug) {
-			throw new Error("Could not discover a published post slug from the V2 routes.");
+			throw new Error("Could not discover a published post slug from the public routes.");
 		}
 
-		const v1PostRoute = `/writing/${slug}`;
-		const v2PostRoute = `/v2/writing/${slug}`;
-		const v1PostHtml = await fetchHtml(v1PostRoute);
-		assertIncludes(v1PostRoute, v1PostHtml, ["min read"]);
-		console.log(`Smoke OK: ${v1PostRoute}`);
-
-		const v2PostHtml = await fetchHtml(v2PostRoute);
-		assertIncludes(v2PostRoute, v2PostHtml, [
+		const observatoryPostRoute = `/writing/${slug}`;
+		const classicPostRoute = `/classic/writing/${slug}`;
+		const observatoryPostHtml = await fetchHtml(observatoryPostRoute);
+		assertIncludes(observatoryPostRoute, observatoryPostHtml, [
 			"Artifact reading",
-			"Continue the thread",
+			"Read in classic",
 		]);
-		console.log(`Smoke OK: ${v2PostRoute}`);
+		console.log(`Smoke OK: ${observatoryPostRoute}`);
+
+		const classicPostHtml = await fetchHtml(classicPostRoute);
+		assertIncludes(classicPostRoute, classicPostHtml, ["min read"]);
+		console.log(`Smoke OK: ${classicPostRoute}`);
 
 		console.log(`Smoke test passed against ${baseUrl}`);
 	} finally {

@@ -2,15 +2,16 @@
 import ThemeToggle from './ThemeToggle.astro';
 import HeaderLink from './HeaderLink.astro';
 import { SITE_TITLE } from '../../consts';
+import { publicUrl } from '../../shared/public/routes';
 ---
 
 <a class="skip-link" href="#main-content">Skip to content</a>
 <header class="site-header">
 	<nav class="site-nav">
-		<a href="/" class="site-title">{SITE_TITLE}</a>
+		<a href={publicUrl('v1', 'home')} class="site-title">{SITE_TITLE}</a>
 		<div class="nav-links">
-			<HeaderLink href="/">Home</HeaderLink>
-			<HeaderLink href="/writing">Writing</HeaderLink>
+			<HeaderLink href={publicUrl('v1', 'home')}>Home</HeaderLink>
+			<HeaderLink href={publicUrl('v1', 'writing')}>Writing</HeaderLink>
 			<ThemeToggle />
 		</div>
 	</nav>

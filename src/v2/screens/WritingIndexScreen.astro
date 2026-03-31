@@ -16,7 +16,7 @@ const { posts } = Astro.props;
 <BaseLayout
 	title={`Writing — ${SITE_TITLE} — Quiet Observatory`}
 	description="A field-guide archive of essays."
-	canonical={publicUrl("v1", "writing")}
+	canonical={publicUrl("v2", "writing")}
 >
 	<section class="library-intro fade-rise">
 		<div class="section-heading">
@@ -30,10 +30,6 @@ const { posts } = Astro.props;
 	</section>
 
 	<section class="library-results" data-reveal style="--reveal-delay: 120ms;">
-		<div class="library-status">
-			<p id="library-count" aria-live="polite">Showing {posts.length} pieces</p>
-		</div>
-
 		<div id="library-list" class="library-list">
 			{posts.map((post) => (
 				<PostArtifactCard post={post} compact={true} />
@@ -76,24 +72,6 @@ const { posts } = Astro.props;
 		max-width: var(--max-library-width);
 	}
 
-	.library-status {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		justify-content: space-between;
-		gap: 0.8rem;
-	}
-
-	.library-status p {
-		margin: 0;
-		color: var(--color-text-muted);
-	}
-
-	#library-count {
-		color: var(--color-text-secondary);
-		font-weight: 600;
-	}
-
 	.library-list {
 		display: grid;
 		gap: 1rem;
@@ -131,16 +109,6 @@ const { posts } = Astro.props;
 			gap: 0.9rem;
 			margin-top: 1.1rem;
 		}
-
-		.library-status {
-			display: grid;
-			justify-content: start;
-			gap: 0.25rem;
-		}
-
-		.library-status p:last-child {
-			display: none;
-		}
 	}
 </style>
 
@@ -157,7 +125,6 @@ const { posts } = Astro.props;
 
 		const searchInput = document.getElementById("library-search") as HTMLInputElement | null;
 		const cards = Array.from(list.querySelectorAll<HTMLElement>("[data-post-card]"));
-		const count = document.getElementById("library-count") as HTMLParagraphElement | null;
 		const empty = document.getElementById("library-empty") as HTMLParagraphElement | null;
 
 		const readState = () => {
@@ -193,13 +160,6 @@ const { posts } = Astro.props;
 				card.hidden = !matchesQuery;
 				if (matchesQuery) visibleCount += 1;
 			});
-
-			if (count) {
-				count.textContent =
-					visibleCount === cards.length
-						? `Showing all ${visibleCount} pieces`
-						: `Showing ${visibleCount} of ${cards.length} pieces`;
-			}
 
 			if (empty) {
 				empty.hidden = visibleCount > 0;
