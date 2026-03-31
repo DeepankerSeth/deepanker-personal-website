@@ -8,12 +8,11 @@ import { SITE_DESCRIPTION, SITE_TITLE } from "../../consts";
 import type { Post } from "../../lib/db";
 
 interface Props {
-	featured: Post[];
 	latest: Post[];
 }
 
-const { featured, latest } = Astro.props;
-const leadPost = featured[0] ?? latest[0] ?? null;
+const { latest } = Astro.props;
+const leadPost = latest[0] ?? null;
 const recentFive = latest
 	.filter((post) => post.id !== leadPost?.id)
 	.slice(0, 5);
@@ -40,39 +39,43 @@ const formatDate = (value: string) =>
 				<span id="greeting-text">Hello</span>
 			</h1>
 			<p class="hero-summary">
-				Here I share some writings on topics that capture my attention.
+				Here I write when a thought has ripened enough to ask for form.
 			</p>
 			<div class="hero-actions">
 				<a class="hero-cta" href={publicUrl("v2", "writing")}>Enter the library</a>
 			</div>
 		</div>
 
-		{latest.length > 0 && (
-			<div class="lead-carousel">
-				{latest.map((post, index) => (
-					<div class={`carousel-item ${index === 0 ? "active" : ""}`}>
-						<a
-							href={publicUrl("v2", "post", post.slug)}
-							class="lead-artifact surface-panel interactive-lift"
-						>
-							<p class="eyebrow">Lead essay</p>
-							<div class="lead-cover lead-cover-feature">
-								<V2Cover post={post} mode="feature" label="Lead Essay" />
-							</div>
-							<div class="lead-cover lead-cover-compact">
-								<V2Cover post={post} mode="card" label="Lead Essay" />
-							</div>
-							<div class="lead-copy">
-								<h2>{post.title}</h2>
-								<p class="lead-description">{post.description}</p>
-								<div class="meta-row">
-									<span>{estimateReadingTime(post.content)} min read</span>
-								</div>
-							</div>
-						</a>
+		{leadPost && (
+			<a
+				href={publicUrl("v2", "post", leadPost.slug)}
+				class="lead-artifact surface-panel interactive-lift"
+			>
+				<p class="eyebrow">LATEST</p>
+				<div class="lead-cover lead-cover-feature">
+					<V2Cover
+						post={leadPost}
+						mode="feature"
+						label="LATEST"
+						showLabels={false}
+					/>
+				</div>
+				<div class="lead-cover lead-cover-compact">
+					<V2Cover
+						post={leadPost}
+						mode="card"
+						label="Lead Essay"
+						showLabels={false}
+					/>
+				</div>
+				<div class="lead-copy">
+					<h2>{leadPost.title}</h2>
+					<p class="lead-description">{leadPost.description}</p>
+					<div class="meta-row">
+						<span>{estimateReadingTime(leadPost.content)} min read</span>
 					</div>
-				))}
-			</div>
+				</div>
+			</a>
 		)}
 	</section>
 
@@ -160,28 +163,6 @@ const formatDate = (value: string) =>
 	.hero-cta:hover {
 		color: white;
 		filter: brightness(1.03);
-	}
-
-	.lead-carousel {
-		display: grid;
-		align-items: start;
-	}
-
-	.carousel-item {
-		grid-column: 1;
-		grid-row: 1;
-		opacity: 0;
-		visibility: hidden;
-		transition: opacity 1.5s ease-in-out, visibility 1.5s ease-in-out;
-		pointer-events: none;
-		z-index: 1;
-	}
-
-	.carousel-item.active {
-		opacity: 1;
-		visibility: visible;
-		pointer-events: auto;
-		z-index: 2;
 	}
 
 	.lead-artifact {
@@ -333,9 +314,7 @@ const formatDate = (value: string) =>
 		"Marhaba",
 	];
 	let currentGreetingIndex = 0;
-	let currentCarouselIndex = 0;
 	let greetingInterval;
-	let carouselInterval;
 
 	function initAnimations() {
 		// Greeting Animation
@@ -350,21 +329,6 @@ const formatDate = (value: string) =>
 					greetingElement.classList.remove("fade-out");
 				}, 1500);
 			}, 4500);
-		}
-
-		// Lead Essay Carousel Animation
-		const carouselItems = document.querySelectorAll('.carousel-item');
-		if (carouselItems.length > 1) {
-			if (carouselInterval) clearInterval(carouselInterval);
-			
-			carouselInterval = setInterval(() => {
-				const current = carouselItems[currentCarouselIndex];
-				currentCarouselIndex = (currentCarouselIndex + 1) % carouselItems.length;
-				const next = carouselItems[currentCarouselIndex];
-
-				current.classList.remove('active');
-				next.classList.add('active');
-			}, 5000); // Wait 5 seconds to rotate
 		}
 	}
 
