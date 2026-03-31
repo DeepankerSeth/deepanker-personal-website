@@ -51,24 +51,18 @@ const updatedLabel =
 				</div>
 
 				<div class="masthead-copy">
-					<p class="eyebrow">Artifact reading</p>
+					<p class="eyebrow"></p>
 					<h1>{post.title}</h1>
-						{post.description && <p class="masthead-description">{post.description}</p>}
-						<div class="meta-row essay-meta">
-							<div class="essay-meta-primary">
-								<span>{publishedLabel}</span>
-								<span class="meta-separator"></span>
-								<span>{readingTime} min read</span>
-							</div>
-							{updatedLabel && (
-								<div class="essay-meta-secondary">
-									<span class="meta-separator" aria-hidden="true"></span>
-									<span>Updated {updatedLabel}</span>
-								</div>
-							)}
+					{post.description && <p class="masthead-description">{post.description}</p>}
+					<div class="meta-row essay-meta">
+						<div class="essay-meta-primary">
+							<span>{publishedLabel}</span>
+							<span class="meta-separator"></span>
+							<span>{readingTime} min read</span>
 						</div>
-						{tagList.length > 0 && (
-							<div class="tag-list masthead-tags">
+					</div>
+					{tagList.length > 0 && (
+						<div class="tag-list masthead-tags">
 							{tagList.map((tag) => (
 								<span class="tag-pill">{tag}</span>
 							))}
@@ -89,6 +83,11 @@ const updatedLabel =
 				<div id="essay-prose" class="v2-prose">
 					<Fragment set:html={post.rendered_html} />
 				</div>
+				{updatedLabel && (
+					<footer class="essay-update-note">
+						<p>Updated {updatedLabel}</p>
+					</footer>
+				)}
 			</div>
 		</div>
 	</article>
@@ -154,9 +153,9 @@ const updatedLabel =
 		min-width: 0;
 	}
 
-	.masthead-copy :where(h1, p, span) {
-		overflow-wrap: anywhere;
-	}
+		.masthead-copy :where(h1, p, span) {
+			overflow-wrap: anywhere;
+		}
 
 		.masthead-description {
 			margin: 0;
@@ -169,8 +168,7 @@ const updatedLabel =
 			gap: 0.5rem 0.8rem;
 		}
 
-		.essay-meta-primary,
-		.essay-meta-secondary {
+		.essay-meta-primary {
 			display: inline-flex;
 			align-items: center;
 			flex-wrap: wrap;
@@ -182,14 +180,26 @@ const updatedLabel =
 			margin-top: 0.2rem;
 		}
 
-	.essay-surface {
-		padding: 2rem clamp(1rem, 2.6vw, 2.6rem);
-		border-radius: 2rem;
-		width: 100%;
-		max-width: 100%;
-		min-width: 0;
-		overflow-x: clip;
-	}
+		.essay-surface {
+			padding: 2rem clamp(1rem, 2.6vw, 2.6rem);
+			border-radius: 2rem;
+			width: 100%;
+			max-width: 100%;
+			min-width: 0;
+			overflow-x: clip;
+		}
+
+		.essay-update-note {
+			margin-top: 2.4rem;
+			padding-top: 1rem;
+			border-top: 1px solid var(--color-border);
+		}
+
+		.essay-update-note p {
+			margin: 0;
+			color: var(--color-text-muted);
+			font-size: var(--text-sm);
+		}
 
 	#essay-prose {
 		width: min(100%, var(--max-reading-width));
@@ -278,17 +288,14 @@ const updatedLabel =
 				font-size: clamp(1.92rem, 9vw, 2.55rem);
 			}
 
-			.essay-meta-secondary {
-				width: 100%;
-			}
-
-			.essay-meta-secondary .meta-separator {
-				display: none;
-			}
-
 			.essay-surface {
 				padding: 1.12rem 0.92rem;
 				border-radius: var(--phone-panel-radius);
+			}
+
+			.essay-update-note {
+				margin-top: 1.8rem;
+				padding-top: 0.9rem;
 			}
 		}
 	</style>

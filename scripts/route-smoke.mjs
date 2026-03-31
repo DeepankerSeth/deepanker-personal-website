@@ -114,7 +114,6 @@ async function main() {
 		const classicPostRoute = `/classic/writing/${slug}`;
 		const observatoryPostHtml = await fetchHtml(observatoryPostRoute);
 		assertIncludes(observatoryPostRoute, observatoryPostHtml, [
-			"Artifact reading",
 			"Read in classic",
 		]);
 		console.log(`Smoke OK: ${observatoryPostRoute}`);
