@@ -47,26 +47,32 @@ const formatDate = (value: string) =>
 			</div>
 		</div>
 
-		{leadPost && (
-			<a
-				href={publicUrl("v2", "post", leadPost.slug)}
-				class="lead-artifact surface-panel interactive-lift"
-			>
-				<p class="eyebrow">Latest</p>
-				<div class="lead-cover lead-cover-feature">
-					<V2Cover post={leadPost} mode="feature" label="Lead Essay" showLabels={false} />
-				</div>
-				<div class="lead-cover lead-cover-compact">
-					<V2Cover post={leadPost} mode="card" label="Lead Essay" showLabels={false} />
-				</div>
-				<div class="lead-copy">
-					<h2>{leadPost.title}</h2>
-					<p class="lead-description">{leadPost.description}</p>
-					<div class="meta-row">
-						<span>{estimateReadingTime(leadPost.content)} min read</span>
+		{latest.length > 0 && (
+			<div class="lead-carousel">
+				{latest.map((post, index) => (
+					<div class={`carousel-item ${index === 0 ? "active" : ""}`}>
+						<a
+							href={publicUrl("v2", "post", post.slug)}
+							class="lead-artifact surface-panel interactive-lift"
+						>
+							<p class="eyebrow">Lead essay</p>
+							<div class="lead-cover lead-cover-feature">
+								<V2Cover post={post} mode="feature" label="Lead Essay" />
+							</div>
+							<div class="lead-cover lead-cover-compact">
+								<V2Cover post={post} mode="card" label="Lead Essay" />
+							</div>
+							<div class="lead-copy">
+								<h2>{post.title}</h2>
+								<p class="lead-description">{post.description}</p>
+								<div class="meta-row">
+									<span>{estimateReadingTime(post.content)} min read</span>
+								</div>
+							</div>
+						</a>
 					</div>
-				</div>
-			</a>
+				))}
+			</div>
 		)}
 	</section>
 
@@ -154,6 +160,28 @@ const formatDate = (value: string) =>
 	.hero-cta:hover {
 		color: white;
 		filter: brightness(1.03);
+	}
+
+	.lead-carousel {
+		display: grid;
+		align-items: start;
+	}
+
+	.carousel-item {
+		grid-column: 1;
+		grid-row: 1;
+		opacity: 0;
+		visibility: hidden;
+		transition: opacity 1.5s ease-in-out, visibility 1.5s ease-in-out;
+		pointer-events: none;
+		z-index: 1;
+	}
+
+	.carousel-item.active {
+		opacity: 1;
+		visibility: visible;
+		pointer-events: auto;
+		z-index: 2;
 	}
 
 	.lead-artifact {
@@ -304,26 +332,42 @@ const formatDate = (value: string) =>
 		"Olá",
 		"Marhaba",
 	];
-	let currentIndex = 0;
+	let currentGreetingIndex = 0;
+	let currentCarouselIndex = 0;
 	let greetingInterval;
+	let carouselInterval;
 
-	function initGreetingAnimation() {
+	function initAnimations() {
+		// Greeting Animation
 		const greetingElement = document.getElementById("greeting-text");
-		if (!greetingElement) return;
+		if (greetingElement) {
+			if (greetingInterval) clearInterval(greetingInterval);
+			greetingInterval = setInterval(() => {
+				greetingElement.classList.add("fade-out");
+				setTimeout(() => {
+					currentGreetingIndex = (currentGreetingIndex + 1) % greetings.length;
+					greetingElement.textContent = greetings[currentGreetingIndex];
+					greetingElement.classList.remove("fade-out");
+				}, 1500);
+			}, 4500);
+		}
 
-		if (greetingInterval) clearInterval(greetingInterval);
+		// Lead Essay Carousel Animation
+		const carouselItems = document.querySelectorAll('.carousel-item');
+		if (carouselItems.length > 1) {
+			if (carouselInterval) clearInterval(carouselInterval);
+			
+			carouselInterval = setInterval(() => {
+				const current = carouselItems[currentCarouselIndex];
+				currentCarouselIndex = (currentCarouselIndex + 1) % carouselItems.length;
+				const next = carouselItems[currentCarouselIndex];
 
-		greetingInterval = setInterval(() => {
-			greetingElement.classList.add("fade-out");
-
-			setTimeout(() => {
-				currentIndex = (currentIndex + 1) % greetings.length;
-				greetingElement.textContent = greetings[currentIndex];
-				greetingElement.classList.remove("fade-out");
-			}, 1500); // Wait 1.5s for fade-out
-		}, 4500); // 1.5s fade out + 1.5s fade in + 1.5s solid sequence
+				current.classList.remove('active');
+				next.classList.add('active');
+			}, 5000); // Wait 5 seconds to rotate
+		}
 	}
 
-	initGreetingAnimation();
-	document.addEventListener("astro:page-load", initGreetingAnimation);
+	initAnimations();
+	document.addEventListener("astro:page-load", initAnimations);
 </script>
