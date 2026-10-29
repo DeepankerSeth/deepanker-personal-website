@@ -1,0 +1,25 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import TitleList from '../literary/TitleList.astro';
+import Passage from '../literary/Passage.astro';
+import { literaryPost, matches } from '../literary/data';
+import type { Post } from '../../lib/db';
+interface Props {
+    latest: Post[];
+    archive?: boolean;
+}
+const { latest, archive = false } = Astro.props;
+const all = latest.map(literaryPost);
+const selected = latest;
+const data = selected.map(literaryPost), q = archive ? (Astro.url.searchParams.get('q') || '') : '', tag = archive ? (Astro.url.searchParams.get('tag') || '') : '';
+const visible = data.filter(p => matches(p, q, tag)), first = visible[0];
+const tags = [...new Set(all.flatMap(p => p.tags))].sort();
+const count = all.length === 4 ? 'Four' : String(all.length);
+---
+<BaseLayout title={archive?'Writing — Deepanker Seth':'Deepanker Seth — Writing'} description="Here I write when a thought has ripened enough to ask for form." canonical={archive?'/writing':'/'} contents={latest} collection>
+<section class="identity"><h1>Deepanker <span>Seth.</span></h1><p>Here I write when a thought has ripened enough to ask for form.</p></section>
+<section id="writing" class="collection" aria-labelledby="writing-title"><div class="collection-bar"><h2 id="writing-title">{archive?'The archive':'The writing'}</h2><span>{count} {all.length===1?'piece':'pieces'}, in their own time.</span><button class="search-toggle enhanced" hidden data-search-toggle aria-expanded={archive?'true':'false'} aria-controls="index-search">Search <span aria-hidden="true">⌕</span></button><a class="no-script-search" href="/writing">Search →</a></div>
+<form class:list={['index-search',{'archive-search':archive}]} id="index-search" role="search" action="/writing" method="get" data-archive={archive?'true':'false'} data-total={data.length}><label for="index-query">Find a piece</label><input id="index-query" aria-controls="writing-results" name="q" type="search" value={q} placeholder="Search the writing" autocomplete="off"/>{tags.length>1?<label class="topic-filter">Topic<select name="tag" aria-label="Filter by topic"><option value="">All topics</option>{tag&&!tags.includes(tag)&&<option value={tag} selected>{tag}</option>}{tags.map(t=><option value={t} selected={t===tag}>{t}</option>)}</select></label>:<input type="hidden" name="tag" value={tag}/>}<button type="submit">Find</button><button type="reset" class="enhanced" hidden>Clear</button><a class="no-script-search" href="/writing">Reset</a><span role="status" aria-live="polite" aria-atomic="true" data-result-count>{archive?`${visible.length} of ${data.length} pieces`:''}</span></form>
+<div class="resume-row" hidden><a data-resume></a><button data-clear-place>Remove saved place</button></div>
+<div class="collection-grid"><nav id="writing-results" class="writing-index" aria-label="Published writing"><div class="selection-plane" aria-hidden="true" hidden={!first}></div><TitleList posts={data} all={all} preview q={q} tag={tag}/><p class="no-results" hidden={visible.length>0}>{data.length?'No pieces match. Try another word.':'There are no published pieces yet.'}</p></nav><aside class="passage-panel" id="passage-panel" aria-label="Art and a passage from the selected writing" hidden={!first}>{data.map(p=><Passage post={p} index={all.findIndex(a=>a.id===p.id)} hidden={p.id!==first?.id}/>)}</aside></div><p class="sr-only" data-selection-status role="status"></p></section>
+</BaseLayout>

@@ -1,0 +1,46 @@
+---
+import { env } from "cloudflare:workers";
+import '../literary/styles/base.css';
+import '../literary/styles/art.css';
+import '../literary/styles/material-motion.css';
+import '../literary/styles/home.css';
+import '../literary/styles/reader.css';
+import '../literary/styles/content.css';
+import Dialogs from '../literary/Dialogs.astro';
+import { getAllPublishedPosts, type Post } from '../../lib/db';
+import { literaryPost } from '../literary/data';
+interface Props {
+    title: string;
+    description: string;
+    canonical?: string;
+    image?: string;
+    noindex?: boolean;
+    bodyClass?: string;
+    preview?: boolean;
+    contents?: Post[];
+    collection?: boolean;
+}
+const { title, description, canonical, image, noindex = false, bodyClass = '', preview = false, contents, collection = false } = Astro.props;
+const posts = preview ? [] : (contents ?? await getAllPublishedPosts(env.DB));
+const data = posts.map(literaryPost);
+const current = data.find(p => p.route === Astro.url.pathname.replace(/\/$/, ''));
+const canonicalURL = new URL(canonical ?? Astro.url.pathname, Astro.site);
+const reader = bodyClass.includes('essay-page');
+---
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>{title}</title><meta name="description" content={description}/><link rel="canonical" href={canonicalURL}/><link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96"/><link rel="icon" href="/favicon.svg" type="image/svg+xml" sizes="any"/>
+<link rel="stylesheet" href="/literary/fonts.css"/><link rel="alternate" type="application/rss+xml" title="Deepanker Seth — Writing" href="/rss.xml"/>
+<meta property="og:type" content={reader?'article':'website'}/><meta property="og:title" content={title}/><meta property="og:description" content={description}/><meta property="og:url" content={canonicalURL}/>
+<meta property="twitter:card" content={image?'summary_large_image':'summary'}/><meta property="twitter:title" content={title}/><meta property="twitter:description" content={description}/><meta property="twitter:url" content={canonicalURL}/>
+{image&&<><meta property="og:image" content={new URL(image,canonicalURL)}/><meta property="twitter:image" content={new URL(image,canonicalURL)}/></>}{noindex&&<meta name="robots" content="noindex,nofollow"/>}
+</head><body class:list={[bodyClass,collection?'home':reader?'reader':'',{'is-preview':preview}]} data-piece={current?.art??0} data-slug={current?.slug||''} data-private-preview={preview?'true':undefined}>
+{reader&&!preview&&<script is:inline>try{const p=JSON.parse(localStorage.getItem('ds:literary:v1:preferences')||'null');document.body.dataset.tone=p?.tone==='ink'?'ink':'paper';if([19,20,21,22,23,24,25,26].includes(p?.size))document.documentElement.style.setProperty('--text-size',p.size+'px')}catch{}</script>}
+<a class="skip" href="#main-content">Skip to writing</a><header class="site-header"><a class="brand" href="/">{collection?'Essays & poetry':<>Deepanker Seth<span aria-hidden="true">.</span></>}</a><nav aria-label="Primary">{!preview&&(posts.length>0?<a href="/writing" data-contents>Contents <span>{String(posts.length).padStart(2,'0')}</span></a>:<a href="/writing">Writing</a>)}<a href="#a-note">A note</a></nav></header>
+<main id="main-content" class:list={[{'reader-main':reader}]}><slot/></main>
+<footer id="a-note"><div class="footer-signature" aria-hidden="true">D<span>S.</span></div><div class="footer-note"><p>I’d love to hear your honest thoughts—whether it’s about something you read here, a thought taking up headspace, or you just want to say hi.</p><a href="mailto:iamdseth@gmail.com">Write to me ↗</a></div><details class="colophon"><summary>About the illustrations</summary><p>Original AI-assisted illustrations, composed for these pieces and paired with responsive light. Each offers one interpretation of a passage, leaving the writing open to yours.</p></details><a class="rss-link" href="/rss.xml">RSS</a></footer>
+{!preview&&posts.length>0&&<Dialogs posts={data} current={current?.slug}/>}
+<script type="application/json" id="writing-data" set:html={JSON.stringify(data).replace(/</g,'\\u003c')}/>
+<script>import '../literary/site.js';import '../literary/material-motion.js';import '../literary/reading-enhancement';</script>
+</body></html>

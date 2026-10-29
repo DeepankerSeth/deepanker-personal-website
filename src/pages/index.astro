@@ -1,8 +1,9 @@
 ---
+import { env } from "cloudflare:workers";
 import { getAllPublishedPosts } from "../lib/db";
-import HomeScreen from "../v2/screens/HomeScreen.astro";
+import HomeScreen from "../site/screens/HomeScreen.astro";
 
-const db = Astro.locals.runtime.env.DB;
+const db = env.DB;
 const latest = await getAllPublishedPosts(db);
 ---
 

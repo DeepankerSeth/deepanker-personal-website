@@ -1,126 +1,43 @@
 ---
-import BaseHead from '../../components/BaseHead.astro';
+import EditorLayout from '../../components/editor/EditorLayout.astro';
+const returningToEditor = Astro.url.searchParams.get('return') === 'editor';
 ---
-
-<!doctype html>
-<html lang="en">
-	<head>
-		<BaseHead title="Login — Admin" description="Admin login" />
-		<meta name="robots" content="noindex, nofollow" />
-	</head>
-	<body>
-		<div class="login-wrapper">
-			<div class="login-card">
-				<h1>Admin</h1>
-				<p class="login-subtitle">Enter your password to continue.</p>
-
-				<form id="login-form">
-					<div class="form-group">
-						<label for="password">Password</label>
-						<input
-							type="password"
-							id="password"
-							name="password"
-							required
-							autofocus
-							autocomplete="current-password"
-							placeholder="Enter admin password"
-						/>
-					</div>
-					<div id="error-msg" class="error-msg" style="display: none;"></div>
-					<button type="submit" class="btn btn-primary login-btn">
-						Sign in
-					</button>
-				</form>
-			</div>
-		</div>
-
-		<script>
-			const form = document.getElementById('login-form') as HTMLFormElement;
-			const errorMsg = document.getElementById('error-msg')!;
-
-			form.addEventListener('submit', async (e) => {
-				e.preventDefault();
-				errorMsg.style.display = 'none';
-
-				const password = (document.getElementById('password') as HTMLInputElement).value;
-				const btn = form.querySelector('button')!;
-				btn.textContent = 'Signing in...';
-				btn.disabled = true;
-
-				try {
-					const res = await fetch('/api/auth/login', {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({ password }),
-					});
-
-					if (res.ok) {
-						window.location.href = '/admin';
-					} else {
-						const data = await res.json();
-						errorMsg.textContent = data.error || 'Invalid password';
-						errorMsg.style.display = 'block';
-					}
-				} catch {
-					errorMsg.textContent = 'Connection error. Try again.';
-					errorMsg.style.display = 'block';
-				}
-
-				btn.textContent = 'Sign in';
-				btn.disabled = false;
-			});
-		</script>
-	</body>
-</html>
-
-<style>
-	.login-wrapper {
-		min-height: 100vh;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		padding: var(--space-4);
-	}
-
-	.login-card {
-		width: 100%;
-		max-width: 360px;
-	}
-
-	.login-card h1 {
-		font-size: var(--text-2xl);
-		margin-bottom: var(--space-1);
-	}
-
-	.login-subtitle {
-		color: var(--color-text-muted);
-		font-size: var(--text-sm);
-		margin-bottom: var(--space-8);
-	}
-
-	.form-group {
-		margin-bottom: var(--space-4);
-	}
-
-	.error-msg {
-		font-size: var(--text-sm);
-		color: #dc2626;
-		margin-bottom: var(--space-4);
-		padding: var(--space-2) var(--space-3);
-		background: #fef2f2;
-		border-radius: var(--radius);
-		border: 1px solid #fecaca;
-	}
-
-	:global([data-theme="dark"]) .error-msg {
-		background: #450a0a;
-		border-color: #7f1d1d;
-	}
-
-	.login-btn {
-		width: 100%;
-		justify-content: center;
-		padding: var(--space-3) var(--space-4);
-	}
-</style>
+<EditorLayout title="Sign in" authenticated={false}>
+  <section class="room-login" data-return-to-editor={String(returningToEditor)}>
+    <p class="room-eyebrow">Private workspace</p>
+    <h1>Back to the writing.</h1>
+    <p class="login-intro">{returningToEditor ? 'Sign in here, then return to your open editor. Your writing will still be there.' : 'Enter your password to open the writing room.'}</p>
+    <form id="login-form">
+      <label class="room-field" for="password"><span>Password</span><input type="password" id="password" name="password" required autocomplete="current-password" autofocus aria-describedby="login-error" /></label>
+      <p id="login-error" class="login-error" role="alert" hidden></p>
+      <button type="submit" class="room-button room-button-primary">Sign in <span aria-hidden="true">↗</span></button>
+    </form>
+    <div id="login-success" class="editor-notice" role="status" hidden><p>You’re signed in. Return to your editor tab and save your writing.</p><a href="/admin">Or open all writing →</a></div>
+  </section>
+</EditorLayout>
+<script>
+  const form = document.querySelector<HTMLFormElement>('#login-form')!;
+  const password = document.querySelector<HTMLInputElement>('#password')!;
+  const error = document.querySelector<HTMLElement>('#login-error')!;
+  const button = form.querySelector<HTMLButtonElement>('button')!;
+  let submitting = false;
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (submitting) return;
+    submitting = true; error.hidden = true; password.removeAttribute('aria-invalid'); button.disabled = true; button.textContent = 'Signing in…';
+    try {
+      const response = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: password.value }) });
+      const result: { error?: string } = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        error.textContent = response.status === 401 ? 'That password didn’t match. Please try again.' : response.status === 429 ? 'Too many attempts. Wait a moment before trying again.' : result.error || 'Sign-in is unavailable right now. Please try again.';
+        error.hidden = false; password.setAttribute('aria-invalid', 'true'); password.focus();
+      } else {
+        password.value = '';
+        if (document.querySelector<HTMLElement>('[data-return-to-editor]')?.dataset.returnToEditor === 'true') {
+          form.hidden = true; document.querySelector<HTMLElement>('#login-success')!.hidden = false;
+        } else window.location.assign('/admin');
+      }
+    } catch { error.textContent = 'The connection failed. Please try again when you’re back online.'; error.hidden = false; }
+    finally { submitting = false; button.disabled = false; button.textContent = 'Sign in ↗'; }
+  });
+</script>

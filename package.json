@@ -1,45 +1,63 @@
 {
-	"name": "deepanker-personal-website",
-	"description": "Build a personal website, blog, or portfolio with Astro.",
-	"cloudflare": {
-		"label": "Astro Framework Starter",
-		"products": [
-			"Workers"
-		],
-		"categories": [],
-		"preview_icon_url": "https://imagedelivery.net/wSMYJvS3Xw-n339CbDyDIA/394ca3c9-d351-4036-035a-9f6dfa26dd00/public",
-		"preview_image_url": "https://imagedelivery.net/wSMYJvS3Xw-n339CbDyDIA/f40a6577-eed5-4f3e-cef4-b5ef0a1be100/preview",
-		"publish": true
-	},
-	"dependencies": {
-		"@astrojs/cloudflare": "^12.6.13",
-		"@astrojs/mdx": "4.3.13",
-		"@astrojs/rss": "4.0.14",
-		"@astrojs/sitemap": "3.6.1",
-		"astro": "5.16.9",
-		"highlight.js": "^11.11.1",
-		"marked": "^17.0.3",
-		"typescript": "5.9.3"
-	},
-	"devDependencies": {
-		"wrangler": "4.56.0"
-	},
-	"engines": {
-		"node": ">=22"
-	},
-	"private": true,
-	"scripts": {
-		"audit": "node scripts/final-qa-audit.mjs",
-		"astro": "astro",
-		"build": "astro build",
-		"cf-typegen": "wrangler types",
-		"check": "npm run check:boundaries && astro build && tsc && wrangler deploy --dry-run",
-		"check:boundaries": "node scripts/check-version-boundaries.mjs",
-		"deploy": "wrangler deploy",
-		"dev": "astro dev",
-		"preview": "astro build && wrangler dev",
-		"smoke": "node scripts/route-smoke.mjs",
-		"verify": "npm run check && npm run smoke && npm run audit"
-	},
-	"type": "module"
+  "name": "deepanker-personal-website",
+  "description": "Essays and poetry by Deepanker Seth, with a literary index and private publishing tools.",
+  "dependencies": {
+    "@astrojs/cloudflare": "14.4.2",
+    "@astrojs/rss": "4.0.19",
+    "astro": "7.4.2",
+    "hast-util-from-html": "^2.0.3",
+    "hast-util-sanitize": "^5.0.2",
+    "hast-util-to-html": "^9.0.5",
+    "highlight.js": "^11.11.1",
+    "marked": "^17.0.3",
+    "marked-footnote": "1.4.0",
+    "typescript": "5.9.3"
+  },
+  "overrides": {
+    "@astrojs/rss": {
+      "fast-xml-parser": {
+        ".": "5.7.0",
+        "fast-xml-builder": "1.1.7"
+      },
+      "zod": "4.6.6"
+    },
+    "@astrojs/cloudflare": {
+      "undici": "7.30.1"
+    }
+  },
+  "devDependencies": {
+    "@types/node": "25.0.9",
+    "axe-core": "4.14.0",
+    "esbuild": "0.25.12",
+    "playwright": "1.62.1",
+    "wrangler": "4.153.0"
+  },
+  "engines": {
+    "node": ">=22.23.4"
+  },
+  "private": true,
+  "scripts": {
+    "audit": "node scripts/final-qa-audit.mjs",
+    "astro": "astro",
+    "build": "astro build",
+    "cf-typegen": "wrangler types",
+    "check": "npm run check:boundaries && npm run build && tsc && npm run package:check",
+    "check:boundaries": "node scripts/check-boundaries.mjs",
+    "deploy": "wrangler deploy --config dist/server/wrangler.json",
+    "dev": "astro dev",
+    "preview": "npm run build && npm run serve:local",
+    "smoke": "node scripts/route-smoke.mjs",
+    "test:editor": "node --test scripts/test-editor.mjs",
+    "test:editor-client": "node --test scripts/test-editor-client.mjs scripts/test-editor-preview.mjs",
+    "test:metadata": "node --test scripts/test-public-metadata.mjs",
+    "test:literary-client": "node scripts/test-literary-client.mjs",
+    "verify": "npm run check && npm test && npm run smoke && npm run audit",
+    "test:reading": "node scripts/test-reading-passages.mjs",
+    "package:check": "wrangler deploy --config dist/server/wrangler.json --dry-run --outdir .local/package --autoconfig=false",
+    "setup:local": "node scripts/local-setup.mjs",
+    "serve:local": "node scripts/local-serve.mjs",
+    "test": "npm run test:editor && npm run test:editor-client && npm run test:metadata && npm run test:reading && npm run test:literary-client && node --test scripts/review-harness/mobile/test-policy.mjs",
+    "test:browser": "node scripts/review-harness/final-browser.mjs --authorized-local-browser-review"
+  },
+  "type": "module"
 }

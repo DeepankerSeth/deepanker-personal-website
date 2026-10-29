@@ -1,17 +1,13 @@
 ---
-import { getPostBySlug } from "../../../lib/db";
-import { publicUrl } from "../../../shared/public/routes";
-import WritingPostScreen from "../../../v1/screens/WritingPostScreen.astro";
+import { env } from 'cloudflare:workers';
+import { getPostBySlug } from '../../../lib/db';
+import { publicUrl } from '../../../shared/public/routes';
 
 const { slug } = Astro.params;
-if (!slug) return Astro.redirect(publicUrl("v1", "writing"));
+if (!slug) return Astro.redirect(publicUrl('writing') + Astro.url.search, 308);
 
-const db = Astro.locals.runtime.env.DB;
-const post = await getPostBySlug(db, slug);
-
-if (!post) {
-	return new Response("Not Found", { status: 404 });
-}
+// A missing or unpublished piece must remain a real 404, not a successful redirect.
+const post = await getPostBySlug(env.DB, slug);
+if (!post) return Astro.rewrite('/404');
+return Astro.redirect(publicUrl('post', post.slug) + Astro.url.search, 308);
 ---
-
-<WritingPostScreen post={post} />

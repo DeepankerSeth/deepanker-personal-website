@@ -1,0 +1,13 @@
+---
+import BaseLayout from '../site/layouts/BaseLayout.astro';
+Astro.response.status = 404;
+Astro.response.headers.set('X-Robots-Tag', 'noindex');
+---
+<BaseLayout title="Page not found — Deepanker Seth" description="This page could not be found. Explore the writing or return home." noindex={true} contents={[]} collection={true} bodyClass="error-page">
+  <section class="reading-header" aria-labelledby="not-found-title">
+    <p class="meta">404</p>
+    <h1 id="not-found-title">This page could not be found.</h1>
+    <p>The address may have changed, or the piece may no longer be published.</p>
+    <p><a href="/writing">Explore the writing</a> · <a href="/">Return home</a></p>
+  </section>
+</BaseLayout>

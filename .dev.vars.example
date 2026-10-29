@@ -1,0 +1,4 @@
+# Development only. npm run setup:local generates strong local values when absent.
+# For manual setup, replace both placeholders; never commit the resulting .dev.vars.
+ADMIN_PASSWORD_HASH=replace-with-sha256-of-your-local-password
+JWT_SECRET=replace-with-a-long-random-local-secret

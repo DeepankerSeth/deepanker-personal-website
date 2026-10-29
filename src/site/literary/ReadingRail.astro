@@ -1,0 +1,11 @@
+---
+interface Props {
+    count: number;
+    preview?: boolean;
+}
+const { count, preview = false } = Astro.props;
+---
+<aside class="reading-rail" aria-label="Reading controls">
+{!preview&&<a class="contents-control" href="/writing" data-contents>Contents <span aria-hidden="true">{String(count).padStart(2,'0')}</span></a>}
+<details class="preferences enhanced" hidden><summary>Reading settings</summary><div class="preference-body"><div class="preference-heading"><h2>Reading settings</h2><button type="button" data-close-settings aria-label="Close reading settings">Close ×</button></div><p>Text size</p><div class="size-buttons"><button type="button" data-size="-1" aria-label="A− Smaller text">A−</button><span data-size-label aria-live="polite">22</span><button type="button" data-size="1" aria-label="A+ Larger text">A+</button></div><p>Page</p><div class="tone-buttons"><button type="button" data-tone="paper" aria-pressed="true">Paper</button><button type="button" data-tone="ink" aria-pressed="false">Ink</button></div>{!preview&&<><div class="saved-place-actions"><button type="button" class="enhanced" hidden data-restore>Go to saved place ↓</button><button type="button" class="enhanced" hidden data-clear-place>Remove saved place</button></div><a class="direct-index" href="/writing">Go to the writing index →</a></>}</div></details>
+{!preview&&<button type="button" class="save-place enhanced" hidden data-save>Save place <span aria-hidden="true">＋</span></button>}<p class="save-status" role="status" data-save-status></p></aside>

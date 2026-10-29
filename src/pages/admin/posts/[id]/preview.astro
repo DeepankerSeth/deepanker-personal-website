@@ -1,51 +1,25 @@
 ---
-import PostLayout from '../../../../layouts/PostLayout.astro';
-import { getPostById } from '../../../../lib/db';
-
+import { env } from "cloudflare:workers";
+import BaseLayout from '../../../../site/layouts/BaseLayout.astro';
+import EssayContent from '../../../../site/components/EssayContent.astro';
+import { getEditorDocument } from '../../../../lib/editor/database';
+import { previewDocument } from '../../../../lib/editor/markdown';
+import { EditorError } from '../../../../lib/editor/validation';
 const { id } = Astro.params;
 if (!id) return Astro.redirect('/admin');
 
-const db = Astro.locals.runtime.env.DB;
-const post = await getPostById(db, id);
-
-if (!post) {
-	return new Response('Post not found', { status: 404 });
+let model;
+try {
+  model = await getEditorDocument(env.DB, id);
+} catch (error) {
+  if (error instanceof EditorError && error.status === 404) {
+    return new Response('Not found', { status: 404 });
+  }
+  throw error;
 }
+const rendered = previewDocument(model.document);
 ---
-
-<PostLayout
-	title={post.title}
-	description={post.description}
-	pubDate={post.published_at || post.created_at}
-	updatedDate={post.updated_at !== post.created_at ? post.updated_at : null}
-	tags={post.tags}
-	content={post.content}
->
-	<div class="preview-banner">
-		<span>Preview Mode</span>
-		<a href={`/admin/posts/${post.id}/edit`} class="btn btn-sm">← Back to Editor</a>
-	</div>
-	<Fragment set:html={post.rendered_html} />
-</PostLayout>
-
-<style>
-	.preview-banner {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		padding: var(--space-3) var(--space-4);
-		background: #fef3c7;
-		border: 1px solid #fcd34d;
-		border-radius: var(--radius);
-		font-size: var(--text-sm);
-		font-weight: 500;
-		color: #a16207;
-		margin-bottom: var(--space-8);
-	}
-
-	:global([data-theme="dark"]) .preview-banner {
-		background: #451a03;
-		border-color: #92400e;
-		color: #fcd34d;
-	}
-</style>
+<BaseLayout title={`${model.document.title||'Untitled'} — Private preview`} description="Private preview" noindex={true} preview={true} bodyClass="essay-page">
+<div class="preview-notice">Private saved draft preview · <a href={`/admin/posts/${id}/edit`}>Return to editor</a></div>
+<EssayContent title={model.document.title||'Untitled'} html={rendered.renderedHtml} minutes={rendered.readingMinutes} date={model.publishedAt} preview={true} />
+</BaseLayout>

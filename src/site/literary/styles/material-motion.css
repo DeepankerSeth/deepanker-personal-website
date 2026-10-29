@@ -1,0 +1,63 @@
+/* Readable and composed without the enhancement. The illustration never translates,
+   rotates or scales; a masked duplicate supplies restrained, local illumination. */
+.material-print {
+  isolation: isolate;
+}
+.detail-window {
+  overflow: hidden;
+  aspect-ratio: 640/500;
+  isolation: isolate;
+}
+.detail-window .material-print {
+  transform-origin: 50% 50%;
+  transition: transform .7s cubic-bezier(.19,.65,.22,1);
+}
+.detail-art.studying .material-print {
+  transform: scale(1.75);
+}
+.detail-art[data-detail-piece="0"] .material-print {
+  transform-origin: 40% 55%;
+}
+.detail-art[data-detail-piece="1"] .material-print {
+  transform-origin: 52% 55%;
+}
+.detail-art[data-detail-piece="2"] .material-print {
+  transform-origin: 30% 57%;
+}
+.detail-art[data-detail-piece="3"] .material-print {
+  transform-origin: 62% 42%;
+}
+[data-study-detail] {
+  display: block;
+  margin: 0 auto;
+  min-height: 44px;
+  font-size: 12px;
+  border-bottom: 1px solid var(--line);
+  padding: 6px 0;
+}
+.material-print .material-base {
+  opacity: 1;
+  filter: brightness(var(--material-base-brightness, .84)) saturate(.985);
+}
+.material-print .material-light {
+  opacity: var(--material-light-level, .9);
+  filter: brightness(var(--material-light-brightness, 1.3));
+  pointer-events: none;
+}
+[data-reading="1"] .material-print .material-light {
+  opacity: var(--material-light-level, 1);
+}
+/* A CSS-only second state is still tonal; script enhancement also relocates its focus.
+   Reduced-motion readers receive the selected light immediately, never lose the state. */
+@media (prefers-reduced-motion: reduce) {
+  .material-print,
+  .material-print * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+@media print {
+  .material-print .material-light {
+    opacity: .12;
+  }
+}

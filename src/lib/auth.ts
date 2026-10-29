@@ -87,9 +87,12 @@ export async function verifyToken(
 		}
 		if (mismatch !== 0) return false;
 
-		// Check expiry
+		// Only the token shape issued by this application is an admin session.
+		const headerData = JSON.parse(base64UrlDecode(header));
 		const payloadData = JSON.parse(base64UrlDecode(payload));
-		if (payloadData.exp && payloadData.exp < Math.floor(Date.now() / 1000)) {
+		if (headerData?.alg !== 'HS256' || headerData?.typ !== 'JWT' ||
+			payloadData?.sub !== 'admin' || !Number.isSafeInteger(payloadData?.exp) ||
+			payloadData.exp <= Math.floor(Date.now() / 1000)) {
 			return false;
 		}
 
@@ -105,10 +108,10 @@ export function getTokenFromCookie(cookieHeader: string | null): string | null {
 	return match ? match[1] : null;
 }
 
-export function createAuthCookie(token: string): string {
-	return `admin_token=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${7 * 24 * 60 * 60}`;
+export function createAuthCookie(token: string, secure = false): string {
+	return `admin_token=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${7 * 24 * 60 * 60}${secure ? '; Secure' : ''}`;
 }
 
-export function clearAuthCookie(): string {
-	return `admin_token=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0`;
+export function clearAuthCookie(secure = false): string {
+	return `admin_token=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0${secure ? '; Secure' : ''}`;
 }

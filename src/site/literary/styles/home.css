@@ -1,0 +1,716 @@
+.home {
+  --paper: #f2bca4;
+  --ink: #233d8c;
+  --accent: #233d8c;
+  --muted: #4c4963;
+  --line: #b88f8a;
+  background: var(--paper);
+  color: var(--ink);
+  overflow-anchor: none;
+  transition: background-color .5s ease;
+}
+.home[data-piece="1"] {
+  --paper: #edb4bd;
+  --line: #b58e9e;
+}
+.home[data-piece="2"] {
+  --paper: #c3cfe3;
+  --line: #97aac6;
+}
+.home[data-piece="3"] {
+  --paper: #ead09c;
+  --line: #b3a47e;
+}
+.identity {
+  margin: 24px 4.5% 26px;
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 8%;
+  align-items: center;
+}
+.identity h1 {
+  font: 550 63px/.84 var(--display);
+  letter-spacing: -.06em;
+  margin: 0;
+}
+.identity h1 span {
+  display: block;
+  margin-left: 1.37em;
+}
+.identity p {
+  font: 23px/1.25 var(--body);
+  max-width: 290px;
+  margin: 0 0 0 0;
+}
+.collection {
+  margin: 0 4.5% 90px;
+}
+.collection-bar {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  height: 44px;
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--line);
+  font: 12px var(--ui);
+}
+.collection-bar h2 {
+  font: 600 11px var(--ui);
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  margin: 0;
+}
+.collection-bar>span {
+  margin-left: auto;
+  color: var(--muted);
+}
+.search-toggle {
+  font-size: 12px;
+  padding: 0 0 0 10px;
+}
+.search-toggle>span {
+  font-size: 19px;
+  margin-left: 6px;
+}
+.collection-grid {
+  display: grid;
+  grid-template-columns: minmax(0,1.15fr) minmax(0,1fr);
+  gap: 7%;
+}
+.writing-index {
+  position: relative;
+  min-width: 0;
+  align-self: start;
+}
+.writing-index .title-list {
+  position: relative;
+}
+.writing-index .title-list>li {
+  padding: 20px 18px 12px;
+  min-width: 0;
+}
+.writing-index .title-link {
+  grid-template-columns: 20px minmax(0,1fr) 22px;
+  gap: 14px;
+}
+.writing-index .entry-title {
+  font-size: 41px;
+  line-height: 1.02;
+}
+.writing-index li.long-title .entry-title {
+  font-size: 34px;
+  line-height: 1.08;
+}
+.writing-index .row-detail {
+  margin: 7px 36px 0;
+  min-height: 30px;
+}
+.preview-button {
+  font: 11px var(--ui);
+  padding: 0 0 0 8px;
+  min-height: 30px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.preview-symbol {
+  font-size: 18px;
+}
+.selection-plane {
+  display: none;
+  position: absolute;
+  inset: 0 0 auto;
+  height: 110px;
+  background: var(--ink);
+  pointer-events: none;
+}
+.js .selection-plane {
+  display: block;
+}
+.writing-index li.chosen>.title-link,.writing-index li.chosen>.row-detail {
+  color: #fff4df;
+}
+.writing-index li.chosen .row-detail {
+  color: #fff4df;
+}
+.writing-index li.chosen a:hover,.writing-index li.chosen button:hover {
+  color: #fff4df;
+}
+.writing-index li.chosen .arrow {
+  opacity: 1;
+}
+.index-thumb {
+  display: none;
+}
+@media(min-width:621px) {
+  html:not(.js) .writing-index li.chosen {
+    background: var(--ink);
+  }
+}
+.passage-panel {
+  padding-top: 0;
+  min-width: 0;
+}
+.passage {
+  position: relative;
+}
+.artboard {
+  position: relative;
+  margin: 0 -18px;
+  min-width: 0;
+}
+.art-open {
+  display: block;
+  text-decoration: none;
+  position: relative;
+}
+.art-open svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 360px;
+}
+.art-open>span {
+  position: absolute;
+  bottom: 12px;
+  right: 18px;
+  font: 11px var(--ui);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 30px;
+  border-bottom: 1px solid var(--line);
+}
+.passage-copy {
+  padding: 8px 0 0;
+}
+.passage-eyebrow {
+  font: 11px var(--ui);
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+.passage blockquote {
+  font: 400 33px/1.12 var(--body);
+  letter-spacing: -.022em;
+  margin: 0 0 15px;
+  max-width: 32ch;
+  min-height: 74px;
+}
+.passage-actions {
+  font-size: 12px;
+}
+.passage-actions button span {
+  font-size: 17px;
+}
+.passage:not([hidden]) .passage-copy {
+  animation: appear .28s ease-out both;
+}
+.passage:not([hidden]) .artboard {
+  animation: appear .35s ease-out both;
+}
+@keyframes appear {
+  from {
+    opacity: .3;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.index-search {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+}
+.index-search input {
+  width: 300px;
+  max-width: 50%;
+  border: 0;
+  border-bottom: 1px solid var(--ink);
+  background: none;
+  padding: 8px 0;
+  color: inherit;
+  border-radius: 0;
+  min-width: 0;
+}
+.index-search button {
+  padding: 4px 6px;
+}
+.index-search [role=status] {
+  margin-left: auto;
+  color: var(--muted);
+}
+.resume-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  gap: 20px;
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+}
+.resume-row a {
+  color: var(--accent);
+}
+.resume-row button {
+  font-size: 12px;
+}
+.home .contents {
+  --paper: #f7f2e8;
+  --ink: #252d38;
+  --line: #bfc1bd;
+  --muted: #5f6470;
+}
+.home .art-dialog {
+  background: var(--paper);
+}
+@media(min-width:1600px) {
+  .identity,.collection {
+    max-width: 1460px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .identity h1 {
+    font-size: 82px;
+  }
+  .writing-index .entry-title {
+    font-size: 49px;
+  }
+  .writing-index li.long-title .entry-title {
+    font-size: 40px;
+  }
+  .art-open svg {
+    max-height: 410px;
+  }
+  .passage blockquote {
+    font-size: 38px;
+  }
+}
+@media(max-width:1100px) and (min-width:621px) {
+  .identity {
+    gap: 6%;
+    grid-template-columns: 1.18fr 1fr;
+    margin-top: 24px;
+    margin-bottom: 25px;
+  }
+  .identity h1 {
+    font-size: 57px;
+  }
+  .identity p {
+    font-size: 22px;
+  }
+  .collection-grid {
+    gap: 5%;
+    grid-template-columns: minmax(0,1.18fr) minmax(0,1fr);
+  }
+  .writing-index .title-list>li {
+    padding: 18px 11px 9px;
+  }
+  .writing-index .title-link {
+    grid-template-columns: 16px minmax(0,1fr) 18px;
+    gap: 10px;
+  }
+  .writing-index .entry-title {
+    font-size: 34px;
+  }
+  .writing-index li.long-title .entry-title {
+    font-size: 29px;
+  }
+  .writing-index .row-detail {
+    margin-left: 26px;
+    margin-right: 26px;
+    font-size: 10px;
+  }
+  .passage blockquote {
+    font-size: 29px;
+  }
+  .art-open svg {
+    min-height: 240px;
+  }
+  .passage-actions {
+    font-size: 11px;
+    gap: 5px;
+  }
+  .artboard {
+    margin: 0 -12px;
+  }
+  .art-open>span {
+    right: 12px;
+  }
+  .preview-button {
+    font-size: 10px;
+  }
+}
+@media(max-width:620px) {
+  .identity {
+    grid-template-columns: 1fr 1fr;
+    gap: 26px;
+    margin: 25px 5% 26px;
+  }
+  .identity h1 {
+    font-size: 49px;
+    line-height: .87;
+  }
+  .identity h1 span {
+    margin-left: .75em;
+  }
+  .identity p {
+    font-size: 20px;
+    line-height: 1.25;
+    max-width: 205px;
+  }
+  .collection {
+    margin: 0 5% 60px;
+  }
+  .collection-bar>span {
+    font-size: 11px;
+  }
+  .collection-grid {
+    display: block;
+  }
+  .selection-plane {
+    display: none!important;
+  }
+  .writing-index .title-list>li {
+    padding: 18px 0 12px;
+  }
+  .writing-index li.chosen>.title-link,.writing-index li.chosen>.row-detail,.writing-index li.chosen .row-detail {
+    color: var(--ink);
+  }
+  .writing-index li.chosen a:hover,.writing-index li.chosen button:hover {
+    color: var(--ink);
+  }
+  .writing-index .title-link {
+    grid-template-columns: 64px minmax(0,1fr) 22px;
+    gap: 14px;
+    align-items: center;
+  }
+  .writing-index .number {
+    display: none;
+  }
+  .index-thumb {
+    display: block;
+    width: 64px;
+    line-height: 0;
+  }
+  .index-thumb svg {
+    width: 100%;
+    height: auto;
+  }
+  .writing-index .entry-title {
+    font-size: 35px;
+    line-height: 1.04;
+  }
+  .writing-index li.long-title .entry-title {
+    font-size: 29px;
+    line-height: 1.09;
+  }
+  .writing-index .row-detail {
+    margin: 2px 36px 0 78px;
+    min-height: 44px;
+  }
+  .preview-button {
+    min-height: 44px;
+    font-size: 11px;
+    padding: 0 0 0 8px;
+  }
+  .writing-index li.expanded {
+    padding-bottom: 24px;
+  }
+  .writing-index li.expanded>.title-link {
+    color: var(--ink);
+  }
+  .writing-index li.expanded .preview-button {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .writing-index .passage {
+    margin-top: 10px;
+    border-top: 1px solid var(--line);
+    padding-top: 0;
+  }
+  .passage-panel {
+    display: none;
+  }
+  .passage-panel.fallback {
+    display: block;
+  }
+  .artboard {
+    margin: 0 auto;
+    max-width: 470px;
+  }
+  .art-open svg {
+    max-height: 290px;
+  }
+  .art-open>span {
+    bottom: 8px;
+    right: 0;
+  }
+  .passage-copy {
+    padding-top: 14px;
+  }
+  .passage-eyebrow {
+    font-size: 11px;
+  }
+  .passage blockquote {
+    font-size: 29px;
+    line-height: 1.17;
+    min-height: 0;
+    max-width: 35ch;
+  }
+  .passage-actions {
+    font-size: 12px;
+  }
+  .index-search {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .index-search label {
+    flex-basis: 100%;
+  }
+  .index-search input {
+    max-width: none;
+    flex: 1;
+    width: 180px;
+  }
+  .index-search [role=status] {
+    margin-left: 0;
+  }
+  .resume-row {
+    align-items: start;
+  }
+  .resume-row a {
+    padding-top: 12px;
+    line-height: 1.4;
+  }
+  .resume-row button {
+    max-width: 120px;
+  }
+}
+@media(max-width:440px) {
+  .identity {
+    gap: 18px;
+    grid-template-columns: 1fr 144px;
+    margin: 24px 5% 25px;
+  }
+  .identity h1 {
+    font-size: clamp(34px,10.4vw,46px);
+    letter-spacing: -.065em;
+  }
+  .identity p {
+    font-size: 18px;
+  }
+  .collection-bar>span {
+    display: none;
+  }
+  .search-toggle {
+    margin-left: auto;
+  }
+  .writing-index .title-link {
+    grid-template-columns: 50px minmax(0,1fr) 17px;
+    gap: 11px;
+  }
+  .index-thumb {
+    width: 50px;
+  }
+  .writing-index .entry-title {
+    font-size: 31px;
+  }
+  .writing-index li.long-title .entry-title {
+    font-size: 26px;
+  }
+  .writing-index .row-detail {
+    margin-left: 61px;
+    margin-right: 28px;
+    font-size: 10px;
+  }
+  .writing-index .title-list>li {
+    padding-top: 14px;
+    padding-bottom: 8px;
+  }
+  .writing-index .arrow {
+    font-size: 24px;
+  }
+  .art-open svg {
+    max-height: 255px;
+  }
+  .passage blockquote {
+    font-size: 28px;
+  }
+}
+@media(max-width:360px) {
+  .identity {
+    grid-template-columns: 1fr 119px;
+    gap: 12px;
+  }
+  .identity p {
+    font-size: 17px;
+  }
+  .writing-index .entry-title {
+    font-size: 28px;
+  }
+  .writing-index li.long-title .entry-title {
+    font-size: 24px;
+  }
+  .writing-index .row-detail {
+    margin-right: 0;
+  }
+  .passage blockquote {
+    font-size: 26px;
+  }
+  .passage-actions {
+    font-size: 11px;
+  }
+}
+@media(min-width:621px) and (max-width:800px) {
+  .identity h1 {
+    font-size: 47px;
+  }
+  .identity p {
+    font-size: 20px;
+    max-width: 225px;
+  }
+  .identity {
+    gap: 5%;
+    margin-block: 23px 25px;
+  }
+  .writing-index .entry-title {
+    font-size: 31px;
+  }
+  .writing-index li.long-title .entry-title {
+    font-size: 26px;
+  }
+  .writing-index .title-list>li {
+    padding: 14px 8px 8px;
+  }
+  .writing-index .row-detail {
+    margin-right: 10px;
+    font-size: 10px;
+  }
+  .passage blockquote {
+    font-size: 25px;
+    line-height: 1.16;
+  }
+  .art-open svg {
+    min-height: 210px;
+    max-height: 270px;
+  }
+  .passage-eyebrow {
+    font-size: 10px;
+    margin-bottom: 12px;
+  }
+  .passage-actions {
+    font-size: 10px;
+    gap: 8px;
+  }
+  .passage-actions button {
+    font-size: 10px;
+  }
+}
+/* Preview controls remain easy to target at intermediate, touch-sized widths. */
+.home .preview-button {
+  min-height: 44px;
+  font-size: 12px;
+}
+.home .passage-actions,.home .passage-actions button {
+  font-size: 12px;
+}
+.home .art-open>span {
+  font-size: 12px;
+  min-height: 44px;
+  bottom: 2px;
+}
+/* Short desktop windows keep the selected title and its passage in one encounter. */
+@media(min-width:1101px) and (max-height:780px), (min-width:1101px) and (max-width:1350px) and (max-height:850px) {
+  .home .site-header {
+    height: 60px;
+  }
+  .identity {
+    margin-block: 14px 16px;
+  }
+  .identity h1 {
+    font-size: 49px;
+  }
+  .identity p {
+    font-size: 21px;
+    max-width: 300px;
+  }
+  .writing-index .title-list>li {
+    padding: 12px 18px 8px;
+  }
+  .writing-index .row-detail {
+    margin-top: 3px;
+  }
+  .art-open svg {
+    max-height: 340px;
+  }
+  .passage blockquote {
+    font-size: 31px;
+    line-height: 1.13;
+    min-height: 70px;
+  }
+}
+/* A phone encounter begins with the line, then lets its material reading unfold.
+ * The quote and its actions stay together; site.js places the artwork after them.
+ * desktop retains its original art-first DOM and composition. */
+@media(max-width:620px) {
+  /* Keep focused controls rendered until site.js moves them into their row. */
+  .js .passage-panel {
+    display: block;
+  }
+  .home .writing-index .passage-copy {
+    padding-top: 16px;
+  }
+  .home .writing-index .passage-eyebrow {
+    display: none;
+  }
+  .home .writing-index .passage blockquote {
+    font-size: 22px;
+    line-height: 1.22;
+    letter-spacing: -.015em;
+    max-width: 34ch;
+    margin: 0 0 8px;
+    min-height: 0;
+    text-wrap: balance;
+  }
+  .home .writing-index .passage .artboard {
+    width: 100%;
+    max-width: 470px;
+    margin: 0 auto 4px;
+  }
+  .home .writing-index .passage .art-open svg {
+    max-height: clamp(220px,48vw,260px);
+  }
+  .home .writing-index .passage .art-open>span {
+    position: static;
+    justify-content: flex-end;
+    width: max-content;
+    max-width: 100%;
+    min-height: 44px;
+    margin-left: auto;
+    gap: 12px;
+  }
+  .home .writing-index .passage:not([hidden]) .passage-copy {
+    animation: none;
+  }
+  .home .writing-index .passage:not([hidden]) blockquote {
+    animation: appear .28s ease-out both;
+  }
+  .home .preview-button {
+    white-space: nowrap;
+    gap: 8px;
+  }
+  .home .preview-symbol {
+    min-width: 14px;
+    text-align: center;
+  }
+}
+@media(min-width:441px) and (max-width:620px) {
+  .home .writing-index .passage blockquote {
+    font-size: 24px;
+  }
+}
