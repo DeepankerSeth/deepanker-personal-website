@@ -1,0 +1,26 @@
+---
+import { isLongTitle, isPoetry } from '../literary/typography';
+import ReadingRail from '../literary/ReadingRail.astro';
+import MaterialArt from '../literary/MaterialArt.astro';
+import { displayDate, type LiteraryPost } from '../literary/data';
+interface Props {
+    title: string;
+    html: string;
+    minutes: number;
+    date?: string | null;
+    updated?: string | null;
+    tags?: string[];
+    preview?: boolean;
+    contentsCount?: number;
+    item?: LiteraryPost;
+    index?: number;
+}
+const { title, html, minutes, date, updated, tags = [], preview = false, contentsCount = 0, item, index = 0 } = Astro.props;
+const poetry = isPoetry(html);
+---
+<div class="progress-track" aria-hidden="true"><div data-reading-progress></div></div>
+<header class:list={['essay-header','reading-header',{'long-title':isLongTitle(title),'without-art':!item||item.art===null}]}>
+{!preview&&item&&item.art!==null&&<a class="reader-opening-art" href={`/literary/art/${item.slug}.svg`} data-look={index} aria-label={`Look closer at the illustration for ${title}`}><span class="reader-opening-print" aria-hidden="true"><MaterialArt decorative piece={item.art} prefix={`reader-${item.slug}-opening`}/></span><span class="reader-art-label">Look closer <span aria-hidden="true">↗</span></span></a>}
+<div class="essay-heading-copy"><div class="essay-meta"><span class="essay-ordinal" data-preview-kind={preview?true:undefined}>{!preview&&<>{String(index+1).padStart(2,'0')} / {String(contentsCount).padStart(2,'0')} <span aria-hidden="true">·</span> </>}{poetry?'Poem':'Essay'}</span><span class="essay-byline">Deepanker Seth <span aria-hidden="true">·</span> <span data-preview-minutes>{minutes} min read</span></span>{date&&<time data-preview-date datetime={date}>{displayDate(date)}</time>}</div><h1 class:list={['essay-title',{'long-title':isLongTitle(title)}]} data-preview-title>{title}</h1></div></header>
+<div class="reading-grid"><ReadingRail count={contentsCount} preview={preview}/><div class="essay-column"><article id="essay-body" tabindex="-1" class:list={['prose',{poetry}]} data-essay-prose data-original-body><!-- original-body:start --><Fragment set:html={html}/><!-- original-body:end --></article>
+{!preview&&<div class="publication-details">{updated&&updated!==date&&<p>Updated <time datetime={updated}>{displayDate(updated)}</time></p>}{tags.length>0&&<nav aria-label="Topics">{tags.map(tag=><a href={`/writing?tag=${encodeURIComponent(tag)}`}>{tag}</a>)}</nav>}</div>}<slot/></div></div>

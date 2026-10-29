@@ -1,0 +1,13 @@
+---
+import MaterialArt from './MaterialArt.astro';
+import { contextUrl, type LiteraryPost } from './data';
+interface Props {
+    post: LiteraryPost;
+    index: number;
+    hidden?: boolean;
+}
+const { post: p, index: i, hidden = false } = Astro.props;
+---
+<section class="passage" id={`passage-${i}`} data-passage={i} data-reading={p.initialReading} hidden={hidden} aria-label={`${p.art!==null?'Art and passage':'Passage'} from ${p.title}`}>
+{p.art!==null&&<div class="artboard"><a class="art-open" href={`/literary/art/${p.slug}.svg`} data-look={i}><MaterialArt piece={p.art} prefix={`preview-${i}`}/>{' '}<span>Look closer <span aria-hidden="true">↗</span></span></a></div>}
+<div class="passage-copy"><div class="passage-eyebrow">From {p.title}</div><blockquote data-quote>{p.excerpt}</blockquote><div class="passage-actions"><a data-context href={contextUrl(p)}>{p.passageIds[0]?'Read in context':'Read the piece'} <span aria-hidden="true">↗</span></a>{p.quotes.length>1&&<button class="enhanced" hidden data-another={i}>Another passage <span aria-hidden="true">↺</span></button>}</div></div></section>

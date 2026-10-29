@@ -1,372 +1,111 @@
-# Deepanker Personal Website
+# Deepanker Seth — essays and poetry
 
-Personal writing website and built-in CMS for essays and long-form pieces. The project is a single Astro server-rendered application deployed to Cloudflare Workers, with Cloudflare D1 as the only content store.
+A personal place to encounter writing, then settle into it. Complete titles make choosing immediate. Selected passages, material artwork and changing colour give each piece an atmosphere; the essay itself offers a quiet reading surface. On phones, a passage opens within its title's row before the artwork. Exploration is optional.
 
-> Important current truth
->
-> The current implementation serves:
->
-> - `Observatory` at `/`, `/writing`, `/writing/:slug`
-> - `Classic` at `/classic`, `/classic/writing`, `/classic/writing/:slug`
->
-> If you see any older mention of `V2` living at `/v2`, or the classic site being the canonical/root experience, treat that as historical and outdated. This README reflects the current codebase.
+**This repository is the authoritative implementation.** `src/site` contains the public experience; there are no alternate versions to choose between. The `/classic` addresses remain as redirects to the same writing. The private writing room shares the reader's rendering and keeps drafts separate from published text.
 
-## At a Glance
+Start here for setup and structure. [Artwork](docs/ARTWORK.md), [design learnings](docs/DESIGN-LEARNINGS.md), [release and recovery](docs/OPERATIONS.md), and [verification status](docs/VERIFICATION.md) supply the focused detail. Historical prototypes and large evidence recordings live in the private recovery bundle outside this repository, not in the public project.
 
-- One deployable Astro SSR app
-- One D1 `posts` table as the editorial source of truth
-- Two public presentations over the same published posts:
-  - `Observatory` at the root
-  - `Classic` under `/classic`
-- One built-in admin CMS at `/admin`
-- One protected JSON API surface at `/api/auth/*` and `/api/posts/*`
-- Markdown is rendered at write time and stored in D1 as HTML
-- Public pages render by querying D1 directly during SSR; they do not call the internal API to build the page
-- Astro content collections are not used; all real content lives in D1
+## Run a clean checkout
 
-## Mental Model
+Use Node **24.22.1**, npm **11.19.1** and Python 3. The official Node distribution used for this release includes that npm version; check both with `node --version` and `npm --version`. `.node-version` pins Node, while `package.json`'s `packageManager` pins npm for Cloudflare Builds, which otherwise selects npm independently. An older npm can reject this unchanged lockfile as out of sync. The package's supported minimum remains Node 22.23.4; use the exact release pins when reproducing it. The lockfile pins Astro 7, its Cloudflare adapter and Wrangler. No global Astro/Wrangler installation, personal browser profile, Git history or remote database is required.
 
-Think of the system as one editorial engine with two skins.
-
-The editorial engine is:
-
-- `src/lib/db.ts` for reads and writes
-- `src/lib/markdown.ts` for markdown rendering, read-time estimates, and slug generation
-- `src/lib/auth.ts` plus `src/middleware.ts` for admin authentication
-- Cloudflare D1 for persistence
-
-The two skins are:
-
-- `src/v2/*` for the current root `Observatory` experience
-- `src/v1/*` for the alternate `/classic` experience
-
-The admin panel and preview flow are separate from both public skins and still depend on the legacy top-level layout/component layer in `src/layouts/*`, `src/components/*`, and `src/styles/*`.
-
-## Current Route Map
-
-### Public routes
-
-| Route | Purpose | Presentation layer |
-| --- | --- | --- |
-| `/` | Observatory home | `src/v2/screens/HomeScreen.astro` |
-| `/writing` | Observatory library | `src/v2/screens/WritingIndexScreen.astro` |
-| `/writing/:slug` | Observatory essay page | `src/v2/screens/EssayScreen.astro` |
-| `/classic` | Classic home | `src/v1/screens/HomeScreen.astro` |
-| `/classic/writing` | Classic writing index | `src/v1/screens/WritingIndexScreen.astro` |
-| `/classic/writing/:slug` | Classic essay page | `src/v1/screens/WritingPostScreen.astro` |
-| `/rss.xml` | RSS feed for published posts | `src/pages/rss.xml.js` |
-
-### Admin routes
-
-| Route | Purpose |
-| --- | --- |
-| `/admin/login` | Admin sign-in |
-| `/admin` | Post dashboard |
-| `/admin/posts/new` | New post editor |
-| `/admin/posts/:id/edit` | Edit post editor |
-| `/admin/posts/:id/preview` | Full preview page |
-
-### API routes
-
-| Route | Methods | Purpose |
-| --- | --- | --- |
-| `/api/auth/login` | `POST` | Verify password and set `admin_token` |
-| `/api/auth/logout` | `POST` | Clear `admin_token` |
-| `/api/posts` | `GET`, `POST` | List all posts or create a post |
-| `/api/posts/:id` | `GET`, `PUT`, `DELETE` | Read, update, or delete a post |
-
-## How the System Works
-
-1. A request hits an Astro route in `src/pages/*`.
-2. The route reads Cloudflare bindings from `Astro.locals.runtime.env`.
-3. The route queries D1 through shared helpers in `src/lib/db.ts`.
-4. The route passes plain `Post` objects into a V1 screen, a V2 screen, an admin page, or an RSS response.
-5. Astro server-renders the HTML.
-6. Small inline scripts progressively enhance the page for:
-   - theme toggles
-   - Observatory library search
-   - Classic search and tag filtering
-   - Observatory reading preferences and progress
-   - admin login/save/delete actions
-
-Publishing flow:
-
-1. The author logs in at `/admin/login`.
-2. The editor sends JSON to `/api/posts` or `/api/posts/:id`.
-3. The API renders markdown to HTML with `marked` plus `highlight.js`.
-4. The API stores both raw markdown (`content`) and rendered HTML (`rendered_html`) in D1.
-5. If the post is published, it becomes visible on both public experiences immediately because both read the same `posts` table.
-6. RSS pulls from that same published-post query.
-
-## Current Feature Set
-
-### Observatory (root)
-
-- Current canonical public experience
-- Dedicated V2 visual system, typography, motion, and chrome
-- Home page uses the most recent published post as the lead artifact
-- Writing library uses client-side substring search with `?q=` URL sync
-- Essay page adds:
-  - procedural cover art
-  - reading progress
-  - tone and type-size controls
-  - local preference persistence
-  - a link back to the Classic version
-
-### Classic (`/classic`)
-
-- Alternate typography-first presentation
-- Home page shows:
-  - up to 5 featured published posts
-  - latest published posts
-- Writing index supports:
-  - client-side substring search over title and description
-  - client-side tag filtering
-- Essay page renders the same stored HTML in a simpler article shell
-
-### Admin CMS
-
-- Password-protected single-user admin model
-- Create, edit, publish, unpublish, and delete posts from the browser
-- Draft vs published workflow
-- Optional `featured` flag
-- Optional Observatory cover metadata:
-  - `cover_variant`
-  - `cover_accent`
-
-### What is not currently implemented
-
-- No file-based publishing through Astro content collections
-- No multi-user accounts, users table, or roles system
-- No third-party CMS
-- No upload or object-storage pipeline
-- No fuzzy full-text search engine; search is simple case-insensitive substring matching
-- No tag filtering or sort controls on the Observatory library page
-- No separate `/v2` route tree in the current implementation
-
-## Tech Stack
-
-- Framework: Astro 5 SSR
-- Deployment target: Cloudflare Workers
-- Database: Cloudflare D1
-- Auth: custom SHA-256 password verification plus HMAC-signed JWT cookie
-- Markdown rendering: `marked`
-- Code highlighting: `highlight.js`
-- Styling: Vanilla CSS
-- Public presentation layers:
-  - `src/v1/*` for Classic
-  - `src/v2/*` for Observatory
-- MDX: installed, but not used for content in the current project
-- TypeScript: strict Astro/TypeScript setup
-- Verification tooling:
-  - version boundary guard
-  - route smoke tests
-  - QA and performance audit script
-
-## Data Model
-
-All content lives in one D1 table: `posts`.
-
-Key fields:
-
-- `id`: UUID primary key
-- `slug`: unique URL slug
-- `title`
-- `description`
-- `content`: raw markdown
-- `rendered_html`: stored HTML generated at write time
-- `tags`: JSON string array
-- `status`: `draft` or `published`
-- `featured`: integer flag
-- `cover_variant`: optional Observatory override
-- `cover_accent`: optional Observatory override
-- `created_at`
-- `updated_at`
-- `published_at`
-
-Important behavioral details:
-
-- Public queries only return `status = 'published'`
-- `published_at` is set the first time a post is published
-- Unpublishing a post does not clear `published_at`
-- Observatory cover metadata is optional; when absent, Observatory derives a deterministic cover from `slug`, `title`, and `tags`
-- Classic pages ignore cover metadata completely
-
-## Project Structure
-
-```text
-.
-├── README.md
-├── astro.config.mjs
-├── wrangler.json
-├── package.json
-├── schema.sql
-├── seed.sql
-├── migrations/
-├── docs/
-│   └── architecture/
-│       └── system-source-of-truth.md
-├── scripts/
-├── public/
-└── src/
-    ├── content.config.ts          # Placeholder only; Astro collections are unused
-    ├── env.d.ts                   # Cloudflare env typing
-    ├── middleware.ts              # Admin/API auth gate
-    ├── consts.ts                  # Site constants
-    ├── lib/                       # Shared server logic
-    ├── shared/public/             # Shared route and cover contracts
-    ├── pages/                     # Real request entry points
-    │   ├── admin/                 # Admin UI routes
-    │   ├── api/                   # Auth + post CRUD API
-    │   ├── classic/               # Classic public routes
-    │   ├── writing/               # Observatory public routes
-    │   ├── index.astro            # Observatory home
-    │   └── rss.xml.js             # RSS feed
-    ├── v1/                        # Classic presentation layer
-    ├── v2/                        # Observatory presentation layer
-    ├── components/                # Legacy top-level UI still used by admin/preview
-    ├── layouts/                   # Legacy top-level layouts still used by admin/preview
-    └── styles/                    # Legacy top-level global CSS
+```sh
+npm ci
+npm run setup:local -- --review-writing
+npm run build
+npm run serve:local
 ```
 
-## Local Development
+Open **http://127.0.0.1:4194/**. The setup creates a new, private `.local/state` database and refuses to overwrite existing state. The optional `--review-writing` loads complete captured public HTML for the four published pieces plus one unpublished synthetic test draft. **Those captures are not original Markdown or a production backup. Never republish those fixture rows.** Omit `--review-writing` for an empty local writing room.
 
-### Requirements
+When `.dev.vars` is absent, setup generates strong development-only credentials and saves the password in ignored `.local/development-login.txt`; it never prints the secret. Sign in at `/admin/login`. Existing credentials are left alone. [.dev.vars.example](.dev.vars.example) documents the variable names without real values.
 
-- Node `>=22` (declared in `package.json`)
-- `npm`
-- Wrangler via project dependencies
+For development with automatic rebuilding:
 
-### Install dependencies
-
-```bash
-npm install
-```
-
-### Create the local D1 database
-
-```bash
-npx wrangler d1 execute personal-site-db --local --file=./schema.sql
-npx wrangler d1 execute personal-site-db --local --file=./seed.sql
-```
-
-### Create local secrets
-
-Create `.dev.vars` in the project root:
-
-```bash
-ADMIN_PASSWORD_HASH=your_sha256_password_hash_here
-JWT_SECRET=your_long_random_secret_here
-```
-
-Generate a password hash with Node:
-
-```bash
-node -e "const c=require('crypto');console.log(c.createHash('sha256').update('your-password').digest('hex'))"
-```
-
-Notes:
-
-- `.dev.vars` is ignored by Git.
-- The repo currently does not contain a checked-in `.dev.vars.example`, so create the file manually.
-
-### Run the app
-
-```bash
+```sh
 npm run dev
 ```
 
-Admin login lives at:
+The development URL is normally http://localhost:4321/. Both modes use `.local/state`. For a separate state directory, setup/serve accept `--state /tmp/a-new-site-state`; development/build tooling uses `DEEPANKER_D1_PERSIST_TO` when needed. Only choose a new directory for setup. Stopping a server does not delete its state. Never run `schema.sql` against an existing production database.
 
-```text
-http://localhost:4321/admin/login
+## Work on the project
+
+| Location | Responsibility |
+|---|---|
+| `src/pages` | Public routes, compatibility redirects, private admin pages and API entry points |
+| `src/site/screens`, `layouts`, `components` | Compose the index, archive, essay and shared reading layout |
+| `src/site/literary` | Artwork registry, passages, responsive index, dialogs, motion and reading controls |
+| `src/components/editor` | Writing room, import/export, recovery and unsaved preview controller |
+| `src/lib/editor` | Validation, sanitized Markdown and guarded draft/publication operations |
+| `src/lib/db.ts`, `src/lib/auth.ts`, `src/middleware.ts` | Published reads, signed author sessions and access/cache boundaries |
+| `public/literary` | Served artwork variants and self-hosted fonts with licences |
+| `artwork/masters` | Unserved lossless art masters, origin notes and generation specifications |
+| `schema.sql`, `migrations` | Fresh local schema and additive changes for existing databases |
+| `tests/fixtures`, `scripts` | Exact public captures, synthetic test data and reproducible local checks |
+
+The database is Cloudflare D1. Public pages render directly from `posts` with `status='published'`; they do not call the private editor API or use file-based Astro content collections. `post_drafts` stores private working copies. Original Markdown and sanitized rendered HTML have distinct purposes and must not be interchanged.
+
+Keep `site.js`'s state transitions explicit: selection, responsive passage placement, dialogs, reading preferences and saved places are related but separate. In particular, a delayed native dialog close event can arrive after reopening; its guard protects the new session's query, focus and scroll state. Tests exercise this race. Shared poetry and title rules keep live previews consistent with published reading.
+
+## Write, preview and publish
+
+1. Open `/admin` and create a piece or edit an existing one. Write Markdown in the editor, import `.md`, or combine both. Download preserves the imported Markdown bytes until editing; line endings and a BOM are not silently normalized.
+2. Set the title and topics. Description supplies search/sharing copy. **Index passage** is optional: choose a passage that introduces the piece, without assuming every excerpt is a verbatim quotation.
+3. **Preview** or **Side by side** renders unsaved text through the same sanitized renderer and reading layout. Preview does not save or publish. Footnotes, repeated references, poetry breaks, code and tables are supported.
+4. **Save private draft** (or Cmd/Ctrl-S) saves privately. It does not change the public piece. Tab-local recovery is a convenience, not a substitute for saving or downloading your writing.
+5. **Publish now / Publish changes** is an explicit guarded operation. A first publication fixes the address and publication date. Later title edits do not silently change the published slug.
+6. If another tab changed the piece, a stale save/publication is rejected. Keep your text, download it and inspect the saved version. A failed or expired session retains unsaved text; sign in in another tab and retry. Unpublish removes public visibility while retaining the working copy.
+
+On localhost these actions affect only local state. Publication to the real website, pushing Git, deployment and production access require separate approval. The obsolete `/api/posts` mutation methods return 410; writing goes through `/api/editor/*` so it cannot bypass revisions or private drafts. Protected legacy reads remain for compatibility.
+
+Published URLs are `/writing/{slug}`. The index, archive, RSS and runtime sitemap all read published records, so publishing new writing does not require rebuilding the presentation. Canonical and sharing URLs use `https://deepankerseth.com`. Private pages/preview are noindex and protected responses are private/no-store. Bespoke artwork and code changes do require a build and release review.
+
+## Give new writing its own artistic treatment
+
+Read the entire piece before making an image. Find a particular passage, tension or contradiction; explain why it belongs beside the proposed composition. The relationship matters more than a reusable visual formula. Keep your interpretation distinct from the author's stated meaning.
+
+Develop material presence, depth, light, negative space and a clear silhouette at actual phone size. Preserve a lossless master, editable sources where available, and verified rights/attribution. The current artwork is openly AI-assisted raster imagery inside accessible SVG envelopes: light responds, but the painted paper does not physically unfold.
+
+The practical [artwork guide](docs/ARTWORK.md) covers the complete process, exact passages, responsive variants, registry, accessible descriptions, atmosphere, detail states, failure handling and a reproducible *Abstractions of Illusion* example. `artworks.ts` is the shared source of the artistic association; existing entries retain stable slots for their colour/detail CSS. Do not scatter new passage or image arrays across components.
+
+A new piece does **not** need bespoke art to publish. Its full title, own index passage or opening-paragraph excerpt and direct reading route remain available. Curated artwork is withheld if its supported quotations no longer match the writing. A new medium is welcome when it serves the text and receives equally careful keyboard, touch, reduced-motion and loading fallbacks.
+
+Optional artwork tooling is separate from the website runtime:
+
+```sh
+python3 -m venv .venv-artwork
+.venv-artwork/bin/pip install -r requirements-artwork.txt
+.venv-artwork/bin/python scripts/prepare-artwork.py --help
 ```
 
-## Verification Commands
+## Verify changes
 
-```bash
-npm run check:boundaries
-npm run smoke
-npm run audit
+After initializing review-writing state:
+
+```sh
 npm run verify
 ```
 
-What they do:
+This builds and type-checks, enforces source boundaries, packages the Worker **without uploading**, runs publishing/client/content/metadata tests, then checks routes, archive behavior and delivery budgets. `npm run package:check` uses the generated configuration explicitly; only `dist/client` is public. `dist/server` can contain private development variables and must never be served as static files.
 
-- `npm run check:boundaries`
-  - ensures `src/v1/*` and `src/v2/*` do not import each other directly
-- `npm run smoke`
-  - boots the app locally and checks core Observatory plus Classic routes
-- `npm run audit`
-  - checks built client asset budgets and route structure/accessibility markers
-- `npm run verify`
-  - runs the whole sequence
+Browser verification is separate and necessary for changes affecting presentation or interaction:
 
-Important current truth:
-
-- `npm run smoke` passes when the environment can bind a local port
-- `npm run audit` currently fails on the Observatory library page because the audit expects a polite live region with `id="library-count"`, but the implementation currently exposes `#library-empty` and not `#library-count`
-
-## Deployment
-
-The visible deployment path in this repo is Wrangler-driven Cloudflare deployment.
-
-### D1
-
-Create the production database:
-
-```bash
-npx wrangler d1 create personal-site-db
+```sh
+npx playwright install chromium
+npm run serve:local
+# In another terminal, with the local site running:
+npm run test:browser -- --group=journeys
 ```
 
-Apply the schema:
+[Browser verification instructions](scripts/review-harness/README.md) cover equivalent-size baseline comparisons, ordinary reading/history, continuous emulated touch, keyboard focus, reduced motion and resource failures. Inspect the generated screenshots and motion; passing assertions alone do not establish visual quality. The pinned Playwright and axe packages are development dependencies, not public assets.
 
-```bash
-npx wrangler d1 execute personal-site-db --file=./schema.sql --remote
-```
+Check the full long title, all four pieces, poetry, both passages, endings, return paths and private preview whenever their shared code changes. Use only synthetic local text for publication tests. Preserve a verified comparison before consequential changes.
 
-If the remote database predates the cover metadata fields, also apply:
+## Release and return later
 
-```bash
-npx wrangler d1 execute personal-site-db --file=./migrations/0002_add_cover_metadata_columns.sql --remote
-```
+The current [verification record](docs/VERIFICATION.md) separates the production candidate from the preserved maintenance baseline. [Operations](docs/OPERATIONS.md) records the read-only production discovery, actual database export and isolated rehearsal, delivery gates and rollback target. Local fixtures remain separate from that private production backup.
 
-### Secrets
+Source configuration sets `workers_dev: false` and `preview_urls: false` for the approved release, closing alternate public Cloudflare URLs. These settings are prepared locally; their live application and the edge HTTPS/login protections require the release approval and subsequent verification. Git `main` already triggers Cloudflare deployment, so use the single delivery sequence in Operations.
 
-```bash
-npx wrangler secret put ADMIN_PASSWORD_HASH
-npx wrangler secret put JWT_SECRET
-```
-
-### Deploy
-
-```bash
-npm run build
-npx wrangler deploy
-```
-
-Repository note:
-
-- Older docs mentioned GitHub Actions, but no workflow files were present in the inspected repo when this README was updated. Treat direct Wrangler deployment as the documented path unless workflows are added later.
-
-## Known Truths and Gotchas
-
-- `publicUrl("v2", ...)` maps to the root routes, and `publicUrl("v1", ...)` maps to `/classic`
-- Classic pages currently canonicalize to root Observatory routes
-- RSS links point to the root Observatory essay URLs
-- Only Classic has real tag filtering; Observatory only has query search
-- Observatory search is simple substring matching across title, description, and joined tag text
-- New-post inline preview is not a true ephemeral preview:
-  - it sends a `POST` to `/api/posts`
-  - then falls back to a regex-based client preview
-- Edit-page inline preview is also regex-based and can differ from stored/public rendering
-- The full preview page at `/admin/posts/:id/preview` uses stored `rendered_html`, but it renders through the legacy top-level layout rather than through Classic or Observatory
-- The auth cookie is `HttpOnly` and `SameSite=Strict`, but the current code does not add a `Secure` attribute
-- Astro MDX is installed but not used for content
-- The top-level `src/components/*`, `src/layouts/*`, and `src/styles/*` are legacy but still important for admin and preview flows
-
-## Read Next
-
-For the complete technical walkthrough of the implemented architecture, data flow, runtime model, and code organization, read:
-
-- `docs/architecture/system-source-of-truth.md`
+Do not push, merge, deploy, change production access or modify production data without explicit approval. A Git push may trigger publication. Return here first next time; historical notes do not override these instructions or the actual current code.

@@ -1,0 +1,108 @@
+{
+  "checkedAt": "2026-10-28T22:28:40.827Z",
+  "baseUrl": "http://127.0.0.1:4195",
+  "scope": "Read-only integrated HTTP checks; local fixture only. No browser or production proof.",
+  "public": [
+    {
+      "slug": "meditations",
+      "canonical": "https://deepankerseth.com/writing/meditations",
+      "normalizedHtmlSha256": "c75f9a9fb7743d70f714fcc1d49f91f3373c7225e3ec631b12f4023557ac3c5e",
+      "sourceCaptureSha256": "c75f9a9fb7743d70f714fcc1d49f91f3373c7225e3ec631b12f4023557ac3c5e",
+      "normalizedBytes": 8692,
+      "brCount": 0,
+      "exact": true
+    },
+    {
+      "slug": "war",
+      "canonical": "https://deepankerseth.com/writing/war",
+      "normalizedHtmlSha256": "87cbd24124b075e3de0447cb3853145cad152180f61ad30fcf430c63c550588f",
+      "sourceCaptureSha256": "87cbd24124b075e3de0447cb3853145cad152180f61ad30fcf430c63c550588f",
+      "normalizedBytes": 4709,
+      "brCount": 0,
+      "exact": true
+    },
+    {
+      "slug": "abstractions-of-illusion",
+      "canonical": "https://deepankerseth.com/writing/abstractions-of-illusion",
+      "normalizedHtmlSha256": "7ed2bb9663abd949888dd2bc614b40e035194bcdf463349a798c955580053da0",
+      "sourceCaptureSha256": "7ed2bb9663abd949888dd2bc614b40e035194bcdf463349a798c955580053da0",
+      "normalizedBytes": 6601,
+      "brCount": 0,
+      "exact": true
+    },
+    {
+      "slug": "i-am",
+      "canonical": "https://deepankerseth.com/writing/i-am",
+      "normalizedHtmlSha256": "d2c93b08b18e9e55e20b17755c2d8b0bec15c46c7e35b822ab5b7e51d69c7fc5",
+      "sourceCaptureSha256": "d2c93b08b18e9e55e20b17755c2d8b0bec15c46c7e35b822ab5b7e51d69c7fc5",
+      "normalizedBytes": 2143,
+      "brCount": 68,
+      "exact": true
+    }
+  ],
+  "checks": [
+    {
+      "label": "Reading font URLs resolve relative to their actual stylesheet",
+      "passed": true
+    },
+    {
+      "label": "Unused optimizer is closed while direct artwork remains byte-exact",
+      "passed": true
+    },
+    {
+      "label": "Exact public essay: meditations",
+      "passed": true
+    },
+    {
+      "label": "Exact public essay: war",
+      "passed": true
+    },
+    {
+      "label": "Exact public essay: abstractions-of-illusion",
+      "passed": true
+    },
+    {
+      "label": "Exact public essay: i-am",
+      "passed": true
+    },
+    {
+      "label": "Runtime sitemap has exactly the current four essays and public index routes",
+      "passed": true
+    },
+    {
+      "label": "Robots and legacy sitemap index point at runtime canonical sitemap",
+      "passed": true
+    },
+    {
+      "label": "RSS contains original canonical-origin entries and stable GUIDs only",
+      "passed": true
+    },
+    {
+      "label": "Missing route is404 and noindex: /writing/qa-no-such-essay",
+      "passed": true
+    },
+    {
+      "label": "Missing route is404 and noindex: /classic/writing/qa-no-such-essay",
+      "passed": true
+    },
+    {
+      "label": "Missing route is404 and noindex: /qa-no-such-page",
+      "passed": true
+    },
+    {
+      "label": "Unauthenticated editor API rejects access privately",
+      "passed": true
+    },
+    {
+      "label": "Private preview metadata and hooks: /admin/preview",
+      "passed": true
+    },
+    {
+      "label": "Private preview metadata and hooks: /admin/posts/349f7b79-089b-4516-be0c-2a979f0d78c3/preview",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "privatePreviewAuthenticated": true,
+  "passed": true
+}

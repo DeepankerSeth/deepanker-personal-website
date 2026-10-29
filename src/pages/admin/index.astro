@@ -1,159 +1,52 @@
 ---
-import AdminLayout from '../../layouts/AdminLayout.astro';
-import FormattedDate from '../../components/FormattedDate.astro';
-import { getAllPosts } from '../../lib/db';
-
-const db = Astro.locals.runtime.env.DB;
-const posts = await getAllPosts(db);
+import { env } from "cloudflare:workers";
+import EditorLayout from '../../components/editor/EditorLayout.astro';
+import { listEditorPosts } from '../../lib/editor/database';
+const posts = await listEditorPosts(env.DB);
+const publishedCount = posts.filter((post) => post.publicationStatus === 'published').length;
+const date = (value: string) => new Date(value).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata' });
 ---
-
-<AdminLayout title="Posts">
-	<div class="admin-top">
-		<h1>Posts</h1>
-		<a href="/admin/posts/new" class="btn btn-primary">+ New Post</a>
-	</div>
-
-	{posts.length === 0 ? (
-		<div class="empty-state">
-			<p>No posts yet.</p>
-			<a href="/admin/posts/new" class="btn btn-primary">Create your first post</a>
-		</div>
-	) : (
-		<div class="posts-table">
-			<table>
-				<thead>
-					<tr>
-						<th>Title</th>
-						<th>Status</th>
-						<th>Date</th>
-						<th>Actions</th>
-					</tr>
-				</thead>
-				<tbody>
-					{posts.map((post) => (
-						<tr>
-							<td>
-								<a href={`/admin/posts/${post.id}/edit`} class="post-title-link">
-									{post.title}
-								</a>
-								{post.featured === 1 && <span class="featured-star" title="Featured">★</span>}
-							</td>
-							<td>
-								<span class={`badge badge-${post.status}`}>
-									{post.status}
-								</span>
-							</td>
-							<td class="date-cell">
-								<FormattedDate date={new Date(post.updated_at)} />
-							</td>
-							<td class="actions-cell">
-								<a href={`/admin/posts/${post.id}/edit`} class="btn btn-sm">Edit</a>
-								<a href={`/admin/posts/${post.id}/preview`} class="btn btn-sm">Preview</a>
-								<button class="btn btn-sm btn-danger delete-btn" data-id={post.id} data-title={post.title}>Delete</button>
-							</td>
-						</tr>
-					))}
-				</tbody>
-			</table>
-		</div>
-	)}
-</AdminLayout>
-
+<EditorLayout title="Your writing">
+  <div class="library-heading">
+    <div><p class="room-eyebrow">Private workspace</p><h1>Your writing.</h1><p class="library-intro">{posts.length} {posts.length === 1 ? 'piece' : 'pieces'}. {publishedCount} published. Room for the next.</p></div>
+    <a class="room-button room-button-primary" href="/admin/posts/new">New piece <span aria-hidden="true">↗</span></a>
+  </div>
+  {posts.length ? (
+    <section class="room-library" aria-label="All writing">
+      <div class="library-controls">
+        <label class="library-search" for="find-writing"><span class="sr-only">Find a piece by title or topic</span><input id="find-writing" type="search" placeholder="Find a piece…" /></label>
+        <div class="library-filters" role="group" aria-label="Filter writing"><button class="room-filter" data-filter="all" aria-pressed="true">All</button><button class="room-filter" data-filter="private" aria-pressed="false">Private</button><button class="room-filter" data-filter="published" aria-pressed="false">Published</button></div>
+      </div>
+      <p class="library-count" id="library-count" role="status">{posts.length} {posts.length === 1 ? 'piece' : 'pieces'}</p>
+      <div class="library-list">
+        {posts.map((post) => (
+          <article class="library-row" data-post-row data-status={post.publicationStatus === 'published' ? 'published' : 'private'} data-search={`${post.title} ${post.tags.join(' ')}`.toLowerCase()}>
+            <div class="library-row-main"><a class="library-title" href={`/admin/posts/${post.id}/edit`}>{post.title || 'Untitled piece'}</a><div class="library-row-meta"><span class:list={['room-status', { 'is-live': post.publicationStatus === 'published' }]}>{post.publicationStatus === 'published' ? 'Published' : 'Private draft'}</span>{post.hasConflict ? <span class="library-attention">Version needs attention</span> : post.hasUnpublishedChanges && post.publicationStatus === 'published' ? <span>Unpublished changes</span> : null}{post.tags.length > 0 && <span class="library-topics">{post.tags.join(' · ')}</span>}</div></div>
+            <div class="library-row-aside"><span>Saved {date(post.savedAt)}</span><a href={`/admin/posts/${post.id}/edit`} aria-label={`Edit ${post.title || 'untitled piece'}`}>Continue <span aria-hidden="true">↗</span></a></div>
+          </article>
+        ))}
+      </div>
+      <p id="library-no-results" class="library-empty" hidden>No pieces match. Try another title or topic.</p>
+    </section>
+  ) : <section class="library-empty"><h2>A thought starts here.</h2><p>Write in the editor or bring a Markdown file. Everything starts as a private draft.</p><a class="room-button" href="/admin/posts/new">Begin a piece</a></section>}
+</EditorLayout>
 <script>
-	document.querySelectorAll('.delete-btn').forEach((btn) => {
-		btn.addEventListener('click', async () => {
-			const id = (btn as HTMLElement).dataset.id;
-			const title = (btn as HTMLElement).dataset.title;
-			if (!confirm(`Delete "${title}"? This cannot be undone.`)) return;
-
-			const res = await fetch(`/api/posts/${id}`, { method: 'DELETE' });
-			if (res.ok) {
-				window.location.reload();
-			} else {
-				alert('Failed to delete post');
-			}
-		});
-	});
+  const search = document.querySelector<HTMLInputElement>('#find-writing');
+  const rows = Array.from(document.querySelectorAll<HTMLElement>('[data-post-row]'));
+  let status = 'all';
+  function filter() {
+    const query = search?.value.trim().toLocaleLowerCase() ?? '';
+    let visible = 0;
+    for (const row of rows) { row.hidden = !(status === 'all' || row.dataset.status === status) || !row.dataset.search?.includes(query); if (!row.hidden) visible++; }
+    const count = document.querySelector('#library-count');
+    if (count) count.textContent = `${visible} ${visible === 1 ? 'piece' : 'pieces'}`;
+    const empty = document.querySelector<HTMLElement>('#library-no-results');
+    if (empty) empty.hidden = visible > 0;
+  }
+  search?.addEventListener('input', filter);
+  document.querySelectorAll<HTMLButtonElement>('[data-filter]').forEach((button) => button.addEventListener('click', () => {
+    status = button.dataset.filter ?? 'all';
+    document.querySelectorAll('[data-filter]').forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
+    filter();
+  }));
 </script>
-
-<style>
-	.admin-top {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		margin-bottom: var(--space-8);
-	}
-
-	.admin-top h1 {
-		font-size: var(--text-2xl);
-	}
-
-	.posts-table {
-		overflow-x: auto;
-	}
-
-	table {
-		width: 100%;
-		border-collapse: collapse;
-	}
-
-	th {
-		text-align: left;
-		font-size: var(--text-xs);
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		color: var(--color-text-muted);
-		padding: var(--space-3) var(--space-4);
-		border-bottom: 1px solid var(--color-border);
-	}
-
-	td {
-		padding: var(--space-3) var(--space-4);
-		border-bottom: 1px solid var(--color-border-light);
-		font-size: var(--text-sm);
-		vertical-align: middle;
-	}
-
-	.post-title-link {
-		font-weight: 500;
-		color: var(--color-text);
-	}
-
-	.post-title-link:hover {
-		color: var(--color-accent);
-	}
-
-	.featured-star {
-		color: #f59e0b;
-		margin-left: var(--space-1);
-		font-size: var(--text-sm);
-	}
-
-	.date-cell {
-		color: var(--color-text-muted);
-		white-space: nowrap;
-	}
-
-	.actions-cell {
-		display: flex;
-		gap: var(--space-2);
-		white-space: nowrap;
-	}
-
-	.empty-state {
-		text-align: center;
-		padding: var(--space-16) 0;
-		color: var(--color-text-muted);
-	}
-
-	.empty-state p {
-		margin-bottom: var(--space-4);
-	}
-
-	@media (max-width: 768px) {
-		th:nth-child(3), td:nth-child(3) {
-			display: none;
-		}
-	}
-</style>

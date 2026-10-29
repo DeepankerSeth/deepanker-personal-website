@@ -1,0 +1,58 @@
+[
+  {
+    "piece": "meditations",
+    "master": "output/imagegen/meditations.png",
+    "source": "/Users/deepankerseth/.codex/generated_images/01a14600-9101-7413-85ca-eb834ceab28e/exec-7d0798cb-dec1-4c96-bf9e-7f2fda14166a.png",
+    "sha256": "74e4ac01f59acab160b831ce9b15749ba1e16f0801f41d1fd97e240ebe133e5a",
+    "tool": "built-in image_gen",
+    "mode": "generate",
+    "transparent_background": true,
+    "dimensions": [
+      1536,
+      1024
+    ],
+    "display_assets": "art/material/meditations-{320,960,1536}.webp"
+  },
+  {
+    "piece": "war",
+    "master": "output/imagegen/war.png",
+    "source": "/Users/deepankerseth/.codex/generated_images/01a14600-9101-7413-85ca-eb834ceab28e/exec-50929288-7c8c-4ba0-a64d-565779f17bd4.png",
+    "sha256": "fd4bc16b20933b3041933e036826bb079f9904b466485c4ddab2251332d1fa80",
+    "tool": "built-in image_gen",
+    "mode": "edit",
+    "transparent_background": true,
+    "dimensions": [
+      1536,
+      1024
+    ],
+    "display_assets": "art/material/war-{320,960,1536}.webp"
+  },
+  {
+    "piece": "abstractions-of-illusion",
+    "master": "output/imagegen/abstractions-of-illusion.png",
+    "source": "/Users/deepankerseth/.codex/generated_images/01a14600-9101-7413-85ca-eb834ceab28e/exec-cb6fc0ce-72e7-404e-b02b-21731b6f4875.png",
+    "sha256": "c7e767961257450c48eba84b322202adf3db2bfd8aad2c4a546eb0dbf1e5b2be",
+    "tool": "built-in image_gen",
+    "mode": "edit",
+    "transparent_background": true,
+    "dimensions": [
+      1536,
+      1024
+    ],
+    "display_assets": "art/material/abstractions-of-illusion-{320,960,1536}.webp"
+  },
+  {
+    "piece": "i-am",
+    "master": "output/imagegen/i-am.png",
+    "source": "/Users/deepankerseth/.codex/generated_images/01a14600-9101-7413-85ca-eb834ceab28e/exec-767ca7a0-4685-4be1-90c6-dcc570195af3.png",
+    "sha256": "732ec3ac17ab1307878b4c49070dc09f11458a07251689f59628dcb8a1de3823",
+    "tool": "built-in image_gen",
+    "mode": "generate",
+    "transparent_background": true,
+    "dimensions": [
+      1536,
+      1024
+    ],
+    "display_assets": "art/material/i-am-{320,960,1536}.webp"
+  }
+]

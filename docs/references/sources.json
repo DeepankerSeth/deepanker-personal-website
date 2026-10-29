@@ -1,0 +1,23 @@
+[
+  {
+    "file": "living-index.jpg",
+    "original": "/Users/deepankerseth/.codex/visualizations/2026/10/16/01a14600-9101-7413-85ca-eb834ceab28e/three-directions/evidence/living-revised-desktop.jpg",
+    "sha256": "a219eeb6e62d695e5358f3f2ff355f2454ddf5ba0f55311ac43752db4d0a05af",
+    "bytes": 85650,
+    "reason": "Full titles and immediate selection; abstract graphics not sufficiently specific to the writing."
+  },
+  {
+    "file": "illuminated-page.jpg",
+    "original": "/Users/deepankerseth/.codex/visualizations/2026/10/16/01a14600-9101-7413-85ca-eb834ceab28e/three-directions/evidence/night-desktop.jpg",
+    "sha256": "fb59ae01b49df045aeaa6dc8d79129ef713ee18d2f646a81e43e7096772bd1d6",
+    "bytes": 93652,
+    "reason": "A precise quoted passage beside a material interpretation; dark palette is historical, not an instruction."
+  },
+  {
+    "file": "folded-folios.jpg",
+    "original": "/Users/deepankerseth/.codex/visualizations/2026/10/16/01a14600-9101-7413-85ca-eb834ceab28e/three-directions/evidence/daylight-desktop.jpg",
+    "sha256": "aa1f5ac4f906f507741a636984716a24c64ee5a70e244c582512499243a22273",
+    "bytes": 78043,
+    "reason": "Constructed dimensional SVG forms; product-like grid and symmetric treatment needed reinterpretation."
+  }
+]

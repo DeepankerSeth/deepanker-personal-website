@@ -1,0 +1,21 @@
+---
+import { env } from "cloudflare:workers";
+import BaseLayout from '../layouts/BaseLayout.astro';
+import EssayContent from '../components/EssayContent.astro';
+import MaterialArt from '../literary/MaterialArt.astro';
+import { literaryPost } from '../literary/data';
+import { getAllPublishedPosts, type Post } from '../../lib/db';
+interface Props {
+    post: Post;
+    preview?: boolean;
+}
+const { post, preview = false } = Astro.props;
+const all = preview ? [] : await getAllPublishedPosts(env.DB);
+const data = all.map(literaryPost), item = literaryPost(post), index = data.findIndex(p => p.id === post.id);
+const next = data.length > 1 ? data[(index + 1) % data.length] : undefined;
+const description = post.description || post.reading_excerpt || item.text.slice(0, 180);
+---
+<BaseLayout title={`${post.title} — Deepanker Seth`} description={description} canonical={item.route} bodyClass="essay-page" contents={all} preview={preview} noindex={preview}>
+<EssayContent title={post.title} html={post.rendered_html} minutes={item.minutes} date={post.published_at||post.created_at} updated={post.updated_at!==post.created_at?post.updated_at:null} tags={item.tags} preview={preview} contentsCount={all.length} item={item} index={Math.max(0,index)}>
+{!preview&&<nav class="essay-next" aria-label="Continue reading">{next&&<><span class="reader-eyebrow">Continue reading</span><a class:list={["next-piece", {"text-only":next.art===null}]} href={next.route}>{next.art!==null&&<span class="next-print" aria-hidden="true"><MaterialArt decorative piece={next.art} prefix={`reader-${post.slug}-next`}/></span>}<span class="next-title">{next.title}</span><span class="next-arrow" aria-hidden="true">→</span></a></>}<a class="next-index" href="/#writing">Return to the writing index →</a></nav>}
+</EssayContent></BaseLayout>

@@ -1,0 +1,10 @@
+---
+import BaseLayout from '../../site/layouts/BaseLayout.astro';
+import EssayContent from '../../site/components/EssayContent.astro';
+---
+<BaseLayout title="Private preview — Deepanker Seth" description="Private preview" noindex={true} preview={true} bodyClass="essay-page">
+<div class="preview-notice" role="status" data-preview-status>Private preview · nothing here is saved or published</div><EssayContent title="Untitled" html="" minutes={1} preview={true} />
+<script>
+import '../../components/editor/editor-preview';
+</script>
+</BaseLayout>

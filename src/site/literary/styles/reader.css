@@ -1,0 +1,723 @@
+/* The art belongs to the opening; the complete writing keeps a steady measure. */
+.reader {
+  --paper: #f7f2e8;
+  --ink: #252d38;
+  --accent: #233d8c;
+  --red: var(--accent);
+  --muted: #626774;
+  --line: #c8c6c2;
+  --passage-mark: #e2e4f1;
+  background: var(--paper);
+  color: var(--ink);
+  color-scheme: light;
+}
+.reader[data-tone="ink"] {
+  --paper: #22272f;
+  --ink: #eee9df;
+  --accent: #b2c0f2;
+  --muted: #b8bcc6;
+  --line: #4b525f;
+  --passage-mark: #414e74;
+  color-scheme: dark;
+}
+.reader .reader-main {
+  margin-bottom: 88px;
+}
+.reader .essay-header,
+.reader .reading-grid {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 690px);
+  gap: 70px;
+  max-width: 1100px;
+  padding: 0 30px;
+  margin-inline: auto;
+  align-items: start;
+}
+.reader .essay-header {
+  margin-block: 52px 40px;
+  align-items: center;
+}
+.reader .reader-opening-art {
+  display: block;
+  position: relative;
+  width: 220px;
+  height: 220px;
+  text-decoration: none;
+}
+.reader .reader-opening-print {
+  display: block;
+  width: 100%;
+  height: calc(100% - 20px);
+}
+.reader .reader-opening-print > *,
+.reader .next-print > * {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+.reader .reader-opening-art :is(svg, img),
+.reader .next-print :is(svg, img) {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.reader .next-print {
+  pointer-events: none;
+}
+.reader .reader-art-label {
+  position: absolute;
+  inset: auto 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font: 11px/1.4 var(--ui, 'Hanken Grotesk', sans-serif);
+  color: var(--accent);
+}
+.reader .reader-opening-art:hover .reader-art-label {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.reader .essay-heading-copy {
+  min-width: 0;
+}
+.reader .essay-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 12px 25px;
+  margin: 0 0 22px;
+  color: var(--muted);
+  font: 12px/1.5 var(--ui, 'Hanken Grotesk', sans-serif);
+}
+.reader .essay-ordinal {
+  color: var(--accent);
+  font-size: 11px;
+}
+.reader .essay-ordinal > span,
+.reader .essay-byline > span {
+  margin-inline: 5px;
+}
+.reader .essay-title {
+  font: 500 clamp(65px, 6.9vw, 96px)/.99 var(--display, 'Bricolage', sans-serif);
+  font-optical-sizing: auto;
+  letter-spacing: -.06em;
+  color: var(--ink);
+  margin: 0;
+  overflow-wrap: break-word;
+  text-wrap: pretty;
+}
+.reader .essay-column {
+  min-width: 0;
+}
+/* Plain links survive without enhancement. The rest appears only with the shared script. */
+.reader .reading-rail {
+  position: sticky;
+  top: 28px;
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  gap: 3px;
+  border-top: 1px solid var(--line);
+  padding-top: 9px;
+  font: 12px/1.4 var(--ui, 'Hanken Grotesk', sans-serif);
+}
+.reader .contents-control,
+.reader .reading-rail > .save-place,
+.reader .preferences > summary {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 9px 0;
+  font: inherit;
+  text-decoration: none;
+}
+.reader .contents-control span {
+  margin-left: 9px;
+  color: var(--accent);
+  font-size: 10px;
+}
+.reader .save-place {
+  gap: 7px;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+}
+.reader .save-place > span {
+  color: var(--accent);
+  font-size: 16px;
+}
+.reader .preferences {
+  width: 100%;
+  position: relative;
+}
+.reader .preferences > summary {
+  cursor: pointer;
+  list-style: none;
+}
+.reader .preferences > summary::after {
+  content: '+';
+  margin-left: 8px;
+  color: var(--accent);
+  font-size: 16px;
+}
+.reader .preferences[open] > summary::after {
+  content: '−';
+}
+.reader .preferences > summary::-webkit-details-marker {
+  display: none;
+}
+.reader .preference-body {
+  padding: 7px 0 15px;
+}
+.reader .preference-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.reader .preference-heading h2 {
+  font: 500 19px/1.2 var(--display, 'Bricolage', sans-serif);
+  letter-spacing: -.025em;
+  margin: 0;
+}
+.reader .preference-body button {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 8px 11px;
+  border: 1px solid var(--line);
+  font: inherit;
+  color: inherit;
+  background: none;
+}
+.reader .preference-heading button {
+  border: 0;
+  padding-right: 0;
+  white-space: nowrap;
+  font-size: 11px;
+}
+.reader .preference-body > p {
+  font-size: 11px;
+  color: var(--muted);
+  margin: 14px 0 8px;
+}
+.reader .size-buttons,
+.reader .tone-buttons {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.reader [data-size-label] {
+  min-width: 27px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.reader .tone-buttons [aria-pressed="true"] {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.reader .preference-body button:disabled {
+  opacity: .42;
+  cursor: default;
+}
+.reader .saved-place-actions {
+  display: grid;
+  justify-items: start;
+  gap: 2px;
+  margin-top: 12px;
+}
+.reader .saved-place-actions button {
+  border: 0;
+  padding-left: 0;
+  font-size: 11px;
+  text-align: left;
+}
+.reader .direct-index {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-top: 8px;
+  font-size: 11px;
+  text-decoration: none;
+}
+.reader .save-status {
+  color: var(--accent);
+  font-size: 11px;
+  line-height: 1.5;
+  max-width: 210px;
+  margin: 7px 0 0;
+}
+.reader .save-status:empty {
+  display: none;
+}
+.reader :is(button, a, summary):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 5px;
+}
+.reader .prose {
+  min-width: 0;
+  font: 400 var(--text-size, 22px)/1.62 var(--body, 'Newsreader', Georgia, serif);
+  font-optical-sizing: auto;
+  overflow-wrap: break-word;
+  scroll-margin-top: 30px;
+}
+.reader .prose:focus,
+.reader .prose > [tabindex="-1"]:focus {
+  outline: none;
+}
+.reader .prose > :first-child {
+  margin-top: 0;
+}
+.reader .prose p {
+  margin: 0 0 1.18em;
+}
+.reader .prose :is(h1, h2, h3, h4) {
+  font-family: var(--display, 'Bricolage', sans-serif);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -.035em;
+  margin: 1.7em 0 .75em;
+}
+.reader .prose h1 {
+  font-size: 1.7em;
+}
+.reader .prose h2 {
+  font-size: 1.4em;
+}
+.reader .prose h3 {
+  font-size: 1.2em;
+}
+.reader .prose :is(ul, ol) {
+  padding-left: 1.2em;
+  margin: 1em 0 1.4em;
+}
+.reader .prose li {
+  margin-bottom: .55em;
+}
+.reader .prose li > p {
+  margin-bottom: .55em;
+}
+.reader .prose blockquote {
+  border-left: 2px solid var(--accent);
+  padding-left: 1em;
+  margin: 1.5em 0;
+}
+.reader .prose a {
+  color: var(--accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: .2em;
+}
+.reader .prose :is(img, video) {
+  max-width: 100%;
+  height: auto;
+}
+.reader .prose figure {
+  margin: 1.5em 0;
+}
+.reader .prose figcaption {
+  font: 12px/1.5 var(--ui, 'Hanken Grotesk', sans-serif);
+  color: var(--muted);
+  margin-top: 10px;
+}
+.reader .prose :is(table, pre) {
+  display: block;
+  max-width: 100%;
+  overflow: auto;
+}
+.reader .prose pre {
+  padding: 16px;
+  border: 1px solid var(--line);
+  font: 14px/1.5 ui-monospace, monospace;
+}
+.reader .prose table {
+  border-collapse: collapse;
+  font-size: .85em;
+}
+.reader .prose :is(th, td) {
+  padding: 10px;
+  border: 1px solid var(--line);
+}
+.reader .prose hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 1.8em 0;
+}
+.reader .prose sup {
+  font-size: .7em;
+  line-height: 0;
+}
+.reader .prose.poetry {
+  line-height: 1.72;
+}
+.reader .prose.poetry > p {
+  margin-bottom: 1.45em;
+}
+::highlight(living-passage) {
+  background-color: var(--passage-mark, #e2e4f1);
+  color: var(--ink, #252d38);
+}
+.reader .essay-next {
+  border-top: 1px solid var(--line);
+  margin-top: 58px;
+  padding-top: 25px;
+}
+.reader .reader-eyebrow {
+  color: var(--muted);
+  font: 11px/1.4 var(--ui, 'Hanken Grotesk', sans-serif);
+}
+.reader .next-piece {
+  display: grid;
+  grid-template-columns: 90px minmax(0, 1fr) 24px;
+  align-items: center;
+  gap: 23px;
+  margin: 18px 0 16px;
+  text-decoration: none;
+}
+.reader .next-print {
+  display: block;
+  width: 90px;
+  height: 90px;
+}
+.reader .next-title {
+  min-width: 0;
+  font: 500 clamp(28px, 3vw, 39px)/1.08 var(--display, 'Bricolage', sans-serif);
+  letter-spacing: -.035em;
+  overflow-wrap: break-word;
+}
+.reader .next-arrow {
+  color: var(--accent);
+  font: 28px/1 var(--ui, 'Hanken Grotesk', sans-serif);
+}
+@media (min-width: 801px) {
+  .reader .preference-heading h2 {
+    display: none;
+  }
+  .reader .preference-heading {
+    justify-content: flex-end;
+  }
+}
+/* A landscape phone or zoomed window still needs access to every reading control. */
+@media (min-width: 801px) and (max-height: 600px) {
+  .reader .reading-rail {
+    max-height: calc(100dvh - 56px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 8px;
+    scrollbar-width: thin;
+  }
+}
+@media (min-width: 801px) and (max-width: 1100px) {
+  .reader .essay-header,
+  .reader .reading-grid {
+    grid-template-columns: 175px minmax(0, 690px);
+    gap: 40px;
+    padding-inline: 35px;
+  }
+  .reader .reader-opening-art {
+    width: 175px;
+    height: 190px;
+  }
+  .reader .essay-title {
+    font-size: 70px;
+  }
+}
+@media (max-width: 800px) {
+  .reader {
+    padding-bottom: calc(85px + env(safe-area-inset-bottom, 0px));
+  }
+  .reader .reader-main {
+    margin-bottom: 60px;
+  }
+  .reader .essay-header {
+    grid-template-columns: 90px minmax(0, 1fr);
+    gap: 17px 22px;
+    max-width: 710px;
+    padding: 0 24px;
+    margin-block: 27px 30px;
+  }
+  .reader .reader-opening-art {
+    width: 90px;
+    height: 90px;
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .reader .reader-opening-print {
+    height: calc(100% - 16px);
+  }
+  .reader .reader-art-label {
+    font-size: 10px;
+    gap: 5px;
+  }
+  .reader .essay-heading-copy {
+    display: contents;
+  }
+  .reader .essay-meta {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: center;
+    display: grid;
+    gap: 7px;
+    margin: 0;
+    font-size: 11px;
+  }
+  .reader .essay-ordinal {
+    font-size: 10px;
+  }
+  .reader .essay-title {
+    grid-column: 1 / -1;
+    font-size: 60px;
+    line-height: 1.02;
+    letter-spacing: -.05em;
+  }
+  .reader .reading-grid {
+    display: block;
+    max-width: 710px;
+    padding: 0 24px;
+  }
+  .reader .prose {
+    font-size: var(--text-size, 20px);
+    line-height: 1.6;
+  }
+  .reader .prose.poetry {
+    line-height: 1.7;
+  }
+  .reader .reading-rail {
+    position: fixed;
+    inset: auto 0 0;
+    z-index: 20;
+    display: grid;
+    grid-template-columns: 1fr 1.25fr 1fr;
+    align-items: center;
+    justify-items: stretch;
+    gap: 0 10px;
+    padding: 8px max(18px, env(safe-area-inset-left, 0px)) calc(8px + env(safe-area-inset-bottom, 0px));
+    margin: 0;
+    background: var(--paper);
+    border-top: 1px solid var(--line);
+  }
+  .reader .reading-rail > .contents-control,
+  .reader .reading-rail > .save-place,
+  .reader .reading-rail .preferences > summary {
+    justify-content: center;
+    min-height: 44px;
+    padding: 7px 2px;
+    font-size: 12px;
+    line-height: 1.2;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .reader .reading-rail .preferences {
+    position: static;
+    width: auto;
+    border-inline: 1px solid var(--line);
+  }
+  .reader .reading-rail .preferences > summary::after {
+    display: none;
+  }
+  .reader .reading-rail .preferences[open] > summary {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .reader .reading-rail .preference-body {
+    position: absolute;
+    inset: auto 16px calc(100% + 10px);
+    width: auto;
+    max-width: 430px;
+    max-height: calc(100dvh - 165px);
+    margin: 0 auto;
+    overflow: auto;
+    overscroll-behavior: contain;
+    padding: 18px 21px 20px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    box-shadow: 0 -5px 22px #252d3812;
+  }
+  .reader .preference-heading {
+    margin-bottom: 8px;
+  }
+  .reader .preference-body > p {
+    margin-top: 15px;
+  }
+  .reader .saved-place-actions button,
+  .reader .direct-index {
+    font-size: 12px;
+  }
+  .reader .save-status {
+    grid-column: 1 / -1;
+    max-width: none;
+    text-align: center;
+    font-size: 11px;
+    line-height: 1.35;
+    padding: 3px 0 5px;
+    margin: 0;
+  }
+  .reader .essay-next {
+    margin-top: 44px;
+    padding-top: 22px;
+  }
+  .reader .next-piece {
+    grid-template-columns: 64px minmax(0, 1fr) 18px;
+    gap: 15px;
+    margin-top: 16px;
+  }
+  .reader .next-print {
+    width: 64px;
+    height: 70px;
+  }
+  .reader .next-title {
+    font-size: 30px;
+  }
+  .reader .next-arrow {
+    font-size: 24px;
+  }
+}
+@media (max-width: 520px) {
+  .reader .essay-header,
+  .reader .reading-grid {
+    padding-inline: 22px;
+  }
+  .reader .essay-header {
+    gap: 15px 18px;
+    margin-top: 23px;
+  }
+  .reader .essay-title {
+    font-size: 49px;
+  }
+  .reader .next-title {
+    font-size: 28px;
+  }
+}
+@media (max-width: 360px) {
+  .reader .essay-header,
+  .reader .reading-grid {
+    padding-inline: 20px;
+  }
+  .reader .essay-header {
+    column-gap: 14px;
+  }
+  .reader .essay-title {
+    font-size: 43px;
+  }
+  .reader .essay-byline {
+    max-width: 150px;
+  }
+  .reader .reading-rail {
+    gap: 0 5px;
+    padding-inline: 12px;
+  }
+  .reader .reading-rail .preference-body {
+    left: 12px;
+    right: 12px;
+    padding: 17px;
+  }
+  .reader .next-title {
+    font-size: 26px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reader .reader-main *,
+  .reader .reader-main *::before,
+  .reader .reader-main *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+.reader .next-piece.text-only {
+  grid-template-columns: minmax(0, 1fr) 24px;
+}
+@media (max-width: 800px) {
+  .reader .reading-header.without-art .essay-meta {
+    grid-column: 1 / -1;
+  }
+  .reader.is-preview .reading-rail {
+    grid-template-columns: 1fr;
+  }
+  .reader.is-preview .reading-rail .preferences {
+    border-inline: 0;
+  }
+}
+/* Soft wraps are indented; authored verse starts remain aligned. Original br nodes stay in the DOM. */
+.reader .poetry .verse-line {
+  display: block;
+  padding-left: 1em;
+  text-indent: -1em;
+}
+.reader .poetry .verse-line[data-blank] {
+  min-height: 1.7em;
+}
+.reader .poetry.verse-formatted br {
+  display: none;
+}
+@media print {
+  .reader,
+  .reader[data-tone="ink"] {
+    --paper: #fff;
+    --ink: #000;
+    --accent: #000;
+    --muted: #333;
+    --line: #aaa;
+    background: #fff;
+    color: #000;
+    padding-bottom: 0;
+  }
+  .reader .reader-main {
+    margin: 0;
+  }
+  .reader :is(.site-header, .reading-rail, .reader-opening-art, .essay-next, footer, dialog, .skip) {
+    display: none !important;
+  }
+  .reader .essay-header,
+  .reader .reading-grid {
+    display: block;
+    max-width: none;
+    padding: 0;
+    margin: 0;
+  }
+  .reader .essay-heading-copy {
+    display: block;
+  }
+  .reader .essay-meta {
+    display: flex;
+    margin-bottom: 12px;
+  }
+  .reader .essay-title,
+  .reader .essay-title.long-title {
+    font-size: 30pt;
+    line-height: 1.12;
+    margin-bottom: 24px;
+  }
+  .reader .prose {
+    font-size: 12pt;
+    line-height: 1.5;
+  }
+  /* Native line flow lets print pagination keep an ending with its preceding lines.
+     Screen-only verse blocks retain their hanging indents above. */
+  .reader .poetry.verse-formatted .verse-line {
+    display: inline;
+    padding-left: 0;
+    text-indent: 0;
+  }
+  .reader .poetry.verse-formatted br {
+    display: initial;
+  }
+  .reader .poetry p {
+    widows: 3;
+    orphans: 3;
+  }
+}
+/* One long-title measure for saved pages and previews, including print. Keep these rules after the generic title/print sizes. */
+.reader .essay-title.long-title {
+  font-size: clamp(43px, 4.8vw, 67px);
+  line-height: 1.06;
+  letter-spacing: -.045em;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 620px) {
+  .reader .essay-title.long-title {
+    font-size: 35px;
+  }
+}

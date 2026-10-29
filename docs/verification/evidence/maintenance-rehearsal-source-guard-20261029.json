@@ -1,0 +1,35 @@
+{
+  "checkedAt": "2026-10-28T22:15:32.944044+00:00",
+  "scope": "Local sample projection only. No production backup or production schema rehearsal.",
+  "noGitCheckoutRequiredByRehearsal": true,
+  "historicalFixtureExactMatch": true,
+  "historicalRevision": "0e32b473231e27a4b664eecd8db7ed294efa544a",
+  "fixtureSha256": "90f7408a24a8466dd330c7ec59a46d85dce2b32bd4738431b08df9963622a557",
+  "before": {
+    "databaseFileSha256": "dc53fbf2b341a20978fade268c019964a71505131c847c1504b392a046205e84",
+    "logicalTables": {
+      "posts": {
+        "count": 4,
+        "sha256": "a12536ea9a30366233bf233ebd02695339293d44f27579cb8b67c0586576411b"
+      },
+      "post_drafts": {
+        "count": 1,
+        "sha256": "7655b1a689371b924c2e655d55d90b1fdb9263e649de82ac492d45a7188d1188"
+      }
+    }
+  },
+  "after": {
+    "databaseFileSha256": "dc53fbf2b341a20978fade268c019964a71505131c847c1504b392a046205e84",
+    "logicalTables": {
+      "posts": {
+        "count": 4,
+        "sha256": "a12536ea9a30366233bf233ebd02695339293d44f27579cb8b67c0586576411b"
+      },
+      "post_drafts": {
+        "count": 1,
+        "sha256": "7655b1a689371b924c2e655d55d90b1fdb9263e649de82ac492d45a7188d1188"
+      }
+    }
+  },
+  "sourceUnchanged": true
+}

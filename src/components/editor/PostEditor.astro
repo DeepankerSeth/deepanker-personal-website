@@ -1,0 +1,85 @@
+---
+import EditorLayout from './EditorLayout.astro';
+import { emptyDocument, type EditorDocument } from '../../lib/editor/contracts';
+interface Props { initial?: EditorDocument | null }
+const { initial = null } = Astro.props;
+const post = initial?.document ?? emptyDocument();
+const serialized = JSON.stringify(initial).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
+---
+<EditorLayout title={post.title ? `Edit ${post.title}` : 'New piece'}>
+  <section data-post-editor data-dirty="false">
+    <script type="application/json" id="editor-initial" set:html={serialized} />
+    <div class="editor-topline">
+      <a href="/admin" class="room-back">← All writing</a>
+      <span id="publication-state" class="room-status">{initial?.publicationStatus === 'published' ? 'Published' : 'Private draft'}</span>
+    </div>
+    <div class="editor-heading">
+      <div><p class="room-eyebrow">Your next piece</p><h1>{initial ? 'Back to the writing.' : 'Make room for a thought.'}</h1></div>
+      <p class="editor-save-state" id="save-state" aria-live="polite">{initial ? 'Saved version loaded' : 'Not saved yet'}</p>
+    </div>
+    <div class="editor-notice" id="recovery-notice" hidden>
+      <p>There’s unsaved writing from this tab.</p>
+      <div class="notice-actions"><button type="button" class="room-button" id="restore-recovery">Restore it</button><button type="button" class="room-link" id="dismiss-recovery">Dismiss</button></div>
+    </div>
+    <div class="editor-notice editor-message" id="editor-message" tabindex="-1" role="status" aria-live="polite" hidden>
+      <p id="editor-message-text"></p>
+      <div class="notice-actions" id="session-actions" hidden><a class="room-button" href="/admin/login?return=editor" target="_blank" rel="noopener">Sign in in a new tab ↗</a><span>Then return here and save again.</span></div>
+      <div class="notice-actions" id="conflict-actions" hidden><button type="button" class="room-button" id="conflict-export">Download my Markdown</button><a id="open-latest" class="room-link" target="_blank" rel="noopener">Open saved version ↗</a><button type="button" class="room-link" id="restore-published" hidden>Restore published version</button></div>
+      <ul class="field-errors" id="field-errors" hidden></ul>
+    </div>
+    <form id="post-form" novalidate>
+      <fieldset class="editor-fields" id="editor-fields">
+        <legend class="sr-only">Essay details and Markdown</legend>
+        <div class="editor-document-fields">
+          <label class="room-field title-field" for="post-title"><span>Title</span><input id="post-title" name="title" maxlength="300" placeholder="An idea worth staying with" value={post.title} autocomplete="off" /></label>
+          <div class="editor-metadata-row">
+            <label class="room-field" for="post-slug"><span>URL slug</span><div class="slug-control"><span aria-hidden="true">/writing/</span><input id="post-slug" name="slug" value={post.slug} placeholder="your-essay" maxlength="120" autocomplete="off" spellcheck="false" readonly={!!initial?.publishedAt} /></div><small id="slug-note">{initial?.publishedAt ? 'This published address stays permanent.' : 'Leave blank to use the title.'}</small></label>
+            <label class="room-field" for="post-tags"><span>Topics</span><input id="post-tags" name="tags" value={post.tags.join(', ')} placeholder="Attention, self, meditation" /><small>Separate topics with commas.</small></label>
+          </div>
+          <details class="editor-details" id="editor-details">
+            <summary>How this piece appears <span>Description, excerpt &amp; placement</span></summary>
+            <div class="editor-details-content">
+              <label class="room-field" for="post-description"><span>Description</span><textarea id="post-description" name="description" rows="2" maxlength="1000" placeholder="A short introduction for search and sharing">{post.description}</textarea><small>Used when this piece is shared or found in search.</small></label>
+              <label class="room-field" for="post-excerpt"><span>Index passage (optional)</span><textarea id="post-excerpt" name="reading_excerpt" rows="3" maxlength="1200" placeholder="A short passage to introduce this piece in the writing index.">{post.reading_excerpt ?? ''}</textarea><small>Shown beside this title in the index and beneath it on phones. Also used for sharing when the description is blank.</small></label>
+              <label class="room-checkbox" for="post-featured"><input type="checkbox" id="post-featured" name="featured" checked={post.featured} /><span>Keep this piece in the homepage selection</span></label>
+            </div>
+          </details>
+        </div>
+        <div class="editor-workbench" data-mode="write">
+          <div class="editor-toolbar">
+            <div class="editor-tabs" role="tablist" aria-label="Editor view">
+              <button class="editor-tab" type="button" role="tab" id="write-tab" aria-selected="true" aria-controls="write-panel" data-editor-mode="write">Write</button>
+              <button class="editor-tab" type="button" role="tab" id="preview-tab" aria-selected="false" aria-controls="preview-panel" tabindex="-1" data-editor-mode="preview">Preview</button>
+              <button class="editor-tab split-tab" type="button" role="tab" id="split-tab" aria-selected="false" aria-controls="write-panel preview-panel" tabindex="-1" data-editor-mode="split">Side by side</button>
+            </div>
+            <div class="editor-file-actions">
+              <input type="file" id="markdown-file" accept=".md,.markdown,.txt,text/markdown,text/plain" hidden />
+              <button type="button" class="room-link" id="import-markdown">Import .md</button>
+              <button type="button" class="room-link" id="export-markdown">Download .md</button>
+            </div>
+          </div>
+          <div class="editor-panels">
+            <div class="write-panel" id="write-panel" role="tabpanel" aria-labelledby="write-tab">
+              <label class="sr-only" for="post-content">Essay in Markdown</label>
+              <textarea id="post-content" name="content" placeholder="Begin anywhere. Markdown is welcome." spellcheck="true">{post.content}</textarea>
+              <div class="editor-count"><span id="word-count">0 words</span><span>Markdown</span></div>
+            </div>
+            <div class="preview-panel" id="preview-panel" role="tabpanel" aria-labelledby="preview-tab" hidden>
+              <div class="preview-caption"><span>As your readers will see it</span><button type="button" class="room-link" id="refresh-preview">Refresh</button></div>
+              <iframe id="editor-preview" title="Private essay preview" data-preview-src="/admin/preview"></iframe>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+      <div class="editor-actionbar">
+        <div class="editor-actionnote"><a id="action-error" href="#editor-message" hidden>Needs attention — review details</a><span id="visibility-note">{initial?.publicationStatus === 'published' ? 'Draft edits stay private until you publish changes.' : 'Only you can see this draft.'}</span><small><kbd>⌘</kbd> / <kbd>Ctrl</kbd> + <kbd>S</kbd> saves privately</small></div>
+        <div class="editor-actions"><button type="button" class="room-link unpublish-button" id="unpublish-post" hidden={initial?.publicationStatus !== 'published'}>Unpublish</button><button type="submit" class="room-button" id="save-draft">Save private draft</button><button type="button" class="room-button room-button-primary" id="publish-post">{initial?.publicationStatus === 'published' ? 'Publish changes' : 'Publish now'} <span aria-hidden="true">↗</span></button></div>
+      </div>
+    </form>
+    <p class="editor-public-link" id="public-link-wrap" hidden={initial?.publicationStatus !== 'published'}><a id="public-link" href={`/writing/${post.slug}`} target="_blank" rel="noopener">Read the published piece ↗</a></p>
+    <noscript><p class="editor-notice">JavaScript is needed to save and preview in the writing room. Your saved writing is displayed above.</p></noscript>
+  </section>
+</EditorLayout>
+<script>
+  import './editor-client';
+</script>

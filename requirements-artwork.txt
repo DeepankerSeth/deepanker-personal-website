@@ -1,0 +1,2 @@
+# Optional artwork encoding tool only; not required to run or build the website.
+Pillow==12.3.0

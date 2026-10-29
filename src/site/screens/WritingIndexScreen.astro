@@ -1,0 +1,9 @@
+---
+import HomeScreen from './HomeScreen.astro';
+import type { Post } from '../../lib/db';
+interface Props {
+    posts: Post[];
+}
+const { posts } = Astro.props;
+---
+<HomeScreen latest={posts} archive/>

@@ -1,0 +1,15 @@
+---
+import MaterialArt from './MaterialArt.astro';
+import { matches, type LiteraryPost } from './data';
+interface Props {
+    posts: LiteraryPost[];
+    all?: LiteraryPost[];
+    preview?: boolean;
+    current?: string;
+    q?: string;
+    tag?: string;
+}
+const { posts, all = posts, preview = false, current = '', q = '', tag = '' } = Astro.props;
+const first = posts.find(p => matches(p, q, tag));
+---
+<ol class="title-list">{posts.map(p=>{const i=all.findIndex(x=>x.id===p.id);return <li data-entry={i} data-essay-id={p.id} class:list={[{chosen:preview&&p.id===first?.id,'long-title':p.title.length>48}]} hidden={preview&&!matches(p,q,tag)}><a class="title-link" href={p.route} aria-current={current===p.slug?'page':undefined}><span class="number" aria-hidden="true">{String(i+1).padStart(2,'0')}</span><span class={preview?'index-thumb':'contents-thumb'} aria-hidden="true">{p.art!==null?<MaterialArt decorative piece={p.art} prefix={`${preview?'thumb':'contents'}-${i}`}/>:<span class="unillustrated-number">{String(i+1).padStart(2,'0')}</span>}</span><span class="entry-title">{p.title}</span><span class="arrow" aria-hidden="true">↗</span></a><div class="row-detail"><span>{p.poetry?'Poem':'Essay'} <span aria-hidden="true">·</span> {p.minutes} min read{current===p.slug?' · Reading now':''}</span>{preview&&<button class="preview-button enhanced" hidden data-preview={i} data-mobile-label={p.art!==null?'Art & passage':'A passage'} aria-controls={`passage-${i}`} aria-expanded={p.id===first?.id?'true':'false'} aria-label={`Explore a passage from ${p.title}`}><span>A passage</span><span class="preview-symbol" aria-hidden="true">↳</span></button>}</div></li>})}</ol>

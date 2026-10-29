@@ -1,0 +1,13 @@
+---
+import MaterialArt from './MaterialArt.astro';
+import TitleList from './TitleList.astro';
+import { contextUrl, type LiteraryPost } from './data';
+import { artworks } from './artworks';
+interface Props {
+    posts: LiteraryPost[];
+    current?: string;
+}
+const { posts, current = '' } = Astro.props;
+---
+<dialog class="contents" aria-labelledby="contents-title"><div class="dialog-bar"><h2 id="contents-title">Contents<span>.</span></h2><button class="close" data-close autofocus aria-label="Close Contents">Close ×</button></div><label class="search-label" for="contents-query">Find a piece</label><input id="contents-query" type="search" placeholder="A title or a thought…" autocomplete="off"/><nav aria-label="Contents"><TitleList posts={posts} current={current}/></nav><p class="no-results" hidden>No pieces match. Try another word.</p><p class="filter-status sr-only" role="status"></p><a class="dialog-home" href="/writing">Return to the writing ↗</a></dialog>
+<dialog class="art-dialog" aria-labelledby="art-dialog-title"><div class="dialog-bar"><h2 id="art-dialog-title">A closer look</h2><button data-close-art aria-label="Close illustration">Close ×</button></div>{posts.map((p,i)=>p.art!==null&&<section data-art-detail={i} hidden data-reading={p.initialReading}><div class="detail-art" data-detail-piece={p.art}><div class="detail-window"><MaterialArt piece={p.art} prefix={`detail-${i}`}/></div><button type="button" data-study-detail aria-pressed="false">Study a detail +</button></div><div class="detail-caption"><span class="eyebrow">An interpretation of {p.title}</span><h3>{artworks[p.art].title}</h3><blockquote data-quote>{p.excerpt}</blockquote><div class="passage-actions"><button data-another={i}>Another passage <span aria-hidden="true">↺</span></button><a data-context href={contextUrl(p)}>Read in context ↗</a></div><p class="art-note">{artworks[p.art].note}</p></div></section>)}</dialog>

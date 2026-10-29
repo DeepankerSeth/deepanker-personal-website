@@ -1,0 +1,39 @@
+---
+import './editor.css';
+interface Props { title: string; authenticated?: boolean }
+const { title, authenticated = true } = Astro.props;
+Astro.response.headers.set('Cache-Control', 'private, no-store');
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{title} — Writing room · Deepanker Seth</title>
+    <link rel="stylesheet" href="/fonts.css" />
+  </head>
+  <body class="writing-room">
+    <a class="room-skip" href="#room-main">Skip to workspace</a>
+    <header class="room-header">
+      <a class="room-wordmark" href={authenticated ? "/admin" : "/"}>Deepanker Seth<span aria-hidden="true">.</span></a>
+      <span class="room-label">Writing room</span>
+      <nav aria-label="Workspace">
+        <a href="/" target="_blank" rel="noopener">View website <span aria-hidden="true">↗</span></a>
+        {authenticated && <button class="room-link" type="button" id="room-logout">Sign out</button>}
+      </nav>
+    </header>
+    <main id="room-main" class="room-main"><slot /></main>
+    <footer class="room-footer">A private place to work on the next thought.</footer>
+    <script>
+      document.getElementById('room-logout')?.addEventListener('click', async () => {
+        if (document.querySelector('[data-post-editor][data-dirty="true"]') && !confirm('Sign out with unsaved changes? Download your Markdown or save a private draft to keep your work.')) return;
+        const response = await fetch('/api/auth/logout', { method: 'POST' });
+        if (response.ok) {
+          window.dispatchEvent(new Event('editor:leaving'));
+          window.location.assign('/admin/login');
+        }
+      });
+    </script>
+  </body>
+</html>
