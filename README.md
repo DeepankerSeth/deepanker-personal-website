@@ -8,7 +8,7 @@ Start here for setup and structure. [Artwork](docs/ARTWORK.md), [design learning
 
 ## Run a clean checkout
 
-Use Node **24.22.1**, pinned in `.node-version` and tested for the production candidate, plus npm and Python 3. The package's supported minimum remains 22.23.4; use the exact pin when reproducing this release. The lockfile pins Astro 7, its Cloudflare adapter and Wrangler. No global Astro/Wrangler installation, personal browser profile, Git history or remote database is required.
+Use Node **24.22.1**, npm **11.19.1** and Python 3. The official Node distribution used for this release includes that npm version; check both with `node --version` and `npm --version`. `.node-version` pins Node, while `package.json`'s `packageManager` pins npm for Cloudflare Builds, which otherwise selects npm independently. An older npm can reject this unchanged lockfile as out of sync. The package's supported minimum remains Node 22.23.4; use the exact release pins when reproducing it. The lockfile pins Astro 7, its Cloudflare adapter and Wrangler. No global Astro/Wrangler installation, personal browser profile, Git history or remote database is required.
 
 ```sh
 npm ci

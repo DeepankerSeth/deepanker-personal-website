@@ -1,5 +1,6 @@
 {
   "name": "deepanker-personal-website",
+  "packageManager": "npm@11.19.1",
   "description": "Essays and poetry by Deepanker Seth, with a literary index and private publishing tools.",
   "dependencies": {
     "@astrojs/cloudflare": "14.4.2",
